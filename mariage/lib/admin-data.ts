@@ -15,7 +15,7 @@ export type WeddingResponse = {
   created_at: string;
 };
 
-function getPrivateSupabaseConfig() {
+export function getPrivateSupabaseConfig() {
   const url = process.env.SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
@@ -33,6 +33,18 @@ function getPrivateSupabaseConfig() {
     },
   };
 }
+
+export type CarpoolOffer = {
+  id: string;
+  driver_name: string;
+  direction: "to_massacan" | "from_massacan";
+  other_place: string;
+  departure_at: string;
+  seats_available: number;
+  contact: string;
+  details: string | null;
+  created_at: string;
+};
 
 export async function getWeddingResponses() {
   const { url, headers } = getPrivateSupabaseConfig();
@@ -67,5 +79,47 @@ export async function deleteWeddingResponse(id: string) {
 
   if (!response.ok) {
     throw new Error("La réponse n’a pas pu être supprimée.");
+  }
+}
+
+export async function getCarpoolOffers() {
+  const { url, headers } = getPrivateSupabaseConfig();
+  const response = await fetch(
+    `${url}/rest/v1/carpool_offers?select=id,driver_name,direction,other_place,departure_at,seats_available,contact,details,created_at&order=departure_at.asc`,
+    {
+      headers,
+      cache: "no-store",
+    },
+  );
+
+  if (!response.ok) {
+    const error = await response.text();
+    if (error.includes("carpool_offers") || error.includes("PGRST205")) {
+      return [];
+    }
+    throw new Error(
+      "Les propositions de covoiturage ne peuvent pas être chargées.",
+    );
+  }
+
+  return (await response.json()) as CarpoolOffer[];
+}
+
+export async function deleteCarpoolOffer(id: string) {
+  const { url, headers } = getPrivateSupabaseConfig();
+  const response = await fetch(
+    `${url}/rest/v1/carpool_offers?id=eq.${encodeURIComponent(id)}`,
+    {
+      method: "DELETE",
+      headers: {
+        ...headers,
+        Prefer: "return=minimal",
+      },
+      cache: "no-store",
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error("Le trajet n’a pas pu être supprimé.");
   }
 }
