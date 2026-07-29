@@ -315,7 +315,7 @@ stroke-linejoin:round;
 
 .moving-bike,
 .parked-bike{
-font-size:23px;
+font-size:14px;
 dominant-baseline:middle;
 text-anchor:middle;
 }
@@ -326,7 +326,7 @@ cursor:help;
 }
 
 .bike-marker:hover .parked-bike{
-font-size:27px;
+font-size:17px;
 }
 
 .destination-pin{
