@@ -46,6 +46,16 @@ export type CarpoolOffer = {
   created_at: string;
 };
 
+export type CarpoolRequest = {
+  id: string;
+  offer_id: string;
+  passenger_name: string;
+  passenger_contact: string;
+  seats_requested: number;
+  message: string | null;
+  created_at: string;
+};
+
 export async function getWeddingResponses() {
   const { url, headers } = getPrivateSupabaseConfig();
   const response = await fetch(
@@ -122,4 +132,25 @@ export async function deleteCarpoolOffer(id: string) {
   if (!response.ok) {
     throw new Error("Le trajet n’a pas pu être supprimé.");
   }
+}
+
+export async function getCarpoolRequests() {
+  const { url, headers } = getPrivateSupabaseConfig();
+  const response = await fetch(
+    `${url}/rest/v1/carpool_requests?select=id,offer_id,passenger_name,passenger_contact,seats_requested,message,created_at&order=created_at.desc`,
+    {
+      headers,
+      cache: "no-store",
+    },
+  );
+
+  if (!response.ok) {
+    const error = await response.text();
+    if (error.includes("carpool_requests") || error.includes("PGRST205")) {
+      return [];
+    }
+    throw new Error("Les demandes de place ne peuvent pas être chargées.");
+  }
+
+  return (await response.json()) as CarpoolRequest[];
 }
