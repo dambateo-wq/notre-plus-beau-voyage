@@ -15,7 +15,7 @@ export type WeddingResponse = {
   created_at: string;
 };
 
-export async function getWeddingResponses() {
+function getPrivateSupabaseConfig() {
   const url = process.env.SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
@@ -25,13 +25,21 @@ export async function getWeddingResponses() {
     );
   }
 
+  return {
+    url,
+    headers: {
+      apikey: serviceRoleKey,
+      Authorization: `Bearer ${serviceRoleKey}`,
+    },
+  };
+}
+
+export async function getWeddingResponses() {
+  const { url, headers } = getPrivateSupabaseConfig();
   const response = await fetch(
     `${url}/rest/v1/wedding_responses?select=id,respondent_name,companions,attendance_days,not_attending,departure_city,departure_country,friday_sleepers,saturday_sleepers,roommate_wishes,songs,created_at&order=created_at.desc`,
     {
-      headers: {
-        apikey: serviceRoleKey,
-        Authorization: `Bearer ${serviceRoleKey}`,
-      },
+      headers,
       cache: "no-store",
     },
   );
@@ -41,4 +49,23 @@ export async function getWeddingResponses() {
   }
 
   return (await response.json()) as WeddingResponse[];
+}
+
+export async function deleteWeddingResponse(id: string) {
+  const { url, headers } = getPrivateSupabaseConfig();
+  const response = await fetch(
+    `${url}/rest/v1/wedding_responses?id=eq.${encodeURIComponent(id)}`,
+    {
+      method: "DELETE",
+      headers: {
+        ...headers,
+        Prefer: "return=minimal",
+      },
+      cache: "no-store",
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error("La réponse n’a pas pu être supprimée.");
+  }
 }
