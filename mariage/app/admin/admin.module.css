@@ -131,6 +131,17 @@
   text-decoration: none;
 }
 
+.backButton {
+  border: 1px solid #d0c7b7;
+  border-radius: 14px;
+  background: #fffdf8;
+  color: #495747;
+  padding: 11px 16px;
+  font-size: 0.86rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
 .stats {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -349,6 +360,7 @@
   }
 
   .exportButton,
+  .backButton,
   .logoutButton {
     display: block;
     width: 100%;
