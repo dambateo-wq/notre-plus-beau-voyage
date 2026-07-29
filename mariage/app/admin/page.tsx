@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getWeddingResponses } from "@/lib/admin-data";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { login, logout } from "./actions";
+import DeleteResponseButton from "./DeleteResponseButton";
 import styles from "./admin.module.css";
 
 export const metadata: Metadata = {
@@ -128,13 +129,21 @@ export default async function AdminPage({
                       }).format(new Date(response.created_at))}
                     </time>
                   </div>
-                  <span
-                    className={`${styles.status} ${
-                      response.not_attending ? styles.declined : ""
-                    }`}
-                  >
-                    {response.not_attending ? "Ne sera pas présent" : "Présent"}
-                  </span>
+                  <div className={styles.responseActions}>
+                    <span
+                      className={`${styles.status} ${
+                        response.not_attending ? styles.declined : ""
+                      }`}
+                    >
+                      {response.not_attending
+                        ? "Ne sera pas présent"
+                        : "Présent"}
+                    </span>
+                    <DeleteResponseButton
+                      id={response.id}
+                      name={response.respondent_name}
+                    />
+                  </div>
                 </div>
 
                 {!response.not_attending && (
