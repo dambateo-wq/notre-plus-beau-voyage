@@ -290,14 +290,6 @@ stroke-width:1;
 stroke-dasharray:5 8;
 }
 
-.guest-route{
-fill:none;
-stroke:#b06f4f;
-stroke-width:2.5;
-stroke-linecap:round;
-stroke-dasharray:8 7;
-}
-
 .departure-dot{
 fill:#b06f4f;
 stroke:#f5f1e8;
