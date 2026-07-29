@@ -171,6 +171,288 @@ color:#dce4d7;
 font-weight:700;
 }
 
+.carpool-section{
+max-width:1100px;
+margin:35px auto 90px;
+padding:68px 56px;
+background:#e8e1d3;
+border-radius:28px;
+scroll-margin-top:24px;
+}
+
+.carpool-intro{
+display:grid;
+grid-template-columns:minmax(0,1.6fr) minmax(250px,.8fr);
+align-items:end;
+gap:50px;
+margin-bottom:38px;
+}
+
+.carpool-intro h2{
+font-family:Georgia,serif;
+font-size:clamp(2.25rem,5vw,4rem);
+font-weight:400;
+line-height:1.08;
+margin:12px 0 20px;
+}
+
+.carpool-intro>div:first-child>p:last-child{
+max-width:680px;
+color:#596256;
+font-size:1.04rem;
+line-height:1.7;
+}
+
+.carpool-how{
+display:flex;
+align-items:flex-start;
+gap:14px;
+padding:20px;
+border-radius:18px;
+background:rgba(255,253,248,.65);
+}
+
+.carpool-how span{
+font-size:1.8rem;
+}
+
+.carpool-how p{
+color:#60685d;
+font-size:.9rem;
+line-height:1.55;
+}
+
+.carpool-layout{
+display:grid;
+grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);
+align-items:start;
+gap:24px;
+}
+
+.carpool-form,
+.carpool-offers{
+border:1px solid #ded5c5;
+border-radius:24px;
+background:#fffdf8;
+box-shadow:0 15px 45px rgba(47,59,47,.08);
+}
+
+.carpool-form{
+display:grid;
+gap:17px;
+padding:30px;
+}
+
+.carpool-form h3,
+.carpool-offers h3{
+font-family:Georgia,serif;
+font-size:1.75rem;
+font-weight:500;
+}
+
+.carpool-form h3{
+margin:-7px 0 5px;
+}
+
+.carpool-form label{
+display:grid;
+gap:8px;
+color:#384537;
+font-size:.9rem;
+font-weight:750;
+}
+
+.carpool-form label>span{
+color:#767c73;
+font-size:.78rem;
+font-weight:500;
+}
+
+.carpool-form input,
+.carpool-form select,
+.carpool-form textarea{
+width:100%;
+padding:13px 14px;
+border:1px solid #cec6b8;
+border-radius:12px;
+background:white;
+color:#2f3b2f;
+font:inherit;
+outline:none;
+transition:border-color .2s ease,box-shadow .2s ease;
+}
+
+.carpool-form input:focus,
+.carpool-form select:focus,
+.carpool-form textarea:focus{
+border-color:#66745f;
+box-shadow:0 0 0 4px rgba(102,116,95,.12);
+}
+
+.carpool-form textarea{
+min-height:92px;
+resize:vertical;
+}
+
+.carpool-form-row{
+display:grid;
+grid-template-columns:minmax(0,1.45fr) minmax(130px,.55fr);
+gap:12px;
+}
+
+.carpool-form button{
+border:0;
+border-radius:13px;
+background:#40543c;
+color:white;
+cursor:pointer;
+padding:15px 20px;
+font-weight:800;
+}
+
+.carpool-form button:disabled{
+cursor:wait;
+opacity:.6;
+}
+
+.carpool-honeypot{
+position:absolute!important;
+left:-10000px!important;
+width:1px!important;
+height:1px!important;
+overflow:hidden!important;
+}
+
+.carpool-error,
+.carpool-success{
+padding:12px 14px;
+border-radius:11px;
+font-size:.88rem;
+font-weight:700;
+line-height:1.45;
+}
+
+.carpool-error{
+background:#f6e2dc;
+color:#8a3f32;
+}
+
+.carpool-success{
+background:#e4ecdf;
+color:#3f593b;
+}
+
+.carpool-offers{
+padding:30px;
+}
+
+.carpool-offers-heading{
+display:flex;
+align-items:flex-start;
+justify-content:space-between;
+gap:18px;
+margin-bottom:22px;
+}
+
+.carpool-offers-heading h3{
+margin-top:7px;
+}
+
+.carpool-offers-heading>span{
+padding:8px 11px;
+border-radius:999px;
+background:#e4eadf;
+color:#40543c;
+font-size:.78rem;
+font-weight:800;
+white-space:nowrap;
+}
+
+.carpool-list{
+display:grid;
+gap:13px;
+max-height:760px;
+overflow:auto;
+padding-right:3px;
+}
+
+.carpool-offer{
+padding:20px;
+border:1px solid #e3dacb;
+border-radius:17px;
+background:#f6f1e8;
+}
+
+.carpool-offer-top{
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:12px;
+margin-bottom:12px;
+}
+
+.carpool-offer-top span{
+color:#9b6549;
+font-size:.72rem;
+font-weight:850;
+letter-spacing:.08em;
+text-transform:uppercase;
+}
+
+.carpool-offer-top strong{
+padding:6px 9px;
+border-radius:999px;
+background:#dfe8d9;
+color:#3e593a;
+font-size:.75rem;
+}
+
+.carpool-offer h4{
+font-family:Georgia,serif;
+font-size:1.18rem;
+line-height:1.35;
+}
+
+.carpool-offer p{
+margin-top:9px;
+color:#636b60;
+font-size:.88rem;
+line-height:1.55;
+}
+
+.carpool-offer .carpool-date{
+color:#40543c;
+font-weight:750;
+text-transform:capitalize;
+}
+
+.carpool-offer a{
+display:inline-block;
+margin-top:15px;
+padding:9px 12px;
+border-radius:10px;
+background:#40543c;
+color:white;
+font-size:.82rem;
+font-weight:800;
+text-decoration:none;
+}
+
+.carpool-offer .carpool-contact{
+color:#40543c;
+font-weight:750;
+overflow-wrap:anywhere;
+}
+
+.carpool-empty{
+padding:35px 20px;
+border:1px dashed #cfc4b1;
+border-radius:16px;
+color:#70776d;
+line-height:1.6;
+text-align:center;
+}
+
 .survey{
 max-width:1100px;
 margin:30px auto 60px;
@@ -776,6 +1058,29 @@ margin:10px 16px 55px;
 padding:42px 24px;
 grid-template-columns:1fr;
 gap:36px;
+}
+
+.carpool-section{
+margin:10px 16px 60px;
+padding:42px 24px;
+}
+
+.carpool-intro,
+.carpool-layout{
+grid-template-columns:1fr;
+}
+
+.carpool-intro{
+gap:24px;
+}
+
+.carpool-form-row{
+grid-template-columns:1fr;
+}
+
+.carpool-form,
+.carpool-offers{
+padding:24px 20px;
 }
 
 .domain-highlights{
