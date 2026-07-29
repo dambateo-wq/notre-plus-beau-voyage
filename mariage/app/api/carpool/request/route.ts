@@ -47,11 +47,20 @@ export async function POST(request: Request) {
       `${url}/rest/v1/carpool_offers?id=eq.${encodeURIComponent(offerId)}&select=seats_available,contact`,
       { headers, cache: "no-store" },
     );
-    const [offer] = offerResponse.ok ? await offerResponse.json() : [];
+    const [offer] = (offerResponse.ok
+      ? await offerResponse.json()
+      : []) as Array<{ seats_available: number; contact: string }>;
 
-    if (!offer || seatsRequested > Number(offer.seats_available)) {
+    if (
+      !offer ||
+      !offer.contact ||
+      seatsRequested > Number(offer.seats_available)
+    ) {
       return Response.json(
-        { error: "Ce trajet n’a plus assez de places disponibles." },
+        {
+          error:
+            "Les coordonnées du conducteur ne sont pas disponibles pour ce trajet.",
+        },
         { status: 409 },
       );
     }
