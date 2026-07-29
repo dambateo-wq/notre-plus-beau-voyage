@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
-import { getCarpoolOffers, getWeddingResponses } from "@/lib/admin-data";
+import {
+  getCarpoolOffers,
+  getCarpoolRequests,
+  getWeddingResponses,
+} from "@/lib/admin-data";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { login, logout } from "./actions";
 import DeleteResponseButton from "./DeleteResponseButton";
@@ -63,9 +67,10 @@ export default async function AdminPage({
     );
   }
 
-  const [responses, carpoolOffers] = await Promise.all([
+  const [responses, carpoolOffers, carpoolRequests] = await Promise.all([
     getWeddingResponses(),
     getCarpoolOffers(),
+    getCarpoolRequests(),
   ]);
   const attending = responses.filter((response) => !response.not_attending);
   const declined = responses.length - attending.length;
@@ -210,7 +215,11 @@ export default async function AdminPage({
               <p className={styles.eyebrow}>Covoiturage</p>
               <h2>Les trajets proposés</h2>
             </div>
-            <span>{carpoolOffers.length} offre{carpoolOffers.length > 1 ? "s" : ""}</span>
+            <span>
+              {carpoolOffers.length} offre{carpoolOffers.length > 1 ? "s" : ""} ·{" "}
+              {carpoolRequests.length} demande
+              {carpoolRequests.length > 1 ? "s" : ""}
+            </span>
           </div>
 
           {carpoolOffers.length === 0 ? (
@@ -262,6 +271,26 @@ export default async function AdminPage({
                       <dd>{offer.details || "—"}</dd>
                     </div>
                   </dl>
+                  {carpoolRequests.some(
+                    (request) => request.offer_id === offer.id,
+                  ) && (
+                    <div className={styles.rideRequests}>
+                      <h3>Demandes de place</h3>
+                      {carpoolRequests
+                        .filter((request) => request.offer_id === offer.id)
+                        .map((request) => (
+                          <div className={styles.rideRequest} key={request.id}>
+                            <p>
+                              <strong>{request.passenger_name}</strong> ·{" "}
+                              {request.seats_requested} place
+                              {request.seats_requested > 1 ? "s" : ""}
+                            </p>
+                            <p>{request.passenger_contact}</p>
+                            {request.message && <p>{request.message}</p>}
+                          </div>
+                        ))}
+                    </div>
+                  )}
                 </article>
               ))}
             </div>
