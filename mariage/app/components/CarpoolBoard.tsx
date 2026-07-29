@@ -152,13 +152,6 @@ export default function CarpoolBoard() {
             permettre à un autre invité de faire la route avec vous.
           </p>
         </div>
-        <div className="carpool-how">
-          <span>🚗</span>
-          <p>
-            Les coordonnées restent privées. Envoyez une demande de place :
-            Damien et Julie vous mettront en relation avec le conducteur.
-          </p>
-        </div>
       </div>
 
       <div className="carpool-layout">
