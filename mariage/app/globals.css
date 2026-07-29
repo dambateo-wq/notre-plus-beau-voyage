@@ -681,6 +681,24 @@ margin:auto;
 padding:30px 22px 45px;
 border-top:1px solid #ddd6ca;
 color:#6b7067;
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:20px;
+}
+
+.admin-link{
+color:#777d73;
+font-size:.78rem;
+text-decoration:none;
+opacity:.72;
+transition:opacity .2s ease,color .2s ease;
+}
+
+.admin-link:hover,
+.admin-link:focus-visible{
+color:#3f5b3b;
+opacity:1;
 }
 
 @media(max-width:800px){
@@ -759,5 +777,10 @@ grid-template-columns:1fr;
 
 .location-search button{
 padding:14px;
+}
+
+footer{
+align-items:flex-start;
+flex-direction:column;
 }
 }
