@@ -22,6 +22,10 @@ type GuestRoute = {
   animate?: boolean;
 };
 
+type GuestRouteGroup = GuestRoute & {
+  members: GuestRoute[];
+};
+
 const MASSACAN = {
   city: "Domaine de Massacan",
   latitude: 43.108305,
@@ -75,6 +79,33 @@ function isRegionalRoute(route: GuestRoute) {
   );
 }
 
+function groupRoutesByCity(routes: GuestRoute[]) {
+  const groups = new Map<string, GuestRouteGroup>();
+
+  for (const route of routes) {
+    const key = `${route.city.trim().toLocaleLowerCase("fr")}|${route.country
+      .trim()
+      .toLocaleLowerCase("fr")}`;
+    const existing = groups.get(key);
+
+    if (existing) {
+      existing.members.push(route);
+      existing.animate = existing.animate || route.animate;
+    } else {
+      groups.set(key, { ...route, members: [route] });
+    }
+  }
+
+  return [...groups.values()];
+}
+
+function routeTooltip(route: GuestRouteGroup) {
+  const names = [...new Set(route.members.map((member) => member.display_name))];
+  return `${route.city}, ${route.country} · ${route.members.length} réponse${
+    route.members.length > 1 ? "s" : ""
+  } · ${names.join(", ")}`;
+}
+
 function curveFor(route: GuestRoute, index: number) {
   const start = project(route.latitude, route.longitude);
   const end = project(MASSACAN.latitude, MASSACAN.longitude);
@@ -93,9 +124,10 @@ function curveFor(route: GuestRoute, index: number) {
 
 function JourneyMap({ routes }: { routes: GuestRoute[] }) {
   const destination = project(MASSACAN.latitude, MASSACAN.longitude);
-  const regionalRoutes = routes.filter(isRegionalRoute);
-  const distantRoutes = routes.filter((route) => !isRegionalRoute(route));
-  const visibleDistantRoutes = distantRoutes.slice(0, 8);
+  const routeGroups = groupRoutesByCity(routes);
+  const regionalRoutes = routeGroups.filter(isRegionalRoute);
+  const distantRoutes = routeGroups.filter((route) => !isRegionalRoute(route));
+  const visibleDistantRoutes = distantRoutes.slice(0, 12);
   const mapWidth = distantRoutes.length ? 720 : 550;
 
   return (
@@ -106,8 +138,8 @@ function JourneyMap({ routes }: { routes: GuestRoute[] }) {
           <h3>Tous les chemins mènent à Massacan</h3>
         </div>
         <span className="bike-counter">
-          {routes.length} trajet{routes.length > 1 ? "s" : ""} enregistré
-          {routes.length > 1 ? "s" : ""}
+          {routeGroups.length} ville{routeGroups.length > 1 ? "s" : ""} ·{" "}
+          {routes.length} réponse{routes.length > 1 ? "s" : ""}
         </span>
       </div>
 
@@ -167,24 +199,17 @@ function JourneyMap({ routes }: { routes: GuestRoute[] }) {
             destination.y + Math.sin(clusterAngle) * clusterRadius;
 
           return (
-            <g key={route.id}>
+            <g
+              className="bike-marker"
+              key={`${route.city}-${route.country}`}
+              role="img"
+              aria-label={routeTooltip(route)}
+            >
+              <title>{routeTooltip(route)}</title>
               <path className="guest-route" d={curve.path} />
-              <circle
-                className="departure-dot"
-                cx={curve.start.x}
-                cy={curve.start.y}
-                r="5"
-              />
-              <text
-                className="departure-label"
-                x={curve.start.x + 9}
-                y={curve.start.y - 9}
-              >
-                {route.display_name} · {route.city}
-              </text>
 
               {route.animate ? (
-                <text className="moving-bike" aria-hidden="true">
+                <text className="moving-bike">
                   🚲
                   <animateMotion
                     dur="4.8s"
@@ -201,7 +226,6 @@ function JourneyMap({ routes }: { routes: GuestRoute[] }) {
                   className="parked-bike"
                   x={parkedX}
                   y={parkedY}
-                  aria-hidden="true"
                 >
                   🚲
                 </text>
@@ -211,9 +235,9 @@ function JourneyMap({ routes }: { routes: GuestRoute[] }) {
         })}
 
         <g className="destination-pin">
-          <circle cx={destination.x} cy={destination.y} r="11" />
-          <circle cx={destination.x} cy={destination.y} r="4" />
-          <text x={destination.x + 16} y={destination.y + 5}>
+          <circle cx={destination.x} cy={destination.y} r="6" />
+          <circle cx={destination.x} cy={destination.y} r="2.2" />
+          <text x={destination.x + 10} y={destination.y + 4}>
             Domaine de Massacan
           </text>
         </g>
@@ -225,14 +249,17 @@ function JourneyMap({ routes }: { routes: GuestRoute[] }) {
               DÉPARTS LOINTAINS
             </text>
             <path className="mini-world-land" d={mapGeometry.worldPath} />
-            {visibleDistantRoutes.map((route, index) => {
+            {visibleDistantRoutes.map((route) => {
               const point = projectWorld(route.latitude, route.longitude);
               return (
-                <g className="distant-origin" key={route.id}>
+                <g
+                  className="distant-origin"
+                  key={`${route.city}-${route.country}`}
+                  role="img"
+                  aria-label={routeTooltip(route)}
+                >
+                  <title>{routeTooltip(route)}</title>
                   <circle cx={point.x} cy={point.y} r="4.5" />
-                  <text x="550" y={205 + index * 22}>
-                    {route.display_name} · {route.city}
-                  </text>
                 </g>
               );
             })}
@@ -254,19 +281,10 @@ function JourneyMap({ routes }: { routes: GuestRoute[] }) {
         </p>
       )}
       {distantRoutes.length > 0 && (
-        <>
-          <ul className="distant-mobile-list">
-            {distantRoutes.map((route) => (
-              <li key={route.id}>
-                {route.display_name} · {route.city}
-              </li>
-            ))}
-          </ul>
-          <p className="distant-note">
-            Le mini-planisphère apparaît uniquement lorsqu’un invité renseigne
-            un départ hors de la zone France–Belgique.
-          </p>
-        </>
+        <p className="distant-note">
+          Survolez un vélo ou un point pour afficher les informations. Le
+          mini-planisphère apparaît uniquement pour les départs éloignés.
+        </p>
       )}
       <p className="map-attribution">
         Géographie : Natural Earth · Recherche : © OpenStreetMap contributors
