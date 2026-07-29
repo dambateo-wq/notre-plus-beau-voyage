@@ -292,6 +292,36 @@
   white-space: nowrap;
 }
 
+.rideRequests {
+  margin-top: 22px;
+  padding: 18px;
+  border-radius: 15px;
+  background: #f1ebdf;
+}
+
+.rideRequests h3 {
+  margin-bottom: 12px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.15rem;
+}
+
+.rideRequest {
+  padding: 12px 0;
+  border-top: 1px solid #ded4c4;
+}
+
+.rideRequest:first-of-type {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.rideRequest p {
+  margin-top: 4px;
+  color: #5f685d;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
 @media (max-width: 800px) {
   .stats {
     grid-template-columns: repeat(2, 1fr);
