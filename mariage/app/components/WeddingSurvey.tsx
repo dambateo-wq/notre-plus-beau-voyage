@@ -1,6 +1,12 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import {
+  FormEvent,
+  MouseEvent as ReactMouseEvent,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { mapGeometry } from "./mapGeometry";
 
 type Place = {
@@ -136,12 +142,33 @@ function curveFor(route: GuestRoute, index: number) {
 }
 
 function JourneyMap({ routes }: { routes: GuestRoute[] }) {
+  const [tooltip, setTooltip] = useState<{
+    text: string;
+    x: number;
+    y: number;
+  } | null>(null);
   const destination = project(MASSACAN.latitude, MASSACAN.longitude);
   const routeGroups = groupRoutesByCity(routes);
   const regionalRoutes = routeGroups.filter(isRegionalRoute);
   const distantRoutes = routeGroups.filter((route) => !isRegionalRoute(route));
   const visibleDistantRoutes = distantRoutes.slice(0, 12);
   const mapWidth = distantRoutes.length ? 720 : 550;
+
+  function showTooltip(
+    event: ReactMouseEvent<SVGGElement>,
+    text: string,
+  ) {
+    const container = event.currentTarget
+      .closest(".journey-map")
+      ?.getBoundingClientRect();
+    if (!container) return;
+
+    setTooltip({
+      text,
+      x: event.clientX - container.left,
+      y: event.clientY - container.top,
+    });
+  }
 
   return (
     <div className="journey-map">
@@ -225,6 +252,13 @@ function JourneyMap({ routes }: { routes: GuestRoute[] }) {
               key={`${route.city}-${route.country}`}
               role="img"
               aria-label={routeTooltip(route)}
+              onMouseEnter={(event) =>
+                showTooltip(event, routeTooltip(route))
+              }
+              onMouseMove={(event) =>
+                showTooltip(event, routeTooltip(route))
+              }
+              onMouseLeave={() => setTooltip(null)}
             >
               <title>{routeTooltip(route)}</title>
 
@@ -258,6 +292,19 @@ function JourneyMap({ routes }: { routes: GuestRoute[] }) {
           className="destination-pin"
           role="img"
           aria-label="Domaine de Massacan, destination du mariage"
+          onMouseEnter={(event) =>
+            showTooltip(
+              event,
+              "Domaine de Massacan · Destination du mariage",
+            )
+          }
+          onMouseMove={(event) =>
+            showTooltip(
+              event,
+              "Domaine de Massacan · Destination du mariage",
+            )
+          }
+          onMouseLeave={() => setTooltip(null)}
         >
           <title>Domaine de Massacan · Destination du mariage</title>
           <circle
@@ -289,6 +336,13 @@ function JourneyMap({ routes }: { routes: GuestRoute[] }) {
                   key={`${route.city}-${route.country}`}
                   role="img"
                   aria-label={routeTooltip(route)}
+                  onMouseEnter={(event) =>
+                    showTooltip(event, routeTooltip(route))
+                  }
+                  onMouseMove={(event) =>
+                    showTooltip(event, routeTooltip(route))
+                  }
+                  onMouseLeave={() => setTooltip(null)}
                 >
                   <title>{routeTooltip(route)}</title>
                   <circle cx={point.x} cy={point.y} r="4.5" />
@@ -306,6 +360,16 @@ function JourneyMap({ routes }: { routes: GuestRoute[] }) {
           </g>
         )}
       </svg>
+
+      {tooltip && (
+        <div
+          className="map-tooltip"
+          style={{ left: tooltip.x, top: tooltip.y }}
+          role="status"
+        >
+          {tooltip.text}
+        </div>
+      )}
 
       {routes.length === 0 && (
         <p className="map-empty">
