@@ -1,5 +1,6 @@
 import WeddingSurvey from "./components/WeddingSurvey";
 import CarpoolBoard from "./components/CarpoolBoard";
+import RsvpReminder from "./components/RsvpReminder";
 
 export default function Home() {
   return (
@@ -45,6 +46,12 @@ export default function Home() {
           <span>🚗</span>
           <h3>Covoiturage</h3>
           <p>Proposez ou recherchez un trajet avec les autres invités.</p>
+        </a>
+
+        <a className="card registration-card" href="#sondage">
+          <span>🚲</span>
+          <h3>Inscription au voyage</h3>
+          <p>Confirmez votre présence et vos souhaits pour le week-end.</p>
         </a>
       </section>
 
@@ -106,6 +113,7 @@ export default function Home() {
       <CarpoolBoard />
 
       <WeddingSurvey />
+      <RsvpReminder />
 
       <footer>
         <span>Damien & Julie · 29 & 30 mai 2027</span>
