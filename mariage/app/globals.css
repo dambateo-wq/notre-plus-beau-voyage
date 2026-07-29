@@ -503,6 +503,33 @@ cursor:wait;
 opacity:.6;
 }
 
+.carpool-contact-reveal{
+padding:13px;
+border-radius:11px;
+background:#e4ecdf;
+color:#3f593b;
+}
+
+.carpool-contact-reveal p{
+margin:0 0 9px;
+color:#3f593b;
+font-size:.82rem;
+font-weight:700;
+}
+
+.carpool-contact-reveal a{
+margin:0;
+background:#40543c;
+color:white;
+font-size:.9rem;
+}
+
+.carpool-contact-reveal strong{
+display:block;
+font-size:1rem;
+overflow-wrap:anywhere;
+}
+
 .carpool-offer .carpool-contact{
 color:#40543c;
 font-weight:750;
