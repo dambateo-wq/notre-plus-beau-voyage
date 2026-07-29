@@ -105,7 +105,10 @@ export default function Home() {
       <WeddingSurvey />
 
       <footer>
-        Damien & Julie · 29 & 30 mai 2027
+        <span>Damien & Julie · 29 & 30 mai 2027</span>
+        <a className="admin-link" href="/admin" aria-label="Accès administrateur">
+          🔒 Admin
+        </a>
       </footer>
     </main>
   );
