@@ -261,6 +261,37 @@
   text-align: center;
 }
 
+.carpoolAdmin {
+  margin-top: 56px;
+  padding-top: 42px;
+  border-top: 1px solid #ddd4c5;
+}
+
+.sectionHeading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 22px;
+}
+
+.sectionHeading h2 {
+  margin: 7px 0 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.9rem, 5vw, 3rem);
+  font-weight: 500;
+}
+
+.sectionHeading > span {
+  border-radius: 999px;
+  background: #dfe9db;
+  color: #345033;
+  padding: 8px 12px;
+  font-size: .8rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
 @media (max-width: 800px) {
   .stats {
     grid-template-columns: repeat(2, 1fr);
@@ -301,5 +332,10 @@
 
   .responseActions {
     align-items: flex-start;
+  }
+
+  .sectionHeading {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
