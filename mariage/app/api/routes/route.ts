@@ -19,6 +19,9 @@ export async function GET() {
 
     return Response.json(await response.json());
   } catch {
-    return Response.json([], { status: 200 });
+    return Response.json(
+      { error: "La carte collective est momentanément indisponible." },
+      { status: 503 },
+    );
   }
 }
