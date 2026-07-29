@@ -44,7 +44,7 @@ export async function POST(request: Request) {
 
     const { url, headers } = getPrivateSupabaseConfig();
     const offerResponse = await fetch(
-      `${url}/rest/v1/carpool_offers?id=eq.${encodeURIComponent(offerId)}&select=seats_available`,
+      `${url}/rest/v1/carpool_offers?id=eq.${encodeURIComponent(offerId)}&select=seats_available,contact`,
       { headers, cache: "no-store" },
     );
     const [offer] = offerResponse.ok ? await offerResponse.json() : [];
@@ -76,7 +76,10 @@ export async function POST(request: Request) {
       throw new Error(await response.text());
     }
 
-    return Response.json({ success: true }, { status: 201 });
+    return Response.json(
+      { success: true, driverContact: offer.contact },
+      { status: 201 },
+    );
   } catch {
     return Response.json(
       { error: "La demande n’a pas pu être envoyée. Réessayez." },
