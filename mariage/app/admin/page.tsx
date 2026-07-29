@@ -83,11 +83,16 @@ export default async function AdminPage({
             <p className={styles.eyebrow}>Tableau de bord privé</p>
             <h1>Les réponses du voyage</h1>
           </div>
-          <form action={logout}>
-            <button className={styles.logoutButton} type="submit">
-              Se déconnecter
-            </button>
-          </form>
+          <div className={styles.headingActions}>
+            <a className={styles.exportButton} href="/admin/export">
+              Télécharger en Excel
+            </a>
+            <form action={logout}>
+              <button className={styles.logoutButton} type="submit">
+                Se déconnecter
+              </button>
+            </form>
+          </div>
         </header>
 
         <section className={styles.stats} aria-label="Résumé des réponses">
