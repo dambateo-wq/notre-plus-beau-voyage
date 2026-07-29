@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import {
   getCarpoolOffers,
   getCarpoolRequests,
@@ -93,6 +94,9 @@ export default async function AdminPage({
             <h1>Les réponses du voyage</h1>
           </div>
           <div className={styles.headingActions}>
+            <Link className={styles.backButton} href="/">
+              ← Retour au site
+            </Link>
             <a className={styles.exportButton} href="/admin/export">
               Télécharger en Excel
             </a>
