@@ -37,6 +37,35 @@ margin-bottom:20px;
 font-size:1.2rem;
 }
 
+.wedding-countdown{
+position:absolute;
+z-index:1;
+left:clamp(20px,4vw,58px);
+bottom:clamp(20px,4vw,48px);
+display:flex;
+align-items:baseline;
+gap:12px;
+padding:13px 17px;
+border:1px solid rgba(255,255,255,.4);
+border-radius:14px;
+background:rgba(33,43,32,.58);
+color:white;
+box-shadow:0 12px 36px rgba(0,0,0,.2);
+backdrop-filter:blur(7px);
+}
+
+.wedding-countdown strong{
+font-family:Georgia,serif;
+font-size:clamp(1.35rem,3vw,2rem);
+font-weight:500;
+white-space:nowrap;
+}
+
+.wedding-countdown span{
+font-size:.82rem;
+letter-spacing:.04em;
+}
+
 .section{
 max-width:1100px;
 margin:auto;
@@ -190,10 +219,7 @@ scroll-margin-top:24px;
 }
 
 .carpool-intro{
-display:grid;
-grid-template-columns:minmax(0,1.6fr) minmax(250px,.8fr);
-align-items:end;
-gap:50px;
+max-width:760px;
 margin-bottom:38px;
 }
 
@@ -698,7 +724,7 @@ text-anchor:middle;
 
 .bike-marker,
 .distant-origin{
-cursor:help;
+cursor:pointer;
 }
 
 .bike-marker:hover .parked-bike{
@@ -706,7 +732,7 @@ font-size:17px;
 }
 
 .destination-pin{
-cursor:help;
+cursor:pointer;
 }
 
 .destination-hit{
@@ -719,6 +745,32 @@ fill:#40543c;
 stroke:#f5f1e8;
 stroke-width:1.5;
 pointer-events:none;
+}
+
+.map-tooltip{
+position:absolute;
+z-index:10;
+max-width:min(300px,calc(100% - 28px));
+padding:9px 12px;
+border-radius:10px;
+background:#2f3f2d;
+color:white;
+box-shadow:0 8px 24px rgba(40,50,39,.24);
+font-size:.78rem;
+font-weight:700;
+line-height:1.4;
+pointer-events:none;
+transform:translate(-50%,calc(-100% - 12px));
+}
+
+.map-tooltip::after{
+content:"";
+position:absolute;
+top:100%;
+left:50%;
+border:6px solid transparent;
+border-top-color:#2f3f2d;
+transform:translateX(-50%);
 }
 
 .world-inset>rect{
@@ -1244,6 +1296,13 @@ grid-template-columns:1fr;
 
 .section{
 padding:60px 18px;
+}
+
+.wedding-countdown{
+right:16px;
+left:16px;
+bottom:18px;
+justify-content:center;
 }
 
 .domain-section{
