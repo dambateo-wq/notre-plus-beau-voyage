@@ -1,4 +1,5 @@
 import WeddingSurvey from "./components/WeddingSurvey";
+import CarpoolBoard from "./components/CarpoolBoard";
 
 export default function Home() {
   return (
@@ -40,11 +41,11 @@ export default function Home() {
           <p>Adresse, transports et informations pratiques.</p>
         </article>
 
-        <article className="card">
+        <a className="card" href="#covoiturage">
           <span>🚗</span>
           <h3>Covoiturage</h3>
           <p>Proposez ou recherchez un trajet avec les autres invités.</p>
-        </article>
+        </a>
       </section>
 
       <section className="domain-section" id="domaine">
@@ -101,6 +102,8 @@ export default function Home() {
           </ul>
         </aside>
       </section>
+
+      <CarpoolBoard />
 
       <WeddingSurvey />
 
