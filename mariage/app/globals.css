@@ -267,6 +267,10 @@ stroke-width:1.7;
 stroke-linejoin:round;
 }
 
+.countries .country-focus{
+fill:#a7b39a;
+}
+
 .country-labels{
 fill:rgba(53,69,50,.48);
 font-size:14px;
@@ -335,10 +339,16 @@ stroke:#eee5d3;
 stroke-width:4px;
 }
 
-.distant-panel>rect{
+.world-inset>rect{
 fill:rgba(255,253,248,.58);
 stroke:rgba(64,84,60,.2);
 stroke-width:1.5;
+}
+
+.mini-world-land{
+fill:#b8bea9;
+stroke:#87917d;
+stroke-width:.45;
 }
 
 .distant-title{
@@ -358,6 +368,16 @@ stroke-width:3;
 fill:#354532;
 font-size:11px;
 font-weight:700;
+}
+
+.distant-more{
+fill:#6f776d;
+font-size:11px;
+font-style:italic;
+}
+
+.distant-mobile-list{
+display:none;
 }
 
 .map-empty{
@@ -819,6 +839,24 @@ grid-template-columns:1fr;
 
 .location-search button{
 padding:14px;
+}
+
+.world-inset .distant-title{
+font-size:20px;
+}
+
+.world-inset .distant-origin text,
+.world-inset .distant-more{
+display:none;
+}
+
+.distant-mobile-list{
+display:grid;
+gap:5px;
+margin:12px 0 0;
+padding-left:22px;
+color:#596356;
+font-size:.84rem;
 }
 
 footer{
