@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
-import { getWeddingResponses } from "@/lib/admin-data";
+import { getCarpoolOffers, getWeddingResponses } from "@/lib/admin-data";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { login, logout } from "./actions";
 import DeleteResponseButton from "./DeleteResponseButton";
+import DeleteCarpoolButton from "./DeleteCarpoolButton";
 import styles from "./admin.module.css";
 
 export const metadata: Metadata = {
@@ -62,7 +63,10 @@ export default async function AdminPage({
     );
   }
 
-  const responses = await getWeddingResponses();
+  const [responses, carpoolOffers] = await Promise.all([
+    getWeddingResponses(),
+    getCarpoolOffers(),
+  ]);
   const attending = responses.filter((response) => !response.not_attending);
   const declined = responses.length - attending.length;
   const totalGuests = attending.reduce(
@@ -197,6 +201,70 @@ export default async function AdminPage({
                 )}
               </article>
             ))
+          )}
+        </section>
+
+        <section className={styles.carpoolAdmin}>
+          <div className={styles.sectionHeading}>
+            <div>
+              <p className={styles.eyebrow}>Covoiturage</p>
+              <h2>Les trajets proposés</h2>
+            </div>
+            <span>{carpoolOffers.length} offre{carpoolOffers.length > 1 ? "s" : ""}</span>
+          </div>
+
+          {carpoolOffers.length === 0 ? (
+            <p className={styles.empty}>
+              Aucun trajet n’a encore été proposé.
+            </p>
+          ) : (
+            <div className={styles.responses}>
+              {carpoolOffers.map((offer) => (
+                <article className={styles.responseCard} key={offer.id}>
+                  <div className={styles.responseTop}>
+                    <div>
+                      <h2>{offer.driver_name}</h2>
+                      <time dateTime={offer.departure_at}>
+                        Départ le{" "}
+                        {new Intl.DateTimeFormat("fr-FR", {
+                          dateStyle: "long",
+                          timeStyle: "short",
+                          timeZone: "Europe/Paris",
+                        }).format(new Date(offer.departure_at))}
+                      </time>
+                    </div>
+                    <div className={styles.responseActions}>
+                      <span className={styles.status}>
+                        {offer.seats_available} place
+                        {offer.seats_available > 1 ? "s" : ""}
+                      </span>
+                      <DeleteCarpoolButton
+                        id={offer.id}
+                        name={offer.driver_name}
+                      />
+                    </div>
+                  </div>
+                  <dl className={styles.details}>
+                    <div>
+                      <dt>Trajet</dt>
+                      <dd>
+                        {offer.direction === "to_massacan"
+                          ? `${offer.other_place} → Domaine de Massacan`
+                          : `Domaine de Massacan → ${offer.other_place}`}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>Contact</dt>
+                      <dd>{offer.contact}</dd>
+                    </div>
+                    <div>
+                      <dt>Précisions</dt>
+                      <dd>{offer.details || "—"}</dd>
+                    </div>
+                  </dl>
+                </article>
+              ))}
+            </div>
           )}
         </section>
       </div>
