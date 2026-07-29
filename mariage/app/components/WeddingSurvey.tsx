@@ -487,6 +487,9 @@ export default function WeddingSurvey() {
         );
       }
 
+      window.localStorage.setItem("wedding-rsvp-completed", "true");
+      window.dispatchEvent(new Event("wedding-rsvp-completed"));
+
       if (notAttending) {
         setStatus("declined");
         return;
