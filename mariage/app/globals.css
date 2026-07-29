@@ -260,10 +260,22 @@ height:auto;
 overflow:visible;
 }
 
-.continents{
-fill:#aeb49d;
+.countries{
+fill:#b8bea9;
 stroke:#87917d;
-stroke-width:1.5;
+stroke-width:1.7;
+stroke-linejoin:round;
+}
+
+.country-labels{
+fill:rgba(53,69,50,.48);
+font-size:14px;
+font-weight:850;
+letter-spacing:3px;
+text-anchor:middle;
+paint-order:stroke;
+stroke:#dfe0d0;
+stroke-width:4px;
 }
 
 .map-grid{
@@ -323,18 +335,48 @@ stroke:#eee5d3;
 stroke-width:4px;
 }
 
+.distant-panel>rect{
+fill:rgba(255,253,248,.58);
+stroke:rgba(64,84,60,.2);
+stroke-width:1.5;
+}
+
+.distant-title{
+fill:#7d634f;
+font-size:12px;
+font-weight:850;
+letter-spacing:1.5px;
+}
+
+.distant-origin circle{
+fill:#b06f4f;
+stroke:#fffdf8;
+stroke-width:3;
+}
+
+.distant-origin text{
+fill:#354532;
+font-size:11px;
+font-weight:700;
+}
+
 .map-empty{
-position:absolute;
-left:50%;
-bottom:52px;
-transform:translateX(-50%);
-width:max-content;
-max-width:80%;
+width:fit-content;
+max-width:100%;
+margin:12px auto 0;
 padding:10px 15px;
 border-radius:12px;
 background:rgba(245,241,232,.9);
 color:#5f675c;
 font-size:.9rem;
+text-align:center;
+}
+
+.distant-note{
+margin:10px 0 0;
+color:#6f776d;
+font-size:.78rem;
+font-style:italic;
 text-align:center;
 }
 
