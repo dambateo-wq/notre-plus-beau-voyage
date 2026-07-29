@@ -438,6 +438,71 @@ font-weight:800;
 text-decoration:none;
 }
 
+.carpool-request-toggle{
+margin-top:15px;
+padding:9px 12px;
+border:0;
+border-radius:10px;
+background:#40543c;
+color:white;
+cursor:pointer;
+font-size:.82rem;
+font-weight:800;
+}
+
+.carpool-request-form{
+display:grid;
+gap:12px;
+margin-top:16px;
+padding-top:16px;
+border-top:1px solid #ded5c6;
+}
+
+.carpool-request-form label{
+display:grid;
+gap:6px;
+color:#455143;
+font-size:.8rem;
+font-weight:750;
+}
+
+.carpool-request-form label>span{
+color:#757c72;
+font-weight:500;
+}
+
+.carpool-request-form input,
+.carpool-request-form select,
+.carpool-request-form textarea{
+width:100%;
+padding:10px 11px;
+border:1px solid #cec6b8;
+border-radius:9px;
+background:white;
+color:#2f3b2f;
+font:inherit;
+}
+
+.carpool-request-form textarea{
+min-height:70px;
+resize:vertical;
+}
+
+.carpool-request-form button{
+padding:11px 13px;
+border:0;
+border-radius:10px;
+background:#b06f4f;
+color:white;
+cursor:pointer;
+font-weight:800;
+}
+
+.carpool-request-form button:disabled{
+cursor:wait;
+opacity:.6;
+}
+
 .carpool-offer .carpool-contact{
 color:#40543c;
 font-weight:750;
