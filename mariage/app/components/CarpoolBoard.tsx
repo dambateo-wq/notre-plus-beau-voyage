@@ -127,6 +127,9 @@ export default function CarpoolBoard() {
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error);
+      if (!data.driverContact) {
+        throw new Error("Le numéro du conducteur n’a pas été reçu.");
+      }
       form.reset();
       setDriverContacts((current) => ({
         ...current,
@@ -388,8 +391,15 @@ export default function CarpoolBoard() {
                           />
                         </label>
                         {requestStatus[offer.id] === "sent" ? (
-                          <div className="carpool-contact-reveal">
-                            <p>Demande envoyée ! Contactez maintenant le conducteur :</p>
+                          <div
+                            className="carpool-contact-reveal"
+                            role="status"
+                          >
+                            <p>
+                              Demande envoyée ! Le numéro n’est pas envoyé par
+                              SMS : il s’affiche ici pour contacter directement
+                              le conducteur.
+                            </p>
                             {phoneHref(driverContacts[offer.id] ?? "") ? (
                               <a
                                 href={phoneHref(driverContacts[offer.id]) ?? "#"}
