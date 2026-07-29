@@ -257,7 +257,8 @@ font-size:.88rem;
 display:block;
 width:100%;
 height:auto;
-overflow:visible;
+overflow:hidden;
+border-radius:22px;
 }
 
 .countries{
