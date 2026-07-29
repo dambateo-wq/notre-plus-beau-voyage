@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import { mapGeometry } from "./mapGeometry";
 
 type Place = {
   label: string;
@@ -40,96 +41,29 @@ const MAP_BOUNDS = {
   maxLongitude: 12,
 };
 
-const countryShapes = [
-  {
-    name: "France",
-    points: [
-      [-4.8, 48.7],
-      [-1.7, 48.8],
-      [-1.2, 46.1],
-      [-1.8, 43.4],
-      [3, 42.5],
-      [7.5, 43.7],
-      [7, 47.7],
-      [6.1, 49.2],
-      [2.6, 51],
-      [-1.5, 49.7],
-    ],
-  },
-  {
-    name: "Belgique",
-    points: [
-      [2.5, 51.1],
-      [4.2, 51.5],
-      [6.4, 50.7],
-      [5.8, 49.5],
-      [3, 49.5],
-    ],
-  },
-  {
-    name: "Espagne",
-    points: [
-      [-6, 43.7],
-      [-1.8, 43.4],
-      [3, 42.5],
-      [3.4, 40],
-      [-6, 40],
-    ],
-  },
-  {
-    name: "Italie",
-    points: [
-      [7.5, 46.5],
-      [12, 47.1],
-      [12, 40],
-      [10.1, 40],
-      [8.1, 43.7],
-    ],
-  },
-  {
-    name: "Royaume-Uni",
-    points: [
-      [-5.8, 53],
-      [1.7, 53],
-      [1.1, 50.8],
-      [-1.8, 50],
-      [-5.5, 51.4],
-    ],
-  },
-  {
-    name: "Europe du Nord",
-    points: [
-      [2.5, 53],
-      [12, 53],
-      [12, 47.1],
-      [7.5, 46.5],
-      [6.4, 50.7],
-    ],
-  },
-];
-
 function project(latitude: number, longitude: number) {
+  const longitudeRadians = (longitude * Math.PI) / 180;
+  const latitudeRadians = (latitude * Math.PI) / 180;
   return {
     x:
-      35 +
-      ((longitude - MAP_BOUNDS.minLongitude) /
-        (MAP_BOUNDS.maxLongitude - MAP_BOUNDS.minLongitude)) *
-        930,
+      mapGeometry.mainTranslate[0] +
+      mapGeometry.mainScale * longitudeRadians,
     y:
-      25 +
-      ((MAP_BOUNDS.maxLatitude - latitude) /
-        (MAP_BOUNDS.maxLatitude - MAP_BOUNDS.minLatitude)) *
-        450,
+      mapGeometry.mainTranslate[1] -
+      mapGeometry.mainScale *
+        Math.log(Math.tan((Math.PI / 2 + latitudeRadians) / 2)),
   };
 }
 
-function shapePath(points: number[][]) {
-  return `${points
-    .map(([longitude, latitude], index) => {
-      const point = project(latitude, longitude);
-      return `${index === 0 ? "M" : "L"} ${point.x} ${point.y}`;
-    })
-    .join(" ")} Z`;
+function projectWorld(latitude: number, longitude: number) {
+  return {
+    x:
+      mapGeometry.worldTranslate[0] +
+      mapGeometry.worldScale * ((longitude * Math.PI) / 180),
+    y:
+      mapGeometry.worldTranslate[1] -
+      mapGeometry.worldScale * ((latitude * Math.PI) / 180),
+  };
 }
 
 function isRegionalRoute(route: GuestRoute) {
@@ -161,8 +95,8 @@ function JourneyMap({ routes }: { routes: GuestRoute[] }) {
   const destination = project(MASSACAN.latitude, MASSACAN.longitude);
   const regionalRoutes = routes.filter(isRegionalRoute);
   const distantRoutes = routes.filter((route) => !isRegionalRoute(route));
-  const distantRows = Math.ceil(distantRoutes.length / 4);
-  const mapHeight = distantRoutes.length ? 555 + distantRows * 40 : 500;
+  const visibleDistantRoutes = distantRoutes.slice(0, 8);
+  const mapWidth = distantRoutes.length ? 720 : 550;
 
   return (
     <div className="journey-map">
@@ -179,7 +113,8 @@ function JourneyMap({ routes }: { routes: GuestRoute[] }) {
 
       <svg
         className="world-map"
-        viewBox={`0 0 1000 ${mapHeight}`}
+        viewBox={`0 0 ${mapWidth} 420`}
+        preserveAspectRatio="xMidYMid meet"
         role="img"
         aria-label="Carte centrée sur la France et la Belgique montrant les trajets vers le Domaine de Massacan"
       >
@@ -193,15 +128,23 @@ function JourneyMap({ routes }: { routes: GuestRoute[] }) {
           </filter>
         </defs>
 
-        <rect width="1000" height={mapHeight} rx="28" fill="url(#paper)" />
+        <rect width={mapWidth} height="420" rx="22" fill="url(#paper)" />
         <g className="map-grid">
-          <path d="M35 137H965M35 250H965M35 362H965" />
-          <path d="M267 25V475M500 25V475M732 25V475" />
+          <path d="M25 115H520M25 210H520M25 305H520" />
+          <path d="M149 20V400M273 20V400M396 20V400" />
         </g>
 
         <g className="countries" filter="url(#map-shadow)">
-          {countryShapes.map((country) => (
-            <path d={shapePath(country.points)} key={country.name} />
+          {mapGeometry.regionPaths.map((country) => (
+            <path
+              className={
+                country.name === "France" || country.name === "Belgium"
+                  ? "country-focus"
+                  : undefined
+              }
+              d={country.path}
+              key={country.name}
+            />
           ))}
         </g>
 
@@ -276,31 +219,31 @@ function JourneyMap({ routes }: { routes: GuestRoute[] }) {
         </g>
 
         {distantRoutes.length > 0 && (
-          <g className="distant-panel">
-            <rect
-              x="30"
-              y="505"
-              width="940"
-              height={35 + distantRows * 40}
-              rx="16"
-            />
-            <text className="distant-title" x="52" y="535">
+          <g className="world-inset">
+            <rect x="535" y="35" width="170" height="350" rx="16" />
+            <text className="distant-title" x="550" y="60">
               DÉPARTS LOINTAINS
             </text>
-            {distantRoutes.map((route, index) => {
-              const column = index % 4;
-              const row = Math.floor(index / 4);
-              const x = 245 + column * 180;
-              const y = 533 + row * 40;
+            <path className="mini-world-land" d={mapGeometry.worldPath} />
+            {visibleDistantRoutes.map((route, index) => {
+              const point = projectWorld(route.latitude, route.longitude);
               return (
                 <g className="distant-origin" key={route.id}>
-                  <circle cx={x} cy={y - 4} r="5" />
-                  <text x={x + 12} y={y}>
+                  <circle cx={point.x} cy={point.y} r="4.5" />
+                  <text x="550" y={205 + index * 22}>
                     {route.display_name} · {route.city}
                   </text>
                 </g>
               );
             })}
+            {distantRoutes.length > visibleDistantRoutes.length && (
+              <text className="distant-more" x="550" y="388">
+                + {distantRoutes.length - visibleDistantRoutes.length} autre
+                {distantRoutes.length - visibleDistantRoutes.length > 1
+                  ? "s"
+                  : ""}
+              </text>
+            )}
           </g>
         )}
       </svg>
@@ -311,13 +254,22 @@ function JourneyMap({ routes }: { routes: GuestRoute[] }) {
         </p>
       )}
       {distantRoutes.length > 0 && (
-        <p className="distant-note">
-          Les départs hors de la zone France–Belgique apparaissent uniquement
-          lorsqu’un invité les renseigne.
-        </p>
+        <>
+          <ul className="distant-mobile-list">
+            {distantRoutes.map((route) => (
+              <li key={route.id}>
+                {route.display_name} · {route.city}
+              </li>
+            ))}
+          </ul>
+          <p className="distant-note">
+            Le mini-planisphère apparaît uniquement lorsqu’un invité renseigne
+            un départ hors de la zone France–Belgique.
+          </p>
+        </>
       )}
       <p className="map-attribution">
-        Recherche géographique : © OpenStreetMap contributors
+        Géographie : Natural Earth · Recherche : © OpenStreetMap contributors
       </p>
     </div>
   );
