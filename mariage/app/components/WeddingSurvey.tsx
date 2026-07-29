@@ -46,7 +46,7 @@ const MAP_BOUNDS = {
 };
 
 const MAIN_MAP_ZOOM = {
-  factor: 1.38,
+  factor: 1.65,
   centerX: 250,
   centerY: 245,
 };
@@ -227,7 +227,6 @@ function JourneyMap({ routes }: { routes: GuestRoute[] }) {
               aria-label={routeTooltip(route)}
             >
               <title>{routeTooltip(route)}</title>
-              <path className="guest-route" d={curve.path} />
 
               {route.animate ? (
                 <text className="moving-bike">
