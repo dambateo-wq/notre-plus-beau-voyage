@@ -329,8 +329,15 @@ export default function WeddingSurvey() {
           songs: cleanSongs,
         }),
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error);
+      const data = (await response.json().catch(() => null)) as {
+        error?: string;
+      } | null;
+      if (!response.ok) {
+        throw new Error(
+          data?.error ??
+            "Le serveur n’a pas pu enregistrer la réponse. Réessayez.",
+        );
+      }
 
       if (notAttending) {
         setStatus("declined");
@@ -356,9 +363,11 @@ export default function WeddingSurvey() {
     } catch (submitError) {
       setStatus("idle");
       setError(
-        submitError instanceof Error
-          ? submitError.message
-          : "La réponse n’a pas pu être enregistrée.",
+        submitError instanceof TypeError
+          ? "La connexion a été interrompue. Votre formulaire est conservé : cliquez à nouveau sur le bouton pour réessayer."
+          : submitError instanceof Error
+            ? submitError.message
+            : "La réponse n’a pas pu être enregistrée. Réessayez.",
       );
     }
   }
