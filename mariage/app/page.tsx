@@ -1,6 +1,7 @@
 import WeddingSurvey from "./components/WeddingSurvey";
 import CarpoolBoard from "./components/CarpoolBoard";
 import RsvpReminder from "./components/RsvpReminder";
+import WeddingCountdown from "./components/WeddingCountdown";
 
 export default function Home() {
   return (
@@ -12,6 +13,7 @@ export default function Home() {
           <h2>Damien ❤️ Julie</h2>
           <p>Domaine du Massacan</p>
         </div>
+        <WeddingCountdown />
       </section>
 
       <section className="section">
