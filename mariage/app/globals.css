@@ -329,23 +329,20 @@ cursor:help;
 font-size:27px;
 }
 
-.destination-pin circle:first-child{
+.destination-pin{
+cursor:help;
+}
+
+.destination-hit{
+fill:transparent;
+pointer-events:all;
+}
+
+.destination-dot{
 fill:#40543c;
 stroke:#f5f1e8;
-stroke-width:2.5;
-}
-
-.destination-pin circle:nth-child(2){
-fill:#f5f1e8;
-}
-
-.destination-pin text{
-font-size:11px;
-font-weight:800;
-fill:#283a27;
-paint-order:stroke;
-stroke:#eee5d3;
-stroke-width:3px;
+stroke-width:1.5;
+pointer-events:none;
 }
 
 .world-inset>rect{
