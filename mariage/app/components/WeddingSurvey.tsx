@@ -45,17 +45,30 @@ const MAP_BOUNDS = {
   maxLongitude: 12,
 };
 
+const MAIN_MAP_ZOOM = {
+  factor: 1.38,
+  centerX: 250,
+  centerY: 245,
+};
+
 function project(latitude: number, longitude: number) {
   const longitudeRadians = (longitude * Math.PI) / 180;
   const latitudeRadians = (latitude * Math.PI) / 180;
+  const baseX =
+    mapGeometry.mainTranslate[0] +
+    mapGeometry.mainScale * longitudeRadians;
+  const baseY =
+    mapGeometry.mainTranslate[1] -
+    mapGeometry.mainScale *
+      Math.log(Math.tan((Math.PI / 2 + latitudeRadians) / 2));
+
   return {
     x:
-      mapGeometry.mainTranslate[0] +
-      mapGeometry.mainScale * longitudeRadians,
+      MAIN_MAP_ZOOM.centerX +
+      (baseX - MAIN_MAP_ZOOM.centerX) * MAIN_MAP_ZOOM.factor,
     y:
-      mapGeometry.mainTranslate[1] -
-      mapGeometry.mainScale *
-        Math.log(Math.tan((Math.PI / 2 + latitudeRadians) / 2)),
+      MAIN_MAP_ZOOM.centerY +
+      (baseY - MAIN_MAP_ZOOM.centerY) * MAIN_MAP_ZOOM.factor,
   };
 }
 
@@ -158,6 +171,9 @@ function JourneyMap({ routes }: { routes: GuestRoute[] }) {
           <filter id="map-shadow">
             <feDropShadow dx="0" dy="3" stdDeviation="4" floodOpacity=".16" />
           </filter>
+          <clipPath id="main-map-clip">
+            <rect x="0" y="0" width="520" height="420" rx="22" />
+          </clipPath>
         </defs>
 
         <rect width={mapWidth} height="420" rx="22" fill="url(#paper)" />
@@ -166,7 +182,12 @@ function JourneyMap({ routes }: { routes: GuestRoute[] }) {
           <path d="M149 20V400M273 20V400M396 20V400" />
         </g>
 
-        <g className="countries" filter="url(#map-shadow)">
+        <g
+          className="countries"
+          filter="url(#map-shadow)"
+          clipPath="url(#main-map-clip)"
+          transform={`translate(${MAIN_MAP_ZOOM.centerX} ${MAIN_MAP_ZOOM.centerY}) scale(${MAIN_MAP_ZOOM.factor}) translate(${-MAIN_MAP_ZOOM.centerX} ${-MAIN_MAP_ZOOM.centerY})`}
+        >
           {mapGeometry.regionPaths.map((country) => (
             <path
               className={
