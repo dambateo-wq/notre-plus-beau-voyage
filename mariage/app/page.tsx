@@ -1,3 +1,5 @@
+import WeddingSurvey from "./components/WeddingSurvey";
+
 export default function Home() {
   return (
     <main>
@@ -100,12 +102,7 @@ export default function Home() {
         </aside>
       </section>
 
-      <section className="survey">
-        <p className="eyebrow">Votre réponse compte</p>
-        <h2>Prêts à prendre la route avec nous ?</h2>
-        <p>Le sondage des invités sera ajouté à la prochaine étape.</p>
-        <button type="button">Répondre au sondage</button>
-      </section>
+      <WeddingSurvey />
 
       <footer>
         Damien & Julie · 29 & 30 mai 2027
