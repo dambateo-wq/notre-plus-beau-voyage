@@ -33,11 +33,112 @@ const attendanceOptions = [
   { value: "2027-05-30", label: "Dimanche 30 mai 2027" },
 ];
 
+const MAP_BOUNDS = {
+  minLatitude: 40,
+  maxLatitude: 53,
+  minLongitude: -6,
+  maxLongitude: 12,
+};
+
+const countryShapes = [
+  {
+    name: "France",
+    points: [
+      [-4.8, 48.7],
+      [-1.7, 48.8],
+      [-1.2, 46.1],
+      [-1.8, 43.4],
+      [3, 42.5],
+      [7.5, 43.7],
+      [7, 47.7],
+      [6.1, 49.2],
+      [2.6, 51],
+      [-1.5, 49.7],
+    ],
+  },
+  {
+    name: "Belgique",
+    points: [
+      [2.5, 51.1],
+      [4.2, 51.5],
+      [6.4, 50.7],
+      [5.8, 49.5],
+      [3, 49.5],
+    ],
+  },
+  {
+    name: "Espagne",
+    points: [
+      [-6, 43.7],
+      [-1.8, 43.4],
+      [3, 42.5],
+      [3.4, 40],
+      [-6, 40],
+    ],
+  },
+  {
+    name: "Italie",
+    points: [
+      [7.5, 46.5],
+      [12, 47.1],
+      [12, 40],
+      [10.1, 40],
+      [8.1, 43.7],
+    ],
+  },
+  {
+    name: "Royaume-Uni",
+    points: [
+      [-5.8, 53],
+      [1.7, 53],
+      [1.1, 50.8],
+      [-1.8, 50],
+      [-5.5, 51.4],
+    ],
+  },
+  {
+    name: "Europe du Nord",
+    points: [
+      [2.5, 53],
+      [12, 53],
+      [12, 47.1],
+      [7.5, 46.5],
+      [6.4, 50.7],
+    ],
+  },
+];
+
 function project(latitude: number, longitude: number) {
   return {
-    x: ((longitude + 180) / 360) * 1000,
-    y: ((90 - latitude) / 180) * 500,
+    x:
+      35 +
+      ((longitude - MAP_BOUNDS.minLongitude) /
+        (MAP_BOUNDS.maxLongitude - MAP_BOUNDS.minLongitude)) *
+        930,
+    y:
+      25 +
+      ((MAP_BOUNDS.maxLatitude - latitude) /
+        (MAP_BOUNDS.maxLatitude - MAP_BOUNDS.minLatitude)) *
+        450,
   };
+}
+
+function shapePath(points: number[][]) {
+  return `${points
+    .map(([longitude, latitude], index) => {
+      const point = project(latitude, longitude);
+      return `${index === 0 ? "M" : "L"} ${point.x} ${point.y}`;
+    })
+    .join(" ")} Z`;
+}
+
+function isRegionalRoute(route: GuestRoute) {
+  return (
+    route.latitude >= MAP_BOUNDS.minLatitude &&
+    route.latitude <= MAP_BOUNDS.maxLatitude &&
+    route.longitude >= MAP_BOUNDS.minLongitude &&
+    route.longitude <= MAP_BOUNDS.maxLongitude
+  );
 }
 
 function curveFor(route: GuestRoute, index: number) {
@@ -58,6 +159,10 @@ function curveFor(route: GuestRoute, index: number) {
 
 function JourneyMap({ routes }: { routes: GuestRoute[] }) {
   const destination = project(MASSACAN.latitude, MASSACAN.longitude);
+  const regionalRoutes = routes.filter(isRegionalRoute);
+  const distantRoutes = routes.filter((route) => !isRegionalRoute(route));
+  const distantRows = Math.ceil(distantRoutes.length / 4);
+  const mapHeight = distantRoutes.length ? 555 + distantRows * 40 : 500;
 
   return (
     <div className="journey-map">
@@ -67,15 +172,16 @@ function JourneyMap({ routes }: { routes: GuestRoute[] }) {
           <h3>Tous les chemins mènent à Massacan</h3>
         </div>
         <span className="bike-counter">
-          {routes.length} vélo{routes.length > 1 ? "s" : ""} en route
+          {routes.length} trajet{routes.length > 1 ? "s" : ""} enregistré
+          {routes.length > 1 ? "s" : ""}
         </span>
       </div>
 
       <svg
         className="world-map"
-        viewBox="0 0 1000 500"
+        viewBox={`0 0 1000 ${mapHeight}`}
         role="img"
-        aria-label="Carte des trajets des invités vers le Domaine de Massacan"
+        aria-label="Carte centrée sur la France et la Belgique montrant les trajets vers le Domaine de Massacan"
       >
         <defs>
           <linearGradient id="paper" x1="0" y1="0" x2="1" y2="1">
@@ -87,23 +193,28 @@ function JourneyMap({ routes }: { routes: GuestRoute[] }) {
           </filter>
         </defs>
 
-        <rect width="1000" height="500" rx="28" fill="url(#paper)" />
-        <g className="continents" filter="url(#map-shadow)">
-          <path d="M72 105 128 67 210 56 270 85 282 128 245 154 224 205 180 220 158 182 112 175 82 142Z" />
-          <path d="M232 236 285 248 323 298 310 365 279 433 249 397 240 330 211 278Z" />
-          <path d="M425 94 476 62 538 72 568 103 542 133 495 135 462 119Z" />
-          <path d="M462 145 523 142 562 187 551 256 518 334 479 310 459 239 429 188Z" />
-          <path d="M545 99 627 66 741 70 850 112 895 158 849 195 775 189 719 221 663 194 613 151Z" />
-          <path d="M787 296 842 276 891 300 910 350 867 379 813 363 779 330Z" />
-          <path d="M925 397 941 390 949 407 936 419Z" />
-        </g>
-
+        <rect width="1000" height={mapHeight} rx="28" fill="url(#paper)" />
         <g className="map-grid">
-          <path d="M0 125H1000M0 250H1000M0 375H1000" />
-          <path d="M250 0V500M500 0V500M750 0V500" />
+          <path d="M35 137H965M35 250H965M35 362H965" />
+          <path d="M267 25V475M500 25V475M732 25V475" />
         </g>
 
-        {routes.map((route, index) => {
+        <g className="countries" filter="url(#map-shadow)">
+          {countryShapes.map((country) => (
+            <path d={shapePath(country.points)} key={country.name} />
+          ))}
+        </g>
+
+        <g className="country-labels" aria-hidden="true">
+          <text x={project(46.4, 2.1).x} y={project(46.4, 2.1).y}>
+            FRANCE
+          </text>
+          <text x={project(50.7, 4.5).x} y={project(50.7, 4.5).y}>
+            BELGIQUE
+          </text>
+        </g>
+
+        {regionalRoutes.map((route, index) => {
           const curve = curveFor(route, index);
           const clusterAngle = index * 2.35;
           const clusterRadius = 12 + Math.min(32, index * 2.5);
@@ -163,11 +274,46 @@ function JourneyMap({ routes }: { routes: GuestRoute[] }) {
             Domaine de Massacan
           </text>
         </g>
+
+        {distantRoutes.length > 0 && (
+          <g className="distant-panel">
+            <rect
+              x="30"
+              y="505"
+              width="940"
+              height={35 + distantRows * 40}
+              rx="16"
+            />
+            <text className="distant-title" x="52" y="535">
+              DÉPARTS LOINTAINS
+            </text>
+            {distantRoutes.map((route, index) => {
+              const column = index % 4;
+              const row = Math.floor(index / 4);
+              const x = 245 + column * 180;
+              const y = 533 + row * 40;
+              return (
+                <g className="distant-origin" key={route.id}>
+                  <circle cx={x} cy={y - 4} r="5" />
+                  <text x={x + 12} y={y}>
+                    {route.display_name} · {route.city}
+                  </text>
+                </g>
+              );
+            })}
+          </g>
+        )}
       </svg>
 
       {routes.length === 0 && (
         <p className="map-empty">
           Le premier vélo apparaîtra ici dès qu’une réponse sera envoyée.
+        </p>
+      )}
+      {distantRoutes.length > 0 && (
+        <p className="distant-note">
+          Les départs hors de la zone France–Belgique apparaissent uniquement
+          lorsqu’un invité les renseigne.
         </p>
       )}
       <p className="map-attribution">
