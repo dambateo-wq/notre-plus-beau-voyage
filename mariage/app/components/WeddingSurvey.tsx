@@ -234,12 +234,24 @@ function JourneyMap({ routes }: { routes: GuestRoute[] }) {
           );
         })}
 
-        <g className="destination-pin">
-          <circle cx={destination.x} cy={destination.y} r="6" />
-          <circle cx={destination.x} cy={destination.y} r="2.2" />
-          <text x={destination.x + 10} y={destination.y + 4}>
-            Domaine de Massacan
-          </text>
+        <g
+          className="destination-pin"
+          role="img"
+          aria-label="Domaine de Massacan, destination du mariage"
+        >
+          <title>Domaine de Massacan · Destination du mariage</title>
+          <circle
+            className="destination-hit"
+            cx={destination.x}
+            cy={destination.y}
+            r="11"
+          />
+          <circle
+            className="destination-dot"
+            cx={destination.x}
+            cy={destination.y}
+            r="3"
+          />
         </g>
 
         {distantRoutes.length > 0 && (
