@@ -19,6 +19,11 @@ function journeyLabel(offer: CarpoolOffer) {
     : `Domaine de Massacan → ${offer.other_place}`;
 }
 
+function phoneHref(contact: string) {
+  const phone = contact.replace(/[^\d+]/g, "");
+  return /^\+?\d{8,15}$/.test(phone) ? `tel:${phone}` : null;
+}
+
 export default function CarpoolBoard() {
   const [offers, setOffers] = useState<CarpoolOffer[]>([]);
   const [loading, setLoading] = useState(true);
@@ -28,6 +33,9 @@ export default function CarpoolBoard() {
   const [direction, setDirection] = useState("to_massacan");
   const [requestingOffer, setRequestingOffer] = useState<string | null>(null);
   const [requestStatus, setRequestStatus] = useState<Record<string, string>>(
+    {},
+  );
+  const [driverContacts, setDriverContacts] = useState<Record<string, string>>(
     {},
   );
 
@@ -120,6 +128,10 @@ export default function CarpoolBoard() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error);
       form.reset();
+      setDriverContacts((current) => ({
+        ...current,
+        [offerId]: data.driverContact,
+      }));
       setRequestStatus((current) => ({ ...current, [offerId]: "sent" }));
     } catch {
       setRequestStatus((current) => ({ ...current, [offerId]: "error" }));
@@ -219,12 +231,13 @@ export default function CarpoolBoard() {
           </div>
 
           <label>
-            Téléphone ou e-mail
+            Numéro de téléphone
             <input
               name="contact"
-              type="text"
+              type="tel"
               maxLength={120}
-              placeholder="Visible uniquement par Damien et Julie"
+              placeholder="Visible après une demande de place"
+              autoComplete="tel"
               required
             />
           </label>
@@ -331,11 +344,12 @@ export default function CarpoolBoard() {
                           />
                         </label>
                         <label>
-                          Votre téléphone ou e-mail
+                          Votre numéro de téléphone
                           <input
                             name="passengerContact"
-                            type="text"
+                            type="tel"
                             maxLength={120}
+                            autoComplete="tel"
                             required
                           />
                         </label>
@@ -374,9 +388,18 @@ export default function CarpoolBoard() {
                           />
                         </label>
                         {requestStatus[offer.id] === "sent" ? (
-                          <p className="carpool-success">
-                            Demande envoyée à Damien et Julie.
-                          </p>
+                          <div className="carpool-contact-reveal">
+                            <p>Demande envoyée ! Contactez maintenant le conducteur :</p>
+                            {phoneHref(driverContacts[offer.id] ?? "") ? (
+                              <a
+                                href={phoneHref(driverContacts[offer.id]) ?? "#"}
+                              >
+                                📞 {driverContacts[offer.id]}
+                              </a>
+                            ) : (
+                              <strong>{driverContacts[offer.id]}</strong>
+                            )}
+                          </div>
                         ) : (
                           <>
                             {requestStatus[offer.id] === "error" && (
