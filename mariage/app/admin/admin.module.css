@@ -115,6 +115,22 @@
   padding: 12px 18px;
 }
 
+.headingActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.exportButton {
+  border-radius: 14px;
+  background: #3f5b3b;
+  color: white;
+  padding: 12px 18px;
+  font-size: 0.86rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
 .stats {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -263,6 +279,19 @@
   .heading {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .headingActions {
+    align-items: stretch;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .exportButton,
+  .logoutButton {
+    display: block;
+    width: 100%;
+    text-align: center;
   }
 
   .responseTop {
