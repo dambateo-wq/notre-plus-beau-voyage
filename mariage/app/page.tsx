@@ -32,11 +32,11 @@ export default function Home() {
           <p>Découvrez le lieu, son parc et les espaces du mariage.</p>
         </a>
 
-        <article className="card">
+        <a className="card" href="#programme">
           <span>📅</span>
           <h3>Le programme</h3>
-          <p>Retrouvez bientôt tous les horaires du week-end.</p>
-        </article>
+          <p>Trois jours de fête, de sport, de baignade et de danse.</p>
+        </a>
 
         <article className="card">
           <span>🧭</span>
@@ -110,6 +110,125 @@ export default function Home() {
             </li>
           </ul>
         </aside>
+      </section>
+
+      <section className="programme-section" id="programme">
+        <div className="programme-intro">
+          <p className="eyebrow">Le programme</p>
+          <h2>Trois jours pour profiter ensemble</h2>
+          <p>
+            Voici le fil conducteur du week-end. Il pourra encore évoluer sur
+            quelques détails, mais l’essentiel est là : prendre le temps, faire
+            la fête et prolonger le voyage ensemble.
+          </p>
+        </div>
+
+        <div className="programme-days">
+          <article className="programme-day">
+            <header>
+              <p>Vendredi</p>
+              <h3>28 mai</h3>
+            </header>
+            <ol>
+              <li>
+                <time>Matin</time>
+                <div>
+                  <h4>Mariage à la mairie</h4>
+                  <p>
+                    Pour les personnes informées, suivi d’un restaurant au
+                    Revest.
+                  </p>
+                </div>
+              </li>
+              <li>
+                <time>17h</time>
+                <div>
+                  <h4>Arrivée au Domaine de Massacan</h4>
+                  <p>
+                    Installation, soirée libre, pizzas, mise en place et
+                    première baignade.
+                  </p>
+                </div>
+              </li>
+            </ol>
+          </article>
+
+          <article className="programme-day programme-day-featured">
+            <header>
+              <p>Samedi</p>
+              <h3>29 mai</h3>
+            </header>
+            <ol>
+              <li>
+                <time>Matin</time>
+                <div>
+                  <h4>Petit déjeuner & activités</h4>
+                  <p>Volley, course à pied, pétanque et baignade.</p>
+                </div>
+              </li>
+              <li>
+                <time>14h</time>
+                <div>
+                  <h4>Rendez-vous à l’église du Revest</h4>
+                  <p>
+                    Horaire à confirmer. Un transport dédié partira du domaine.
+                  </p>
+                </div>
+              </li>
+              <li>
+                <time>18h</time>
+                <div>
+                  <h4>Début du cocktail</h4>
+                  <p>Dans la pinède, en bord de mer.</p>
+                </div>
+              </li>
+              <li>
+                <time>20h</time>
+                <div>
+                  <h4>Début du repas</h4>
+                </div>
+              </li>
+              <li>
+                <time>22h</time>
+                <div>
+                  <h4>Ouverture de la piste de danse</h4>
+                </div>
+              </li>
+            </ol>
+          </article>
+
+          <article className="programme-day">
+            <header>
+              <p>Dimanche</p>
+              <h3>30 mai</h3>
+            </header>
+            <ol>
+              <li>
+                <time>3h</time>
+                <div>
+                  <h4>La fête continue sur la plage</h4>
+                  <p>
+                    Fermeture de la piste, puis rendez-vous sur la plage avec
+                    projecteurs, enceintes et Phoenix.
+                  </p>
+                </div>
+              </li>
+              <li>
+                <time>11h</time>
+                <div>
+                  <h4>Food truck</h4>
+                </div>
+              </li>
+              <li>
+                <time>16h</time>
+                <div>
+                  <h4>Fin du week-end</h4>
+                  <p>Derniers moments chill avant de libérer le domaine.</p>
+                </div>
+              </li>
+            </ol>
+          </article>
+        </div>
       </section>
 
       <CarpoolBoard />
