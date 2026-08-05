@@ -3,7 +3,7 @@ import "server-only";
 import { getPrivateSupabaseConfig } from "@/lib/admin-data";
 
 export const LODGING_NIGHTS = ["2027-05-28", "2027-05-29"] as const;
-export const LODGING_CAPACITY = 90;
+export const LODGING_CAPACITY = 106;
 export const LODGING_PRICE_CENTS = 3500;
 
 export type LodgingReservation = {
@@ -22,6 +22,19 @@ export type LodgingReservation = {
   payment_status: "unpaid" | "declared" | "confirmed";
   booking_status: "active" | "cancelled";
   created_at: string;
+  updated_at: string;
+};
+
+export type LodgingAssignment = {
+  id: string;
+  reservation_id: string;
+  room_name: string;
+  friday_adults: number;
+  friday_children: number;
+  friday_babies: number;
+  saturday_adults: number;
+  saturday_children: number;
+  saturday_babies: number;
   updated_at: string;
 };
 
@@ -91,4 +104,45 @@ export async function updateLodgingReservation(
   if (!response.ok) {
     throw new Error("La réservation n’a pas pu être mise à jour.");
   }
+}
+
+export async function getLodgingAssignments() {
+  const { url, headers } = getPrivateSupabaseConfig();
+  const response = await fetch(
+    url + "/rest/v1/lodging_assignments?select=*&order=room_name.asc",
+    { headers, cache: "no-store" },
+  );
+  if (!response.ok) {
+    const error = await response.text();
+    if (error.includes("lodging_assignments") || error.includes("PGRST205")) {
+      return [];
+    }
+    throw new Error("Les placements ne peuvent pas être chargés.");
+  }
+  return (await response.json()) as LodgingAssignment[];
+}
+
+export async function saveLodgingAssignment(
+  reservationId: string,
+  values: Omit<LodgingAssignment, "id" | "reservation_id" | "updated_at">,
+) {
+  const { url, headers } = getPrivateSupabaseConfig();
+  const response = await fetch(
+    url + "/rest/v1/lodging_assignments?on_conflict=reservation_id",
+    {
+      method: "POST",
+      headers: {
+        ...headers,
+        "Content-Type": "application/json",
+        Prefer: "resolution=merge-duplicates,return=minimal",
+      },
+      body: JSON.stringify({
+        reservation_id: reservationId,
+        ...values,
+        updated_at: new Date().toISOString(),
+      }),
+      cache: "no-store",
+    },
+  );
+  if (!response.ok) throw new Error("Le placement n’a pas pu être enregistré.");
 }
