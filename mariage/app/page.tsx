@@ -246,7 +246,7 @@ export default function Home() {
         </div>
         <div className="travel-options">
           <article><span>🚗</span><h3>En voiture</h3><p><strong>Domaine de Massacan</strong><br />1589 avenue du Commandant Houot<br />83130 La Garde</p><p>Pour le stationnement, rendez-vous prochainement dans l’onglet <strong>Infos pratiques</strong>.</p></article>
-          <article><span>✈️</span><h3>En avion</h3><p>Volotea relie Lille à Toulon. Ryanair propose Charleroi–Marseille, et plusieurs compagnies relient Bruxelles à Marseille, souvent à un tarif plus élevé.</p><p>Depuis Marseille : voiture de location (environ 1h15), covoiturage via l’onglet dédié, ou bus + train + bus (environ 3h, autour de 30 €).</p><p>Depuis Hyères : même principe, avec bus + marche + bus si vous ne louez pas de voiture.</p></article>
+          <article><span>✈️</span><h3>En avion</h3><p><strong>Depuis la Belgique et le nord de la France</strong></p><p>Toulon–Hyères est l’aéroport le plus proche du domaine, à environ 30 minutes en voiture. Marseille Provence offre davantage de vols et se situe à environ 1 h 15 du domaine.</p><p>Au départ de Charleroi, Bruxelles ou Lille, plusieurs compagnies desservent ces deux aéroports selon la saison.</p><p>💡 Nous vous recommandons de privilégier Toulon lorsqu’un vol est disponible.</p><p>Une fois sur place : louez une voiture pour profiter du week-end et de la région, ou utilisez notre espace <strong>Covoiturage</strong> pour partager un trajet avec d’autres invités.</p></article>
           <article><span>🚆</span><h3>En train</h3><p>Arrivez à la gare de Toulon, puis empruntez les lignes <strong>36, 2 ou 29</strong> du réseau Mistral.</p></article>
         </div>
       </section>
