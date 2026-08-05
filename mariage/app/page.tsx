@@ -39,11 +39,11 @@ export default function Home() {
           <p>Trois jours de fête, de sport, de baignade et de danse.</p>
         </a>
 
-        <article className="card">
+        <a className="card" href="#venir">
           <span>🧭</span>
           <h3>Comment venir</h3>
           <p>Adresse, transports et informations pratiques.</p>
-        </article>
+        </a>
 
         <a className="card" href="#covoiturage">
           <span>🚗</span>
@@ -235,6 +235,19 @@ export default function Home() {
               </li>
             </ol>
           </article>
+        </div>
+      </section>
+
+      <section className="travel-section" id="venir">
+        <div className="travel-intro">
+          <p className="eyebrow">Comment venir</p>
+          <h2>Toutes les routes mènent à Massacan</h2>
+          <p>Choisissez l’itinéraire qui vous convient le mieux. L’essentiel : arriver pour profiter du week-end avec nous.</p>
+        </div>
+        <div className="travel-options">
+          <article><span>🚗</span><h3>En voiture</h3><p><strong>Domaine de Massacan</strong><br />1589 avenue du Commandant Houot<br />83130 La Garde</p><p>Pour le stationnement, rendez-vous prochainement dans l’onglet <strong>Infos pratiques</strong>.</p></article>
+          <article><span>✈️</span><h3>En avion</h3><p>Volotea relie Lille à Toulon. Ryanair propose Charleroi–Marseille, et plusieurs compagnies relient Bruxelles à Marseille, souvent à un tarif plus élevé.</p><p>Depuis Marseille : voiture de location (environ 1h15), covoiturage via l’onglet dédié, ou bus + train + bus (environ 3h, autour de 30 €).</p><p>Depuis Hyères : même principe, avec bus + marche + bus si vous ne louez pas de voiture.</p></article>
+          <article><span>🚆</span><h3>En train</h3><p>Arrivez à la gare de Toulon, puis empruntez les lignes <strong>36, 2 ou 29</strong> du réseau Mistral.</p></article>
         </div>
       </section>
 
