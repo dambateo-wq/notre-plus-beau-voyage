@@ -141,6 +141,365 @@ color:white;
 color:#e0e6dc;
 }
 
+.lodging-card{
+background:#b06f4f;
+color:white;
+}
+
+.lodging-card p{
+color:#fff3eb;
+}
+
+.lodging-section{
+max-width:1100px;
+margin:35px auto 80px;
+padding:68px 56px;
+border-radius:28px;
+background:#e8e1d3;
+scroll-margin-top:24px;
+}
+
+.lodging-intro{
+max-width:720px;
+margin-bottom:28px;
+}
+
+.lodging-intro h2{
+margin:12px 0 18px;
+font-family:Georgia,serif;
+font-size:clamp(2.25rem,5vw,4rem);
+font-weight:400;
+line-height:1.08;
+}
+
+.lodging-intro>p:last-child{
+color:#596256;
+font-size:1.04rem;
+line-height:1.7;
+}
+
+.lodging-availability{
+display:grid;
+grid-template-columns:repeat(2,minmax(0,1fr));
+gap:12px;
+margin-bottom:28px;
+}
+
+.lodging-availability>div{
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:14px;
+padding:15px 17px;
+border-radius:14px;
+background:#40543c;
+color:white;
+}
+
+.lodging-availability span{
+font-size:.9rem;
+}
+
+.lodging-availability strong{
+font-size:.86rem;
+}
+
+.lodging-layout{
+display:grid;
+grid-template-columns:minmax(0,1.3fr) minmax(270px,.7fr);
+align-items:start;
+gap:24px;
+}
+
+.lodging-form,
+.lodging-lookup,
+.lodging-confirmation{
+padding:30px;
+border:1px solid #ded5c5;
+border-radius:24px;
+background:#fffdf8;
+box-shadow:0 15px 45px rgba(47,59,47,.08);
+}
+
+.lodging-form{
+display:grid;
+gap:17px;
+}
+
+.lodging-form h3,
+.lodging-lookup h3,
+.lodging-confirmation h3{
+margin:-6px 0 5px;
+font-family:Georgia,serif;
+font-size:1.75rem;
+font-weight:500;
+}
+
+.lodging-form label,
+.lodging-lookup label{
+display:grid;
+gap:8px;
+color:#384537;
+font-size:.9rem;
+font-weight:750;
+}
+
+.lodging-form label>span,
+.lodging-lookup label>span{
+color:#767c73;
+font-size:.78rem;
+font-weight:500;
+}
+
+.lodging-form input,
+.lodging-form select,
+.lodging-form textarea,
+.lodging-lookup input{
+width:100%;
+padding:13px 14px;
+border:1px solid #cec6b8;
+border-radius:12px;
+background:white;
+color:#2f3b2f;
+font:inherit;
+outline:none;
+}
+
+.lodging-form textarea{
+min-height:92px;
+resize:vertical;
+}
+
+.lodging-form input:focus,
+.lodging-form select:focus,
+.lodging-form textarea:focus,
+.lodging-lookup input:focus{
+border-color:#66745f;
+box-shadow:0 0 0 4px rgba(102,116,95,.12);
+}
+
+.lodging-form-row{
+display:grid;
+grid-template-columns:repeat(2,minmax(0,1fr));
+gap:12px;
+}
+
+.lodging-form fieldset{
+border:0;
+padding:0;
+}
+
+.lodging-form legend{
+margin-bottom:10px;
+color:#384537;
+font-size:.9rem;
+font-weight:750;
+}
+
+.lodging-night-choices,
+.lodging-payment-choices{
+display:grid;
+grid-template-columns:repeat(2,minmax(0,1fr));
+gap:9px;
+}
+
+.lodging-payment-choices{
+grid-template-columns:repeat(3,minmax(0,1fr));
+}
+
+.lodging-night-choices label,
+.lodging-payment-choices label{
+display:flex;
+align-items:center;
+gap:9px;
+min-height:55px;
+padding:12px;
+border:1px solid #d8d0c3;
+border-radius:12px;
+background:#f6f1e8;
+cursor:pointer;
+}
+
+.lodging-night-choices label:has(input:checked),
+.lodging-payment-choices label:has(input:checked){
+border-color:#66745f;
+background:#e6ecdf;
+box-shadow:inset 0 0 0 1px #66745f;
+}
+
+.lodging-night-choices input,
+.lodging-payment-choices input{
+width:18px;
+height:18px;
+accent-color:#40543c;
+}
+
+.lodging-names{
+display:grid;
+gap:9px;
+}
+
+.lodging-names>p{
+color:#384537;
+font-size:.9rem;
+font-weight:750;
+}
+
+.lodging-total{
+padding:15px;
+border-radius:12px;
+background:#e4eadf;
+color:#40543c;
+}
+
+.lodging-form>button,
+.lodging-lookup>button,
+.lodging-payment-details>button{
+border:0;
+border-radius:13px;
+background:#40543c;
+color:white;
+cursor:pointer;
+padding:15px 20px;
+font-weight:800;
+}
+
+.lodging-form>button:disabled,
+.lodging-payment-details>button:disabled{
+cursor:wait;
+opacity:.6;
+}
+
+.lodging-honeypot{
+position:absolute!important;
+left:-10000px!important;
+width:1px!important;
+height:1px!important;
+overflow:hidden!important;
+}
+
+.lodging-lookup{
+display:grid;
+gap:15px;
+}
+
+.lodging-lookup>p:not(.eyebrow){
+color:#687064;
+font-size:.9rem;
+line-height:1.6;
+}
+
+.lodging-confirmation{
+max-width:780px;
+margin:auto;
+text-align:center;
+}
+
+.lodging-confirmation>span{
+display:block;
+font-size:2.6rem;
+}
+
+.lodging-confirmation h3{
+margin:10px 0;
+}
+
+.lodging-confirmation>p:not(.eyebrow){
+color:#5b6559;
+line-height:1.6;
+}
+
+.lodging-confirmation>dl,
+.lodging-payment-details dl{
+display:grid;
+grid-template-columns:repeat(3,minmax(0,1fr));
+gap:12px;
+margin:24px 0;
+text-align:left;
+}
+
+.lodging-confirmation dl>div,
+.lodging-payment-details dl>div{
+padding:13px;
+border-radius:12px;
+background:#f1ece3;
+}
+
+.lodging-confirmation dt,
+.lodging-payment-details dt{
+margin-bottom:4px;
+color:#8a705a;
+font-size:.68rem;
+font-weight:850;
+letter-spacing:.08em;
+text-transform:uppercase;
+}
+
+.lodging-confirmation dd,
+.lodging-payment-details dd{
+margin:0;
+font-weight:700;
+overflow-wrap:anywhere;
+}
+
+.lodging-payment-details{
+margin-top:25px;
+padding:22px;
+border-radius:17px;
+background:#f1ece3;
+text-align:left;
+}
+
+.lodging-payment-switch{
+display:flex;
+gap:8px;
+margin-bottom:15px;
+}
+
+.lodging-payment-switch button{
+border:1px solid #c8bfaf;
+border-radius:10px;
+background:white;
+color:#485547;
+cursor:pointer;
+padding:9px 12px;
+font-weight:750;
+}
+
+.lodging-payment-switch button.selected{
+border-color:#40543c;
+background:#40543c;
+color:white;
+}
+
+.lodging-payment-details>p{
+line-height:1.65;
+}
+
+.lodging-paid,
+.lodging-declared,
+.lodging-error{
+margin-top:18px;
+padding:13px 15px;
+border-radius:11px;
+font-weight:700;
+}
+
+.lodging-paid{
+background:#e4ecdf;
+color:#3f593b;
+}
+
+.lodging-declared{
+background:#f4eadc;
+color:#8b6342;
+}
+
+.lodging-error{
+background:#f6e2dc;
+color:#8a3f32;
+}
+
 .programme-section{
 max-width:1100px;
 margin:35px auto 80px;
@@ -1413,6 +1772,26 @@ gap:36px;
 .programme-section{
 margin:10px 16px 55px;
 padding:42px 24px;
+}
+
+.lodging-section{
+margin:10px 16px 60px;
+padding:42px 24px;
+}
+
+.lodging-layout,
+.lodging-form-row{
+grid-template-columns:1fr;
+}
+
+.lodging-availability,
+.lodging-payment-choices{
+grid-template-columns:1fr;
+}
+
+.lodging-confirmation>dl,
+.lodging-payment-details dl{
+grid-template-columns:1fr;
 }
 
 .programme-days{
