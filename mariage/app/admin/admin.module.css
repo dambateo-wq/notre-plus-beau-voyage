@@ -238,6 +238,45 @@
   color: #86483b;
 }
 
+.pendingStatus {
+  background: #f5ead1;
+  color: #815b24;
+}
+
+.lodgingActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.confirmButton,
+.cancelButton {
+  border-radius: 10px;
+  cursor: pointer;
+  padding: 8px 11px;
+  font-size: 0.78rem;
+  font-weight: 750;
+}
+
+.confirmButton {
+  border: 1px solid #9bbb91;
+  background: #e3efdf;
+  color: #345033;
+}
+
+.cancelButton {
+  border: 1px solid #d8b9b0;
+  background: transparent;
+  color: #914b3e;
+}
+
+.confirmButton:disabled,
+.cancelButton:disabled {
+  cursor: wait;
+  opacity: .55;
+}
+
 .details {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
