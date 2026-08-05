@@ -5,12 +5,13 @@ import {
   getCarpoolRequests,
   getWeddingResponses,
 } from "@/lib/admin-data";
-import { getLodgingReservations } from "@/lib/lodging";
+import { getLodgingAssignments, getLodgingReservations } from "@/lib/lodging";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { login, logout } from "./actions";
 import DeleteResponseButton from "./DeleteResponseButton";
 import DeleteCarpoolButton from "./DeleteCarpoolButton";
 import LodgingActions from "./LodgingActions";
+import LodgingPlacement from "./LodgingPlacement";
 import styles from "./admin.module.css";
 
 export const metadata: Metadata = {
@@ -70,11 +71,12 @@ export default async function AdminPage({
     );
   }
 
-  const [responses, carpoolOffers, carpoolRequests, lodgingReservations] = await Promise.all([
+  const [responses, carpoolOffers, carpoolRequests, lodgingReservations, lodgingAssignments] = await Promise.all([
     getWeddingResponses(),
     getCarpoolOffers(),
     getCarpoolRequests(),
     getLodgingReservations(),
+    getLodgingAssignments(),
   ]);
   const attending = responses.filter((response) => !response.not_attending);
   const declined = responses.length - attending.length;
@@ -102,6 +104,9 @@ export default async function AdminPage({
             </Link>
             <a className={styles.exportButton} href="/admin/export">
               Télécharger en Excel
+            </a>
+            <a className={styles.exportButton} href="/api/admin/lodging-plan">
+              Plan d’hébergement Excel
             </a>
             <form action={logout}>
               <button className={styles.logoutButton} type="submit">
@@ -350,6 +355,14 @@ export default async function AdminPage({
                         <LodgingActions
                           id={reservation.id}
                           paymentStatus={reservation.payment_status}
+                        />
+                      )}
+                      {reservation.booking_status === "active" && reservation.payment_status === "confirmed" && (
+                        <LodgingPlacement
+                          reservationId={reservation.id}
+                          guestsCount={reservation.guests_count}
+                          nights={reservation.nights}
+                          assignment={lodgingAssignments.find((assignment) => assignment.reservation_id === reservation.id)}
                         />
                       )}
                     </div>
