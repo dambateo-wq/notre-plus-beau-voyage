@@ -391,6 +391,7 @@ function JourneyMap({ routes }: { routes: GuestRoute[] }) {
 
 export default function WeddingSurvey() {
   const [respondentName, setRespondentName] = useState("");
+  const [respondentEmail, setRespondentEmail] = useState("");
   const [companions, setCompanions] = useState<string[]>([]);
   const [attendanceDays, setAttendanceDays] = useState<string[]>([]);
   const [notAttending, setNotAttending] = useState(false);
@@ -528,6 +529,7 @@ export default function WeddingSurvey() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           respondentName,
+          respondentEmail,
           companions,
           attendanceDays,
           notAttending,
@@ -624,7 +626,24 @@ export default function WeddingSurvey() {
 
         <fieldset>
           <legend>
-            <span>2</span> J’embarque avec moi…
+            <span>2</span> Votre adresse e-mail
+          </legend>
+          <label className="sr-only" htmlFor="respondent-email">
+            Adresse e-mail
+          </label>
+          <input
+            id="respondent-email"
+            value={respondentEmail}
+            onChange={(event) => setRespondentEmail(event.target.value)}
+            placeholder="vous@exemple.com"
+            type="email"
+            required
+          />
+        </fieldset>
+
+        <fieldset>
+          <legend>
+            <span>3</span> J’embarque avec moi…
           </legend>
           <p className="field-help">
             Ajoutez une ligne pour chaque personne qui vous accompagne.
@@ -662,7 +681,7 @@ export default function WeddingSurvey() {
 
         <fieldset>
           <legend>
-            <span>3</span> Je viendrai faire la fête avec vous…
+            <span>4</span> Je viendrai faire la fête avec vous…
           </legend>
           <div className="choice-grid">
             {attendanceOptions.map((option) => (
@@ -690,7 +709,7 @@ export default function WeddingSurvey() {
           <>
             <fieldset>
               <legend>
-                <span>4</span> Je partirai de…
+                <span>5</span> Je partirai de…
               </legend>
               <p className="field-help">
                 Indiquez une ville et un pays, puis sélectionnez le bon résultat.
@@ -740,11 +759,11 @@ export default function WeddingSurvey() {
 
             <fieldset>
               <legend>
-                <span>5</span> Pour en profiter au maximum, je souhaite dormir
+                <span>6</span> Pour en profiter au maximum, je souhaite dormir
                 sur place
               </legend>
               <div className="lodging-note">
-                La majorité des chambres sont composées de quatre lits simples.
+                Les chambres sont composées de lits simples entre 2 et 5 personnes. On vous connaît tous, on fera au mieux pour les répartitions.
                 La participation est de <strong>35 € par personne et par nuit</strong>.
               </div>
               <div className="choice-grid lodging-choices">
@@ -841,7 +860,7 @@ export default function WeddingSurvey() {
 
             <fieldset>
               <legend>
-                <span>6</span> Pour être certain de me déhancher sur le
+                <span>7</span> Pour être certain de me déhancher sur le
                 dancefloor, je souhaiterais écouter…
               </legend>
               <p className="field-help">Cette question est facultative.</p>
