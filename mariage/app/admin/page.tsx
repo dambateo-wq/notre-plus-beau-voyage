@@ -5,10 +5,12 @@ import {
   getCarpoolRequests,
   getWeddingResponses,
 } from "@/lib/admin-data";
+import { getLodgingReservations } from "@/lib/lodging";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { login, logout } from "./actions";
 import DeleteResponseButton from "./DeleteResponseButton";
 import DeleteCarpoolButton from "./DeleteCarpoolButton";
+import LodgingActions from "./LodgingActions";
 import styles from "./admin.module.css";
 
 export const metadata: Metadata = {
@@ -68,10 +70,11 @@ export default async function AdminPage({
     );
   }
 
-  const [responses, carpoolOffers, carpoolRequests] = await Promise.all([
+  const [responses, carpoolOffers, carpoolRequests, lodgingReservations] = await Promise.all([
     getWeddingResponses(),
     getCarpoolOffers(),
     getCarpoolRequests(),
+    getLodgingReservations(),
   ]);
   const attending = responses.filter((response) => !response.not_attending);
   const declined = responses.length - attending.length;
@@ -295,6 +298,88 @@ export default async function AdminPage({
                         ))}
                     </div>
                   )}
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section className={styles.carpoolAdmin}>
+          <div className={styles.sectionHeading}>
+            <div>
+              <p className={styles.eyebrow}>Hébergement</p>
+              <h2>Réservations au domaine</h2>
+            </div>
+            <span>
+              {lodgingReservations.filter((reservation) => reservation.booking_status === "active").length} réservation
+              {lodgingReservations.filter((reservation) => reservation.booking_status === "active").length > 1 ? "s" : ""}
+            </span>
+          </div>
+
+          {lodgingReservations.length === 0 ? (
+            <p className={styles.empty}>
+              Aucune réservation de nuitée n’a encore été enregistrée.
+            </p>
+          ) : (
+            <div className={styles.responses}>
+              {lodgingReservations.map((reservation) => (
+                <article className={styles.responseCard} key={reservation.id}>
+                  <div className={styles.responseTop}>
+                    <div>
+                      <h2>{reservation.booker_name}</h2>
+                      <time dateTime={reservation.created_at}>
+                        Référence {reservation.reference} · créée le{" "}
+                        {new Intl.DateTimeFormat("fr-FR", {
+                          dateStyle: "long",
+                          timeStyle: "short",
+                          timeZone: "Europe/Paris",
+                        }).format(new Date(reservation.created_at))}
+                      </time>
+                    </div>
+                    <div className={styles.responseActions}>
+                      <span className={reservation.booking_status === "cancelled" ? styles.status + " " + styles.declined : reservation.payment_status === "confirmed" ? styles.status : styles.status + " " + styles.pendingStatus}>
+                        {reservation.booking_status === "cancelled"
+                          ? "Annulée"
+                          : reservation.payment_status === "confirmed"
+                            ? "Paiement confirmé"
+                            : reservation.payment_status === "declared"
+                              ? "Paiement à vérifier"
+                              : "Paiement à venir"}
+                      </span>
+                      {reservation.booking_status === "active" && (
+                        <LodgingActions
+                          id={reservation.id}
+                          paymentStatus={reservation.payment_status}
+                        />
+                      )}
+                    </div>
+                  </div>
+                  <dl className={styles.details}>
+                    <div>
+                      <dt>Nuitées</dt>
+                      <dd>{joinOrDash(reservation.nights.map((night) => dayLabels[night] ?? night))}</dd>
+                    </div>
+                    <div>
+                      <dt>Personnes</dt>
+                      <dd>{reservation.guest_names.join(", ")}</dd>
+                    </div>
+                    <div>
+                      <dt>Montant</dt>
+                      <dd>{new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(reservation.amount_cents / 100)}</dd>
+                    </div>
+                    <div>
+                      <dt>Contact</dt>
+                      <dd>{reservation.phone}{reservation.email ? " · " + reservation.email : ""}</dd>
+                    </div>
+                    <div>
+                      <dt>Règlement choisi</dt>
+                      <dd>{reservation.payment_method === "wero" ? "Wero" : reservation.payment_method === "bank_transfer" ? "Virement" : "Plus tard"}</dd>
+                    </div>
+                    <div>
+                      <dt>Souhait de chambre</dt>
+                      <dd>{reservation.roommate_wishes || "—"}</dd>
+                    </div>
+                  </dl>
                 </article>
               ))}
             </div>
