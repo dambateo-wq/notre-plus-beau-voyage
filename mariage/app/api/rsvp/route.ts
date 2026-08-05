@@ -2,6 +2,7 @@ import { getSupabaseConfig } from "@/lib/supabase";
 
 type WeddingResponse = {
   respondentName?: unknown;
+  respondentEmail?: unknown;
   companions?: unknown;
   attendanceDays?: unknown;
   notAttending?: unknown;
@@ -38,14 +39,15 @@ export async function POST(request: Request) {
   try {
     const body = (await request.json()) as WeddingResponse;
     const respondentName = cleanString(body.respondentName, 80);
+    const respondentEmail = cleanString(body.respondentEmail, 120);
     const notAttending = body.notAttending === true;
     const attendanceDays = cleanStringArray(body.attendanceDays, 3, 10).filter(
       (day) => allowedDays.has(day),
     );
 
-    if (!respondentName) {
+    if (!respondentName || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(respondentEmail)) {
       return Response.json(
-        { error: "Le nom et le prénom sont obligatoires." },
+        { error: "Le nom, le prénom et une adresse e-mail valide sont obligatoires." },
         { status: 400 },
       );
     }
@@ -71,6 +73,7 @@ export async function POST(request: Request) {
 
     const payload = {
       respondent_name: respondentName,
+      respondent_email: respondentEmail,
       companions: cleanStringArray(body.companions, 15, 80),
       attendance_days: notAttending ? [] : attendanceDays,
       not_attending: notAttending,
