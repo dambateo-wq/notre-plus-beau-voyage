@@ -2,6 +2,7 @@ import WeddingSurvey from "./components/WeddingSurvey";
 import CarpoolBoard from "./components/CarpoolBoard";
 import RsvpReminder from "./components/RsvpReminder";
 import WeddingCountdown from "./components/WeddingCountdown";
+import LodgingBooking from "./components/LodgingBooking";
 
 export default function Home() {
   return (
@@ -54,6 +55,12 @@ export default function Home() {
           <span>🚲</span>
           <h3>Inscription au voyage</h3>
           <p>Confirmez votre présence et vos souhaits pour le week-end.</p>
+        </a>
+
+        <a className="card lodging-card" href="#hebergement">
+          <span>🛏️</span>
+          <h3>Réserver une nuitée</h3>
+          <p>Réservez vos couchages au domaine et réglez à votre rythme.</p>
         </a>
       </section>
 
@@ -232,6 +239,7 @@ export default function Home() {
       </section>
 
       <CarpoolBoard />
+      <LodgingBooking />
 
       <WeddingSurvey />
       <RsvpReminder />
