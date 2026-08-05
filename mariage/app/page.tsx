@@ -39,10 +39,16 @@ export default function Home() {
           <p>Trois jours de fête, de sport, de baignade et de danse.</p>
         </a>
 
+        <a className="card registration-card" href="#sondage">
+          <span>🚲</span>
+          <h3>Inscription au voyage</h3>
+          <p>Confirmez votre présence et vos souhaits pour le week-end.</p>
+        </a>
+
         <a className="card" href="#venir">
           <span>🧭</span>
           <h3>Comment venir</h3>
-          <p>Adresse, transports et informations pratiques.</p>
+          <p>Adresse, transports et itinéraires pour rejoindre le domaine.</p>
         </a>
 
         <a className="card" href="#covoiturage">
@@ -51,10 +57,10 @@ export default function Home() {
           <p>Proposez ou recherchez un trajet avec les autres invités.</p>
         </a>
 
-        <a className="card registration-card" href="#sondage">
-          <span>🚲</span>
-          <h3>Inscription au voyage</h3>
-          <p>Confirmez votre présence et vos souhaits pour le week-end.</p>
+        <a className="card" href="#infos-pratiques">
+          <span>ℹ️</span>
+          <h3>Infos pratiques</h3>
+          <p>Les derniers détails utiles pour profiter du week-end.</p>
         </a>
 
         <a className="card lodging-card" href="#hebergement">
@@ -238,6 +244,9 @@ export default function Home() {
         </div>
       </section>
 
+      <WeddingSurvey />
+      <RsvpReminder />
+
       <section className="travel-section" id="venir">
         <div className="travel-intro">
           <p className="eyebrow">Comment venir</p>
@@ -245,17 +254,21 @@ export default function Home() {
           <p>Choisissez l’itinéraire qui vous convient le mieux. L’essentiel : arriver pour profiter du week-end avec nous.</p>
         </div>
         <div className="travel-options">
-          <article><span>🚗</span><h3>En voiture</h3><p><strong>Domaine de Massacan</strong><br />1589 avenue du Commandant Houot<br />83130 La Garde</p><p>Pour le stationnement, rendez-vous prochainement dans l’onglet <strong>Infos pratiques</strong>.</p></article>
-          <article><span>✈️</span><h3>En avion</h3><p><strong>Depuis la Belgique et le nord de la France</strong></p><p>Toulon–Hyères est l’aéroport le plus proche du domaine, à environ 30 minutes en voiture. Marseille Provence offre davantage de vols et se situe à environ 1 h 15 du domaine.</p><p>Au départ de Charleroi, Bruxelles ou Lille, plusieurs compagnies desservent ces deux aéroports selon la saison.</p><p>💡 Nous vous recommandons de privilégier Toulon lorsqu’un vol est disponible.</p><p>Une fois sur place : louez une voiture pour profiter du week-end et de la région, ou utilisez notre espace <strong>Covoiturage</strong> pour partager un trajet avec d’autres invités.</p></article>
+          <article><span>🚗</span><h3>En voiture</h3><p><strong>Domaine de Massacan</strong><br />1589 avenue du Commandant Houot<br />83130 La Garde</p><p>Pour le stationnement, rendez-vous dans l’onglet <a href="#infos-pratiques">Infos pratiques</a>.</p></article>
+          <article><span>✈️</span><h3>En avion</h3><p><strong>Depuis la Belgique et le nord de la France</strong></p><p>Toulon–Hyères est l’aéroport le plus proche du domaine, à environ 30 minutes en voiture. Marseille Provence offre davantage de vols et se situe à environ 1 h 15 du domaine.</p><p>Au départ de Charleroi, Bruxelles ou Lille, plusieurs compagnies desservent ces deux aéroports selon la saison.</p><p>Une fois sur place : louez une voiture pour profiter du week-end et de la région, ou utilisez notre espace <a href="#covoiturage">Covoiturage</a> pour partager un trajet avec d’autres invités.</p></article>
           <article><span>🚆</span><h3>En train</h3><p>Arrivez à la gare de Toulon, puis empruntez les lignes <strong>36, 2 ou 29</strong> du réseau Mistral.</p></article>
         </div>
       </section>
 
       <CarpoolBoard />
-      <LodgingBooking />
 
-      <WeddingSurvey />
-      <RsvpReminder />
+      <section className="practical-section" id="infos-pratiques">
+        <p className="eyebrow">Infos pratiques</p>
+        <h2>Les derniers détails arrivent bientôt</h2>
+        <p>Vous trouverez ici prochainement les informations sur le stationnement, les accès et tout ce qu’il faut prévoir pour le week-end.</p>
+      </section>
+
+      <LodgingBooking />
 
       <footer>
         <span>Damien & Julie · 29 & 30 mai 2027</span>
