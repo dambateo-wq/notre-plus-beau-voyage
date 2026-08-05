@@ -199,9 +199,8 @@ export default function LodgingBooking() {
         <p className="eyebrow">Dormir au domaine</p>
         <h2>Réserver vos nuitées</h2>
         <p>
-          35 € par personne et par nuit. La plupart des chambres comprennent
-          quatre lits simples : nous formerons les chambres au plus près de vos
-          souhaits.
+          35 € par personne et par nuit. Les chambres sont composées de lits
+          simples entre 2 et 5 personnes.
         </p>
       </div>
 
@@ -230,10 +229,6 @@ export default function LodgingBooking() {
               <label>
                 Téléphone
                 <input name="phone" type="tel" maxLength={30} required />
-              </label>
-              <label>
-                E-mail <span>(facultatif)</span>
-                <input name="email" type="email" maxLength={120} />
               </label>
             </div>
 
