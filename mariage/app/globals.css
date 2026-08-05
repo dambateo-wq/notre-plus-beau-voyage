@@ -166,10 +166,24 @@ scroll-margin-top:24px;
 .travel-options span{font-size:1.6rem}
 .travel-options h3{margin:12px 0;font-family:Georgia,serif;font-size:1.45rem;font-weight:500}
 .travel-options p{margin:0 0 12px;color:#596256;line-height:1.6}
+.travel-options a{color:#40543c;font-weight:750}
+
+.practical-section{
+max-width:1100px;
+margin:35px auto 80px;
+padding:60px 56px;
+border:1px dashed #cdbf9e;
+border-radius:28px;
+background:#f8f2e7;
+scroll-margin-top:24px;
+}
+.practical-section h2{margin:12px 0 16px;font-family:Georgia,serif;font-size:clamp(2rem,4vw,3.4rem);font-weight:400}
+.practical-section>p:last-child{max-width:680px;color:#667064;line-height:1.7}
 
 @media (max-width:800px){
 .travel-section{padding:45px 24px}
 .travel-options{grid-template-columns:1fr}
+.practical-section{padding:42px 24px}
 }
 
 .lodging-section{
