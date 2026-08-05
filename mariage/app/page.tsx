@@ -264,8 +264,46 @@ export default function Home() {
 
       <section className="practical-section" id="infos-pratiques">
         <p className="eyebrow">Infos pratiques</p>
-        <h2>Les derniers détails arrivent bientôt</h2>
-        <p>Vous trouverez ici prochainement les informations sur le stationnement, les accès et tout ce qu’il faut prévoir pour le week-end.</p>
+        <h2>Les petits détails qui font un week-end parfait</h2>
+        <div className="practical-grid">
+          <article>
+            <span>🧸</span>
+            <h3>Enfants</h3>
+            <p>
+              Nous sommes sincèrement désolés, mais la capacité d’accueil du
+              domaine est limitée. À l’exception de la famille, nous vous
+              demanderons donc de venir sans vos rejetons.
+            </p>
+          </article>
+          <article>
+            <span>🅿️</span>
+            <h3>Parking</h3>
+            <p>
+              Le domaine compte 25 places de parking. Un parking extérieur,
+              non privatisé, se trouve également juste devant : si une place y
+              est disponible à votre arrivée, n’hésitez pas à la privilégier.
+            </p>
+          </article>
+          <article>
+            <span>👗</span>
+            <h3>Dress code</h3>
+            <p>
+              Une seule chose à garder en tête : le cocktail se déroule dans
+              le parc. Attention aux talons hauts !
+            </p>
+          </article>
+          <article>
+            <span>🎒</span>
+            <h3>À ne pas oublier</h3>
+            <p>
+              Maillot de bain, serviette et tenue de sport pour celles et ceux
+              qui le souhaitent.
+            </p>
+          </article>
+        </div>
+        <p className="practical-contact">
+          Évidemment, n’hésitez pas à nous contacter pour toute question.
+        </p>
       </section>
 
       <LodgingBooking />
