@@ -150,6 +150,28 @@ color:white;
 color:#fff3eb;
 }
 
+.travel-section{
+max-width:1100px;
+margin:35px auto 80px;
+padding:68px 56px;
+border-radius:28px;
+background:#e9eee4;
+scroll-margin-top:24px;
+}
+.travel-intro{max-width:720px;margin-bottom:28px}
+.travel-intro h2{margin:12px 0 18px;font-family:Georgia,serif;font-size:clamp(2.25rem,5vw,4rem);font-weight:400;line-height:1.08}
+.travel-intro>p:last-child{color:#596256;line-height:1.7}
+.travel-options{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.travel-options article{padding:26px;border:1px solid #d1dacb;border-radius:20px;background:#fffdf8}
+.travel-options span{font-size:1.6rem}
+.travel-options h3{margin:12px 0;font-family:Georgia,serif;font-size:1.45rem;font-weight:500}
+.travel-options p{margin:0 0 12px;color:#596256;line-height:1.6}
+
+@media (max-width:800px){
+.travel-section{padding:45px 24px}
+.travel-options{grid-template-columns:1fr}
+}
+
 .lodging-section{
 max-width:1100px;
 margin:35px auto 80px;
