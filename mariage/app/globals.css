@@ -34,3 +34,153 @@ body{letter-spacing:-.01em;-webkit-font-smoothing:antialiased;background:linear-
 @media(min-width:760px){.v2-nav{inset:20px 48px auto;padding:10px 11px 10px 20px}.v2-nav-links{gap:36px}.wedding-countdown{left:48px;bottom:43px}.v2-domaine,.v2-stay,.v2-rsvp{border-radius:32px}.v2-carpool{border-radius:32px}.v2-practical>div{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:759px){.v2-nav{top:10px;left:10px;right:10px}.v2-brand{font-size:21px}.v2-nav-cta{padding:10px 13px}.v2-hero::before{inset:8px;border-radius:22px}.v2-hero-content{padding-top:100px;padding-bottom:120px}.v2-hero h1{font-size:clamp(62px,19vw,88px)}.v2-kicker{font-size:9px;line-height:1.6}.v2-names{font-size:29px}.v2-countdown{display:none}.wedding-countdown{left:18px;bottom:18px;padding:11px 13px}.wedding-countdown strong{font-size:22px}.v2-scroll{display:none}.v2-intro,.v2-programme,.v2-travel,.v2-practical,.v2-map-placeholder{padding-inline:22px;padding-block:120px}.v2-intro{padding-top:130px}.v2-domaine-photo,.v2-stay-photo{min-height:58svh}.v2-domaine-copy,.v2-stay>div:last-child{padding:78px 22px}.v2-facts{grid-template-columns:1fr 1fr;gap:28px 18px}.v2-programme .v2-section-head{margin-bottom:60px}.v2-timeline-stop{grid-template-columns:1fr;padding-left:25px;padding-bottom:54px}.v2-rsvp{min-height:74svh}.v2-rsvp-copy{padding-inline:20px}.v2-travel-cards article{min-height:330px;padding:29px}.v2-carpool{margin-inline:12px;padding:90px 22px}.v2-ride-route{font-size:19px}.v2-map-placeholder{padding-block:135px}.v2-practical{padding-bottom:120px}.v2-practical article{min-height:155px}.v2-stay{margin-bottom:12px}.v2-footer{align-items:flex-start;flex-wrap:wrap;padding:48px 22px}.v2-footer>a{width:100%;margin-top:14px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.v2-hero-image,.v2-reveal,.v2-bike{animation:none!important}.v2-domaine-photo img,.v2-stay-photo img,.v2-button,.v2-travel-cards article{transition:none!important}}
+
+/* V2 exceptional finishing pass */
+:root{--luxury-shadow:0 30px 90px rgba(37,44,33,.08);--luxury-radius:38px}
+body{overflow-x:hidden}
+::selection{background:#d9cbb6;color:#273126}
+
+.v2-nav{z-index:20;background:rgba(21,29,21,.12);border-color:rgba(255,255,255,.2);box-shadow:none;backdrop-filter:blur(8px) saturate(115%);-webkit-backdrop-filter:blur(8px) saturate(115%)}
+.v2-brand{display:flex;align-items:center;gap:8px;white-space:nowrap}
+.v2-brand-mark{font-style:italic}
+.v2-brand-separator{color:var(--gold);font-size:13px}
+.v2-brand-date{font-family:Inter,Arial,sans-serif;font-size:9px;font-weight:500;letter-spacing:.18em;opacity:.72}
+.v2-nav-cta{background:rgba(255,253,249,.94)}
+@supports (animation-timeline:scroll()){
+  .v2-nav{animation:v2navGlass linear both;animation-timeline:scroll();animation-range:0 220px}
+  @keyframes v2navGlass{
+    from{color:#fff;background:rgba(21,29,21,.08);border-color:rgba(255,255,255,.18);box-shadow:none;backdrop-filter:blur(6px) saturate(110%)}
+    to{color:var(--ink);background:rgba(250,247,240,.86);border-color:rgba(56,65,50,.09);box-shadow:0 12px 42px rgba(28,36,27,.09);backdrop-filter:blur(22px) saturate(125%)}
+  }
+}
+
+.v2-hero{background:#1d261d}
+.v2-hero::before{inset:clamp(8px,1vw,15px);border-radius:clamp(22px,2.2vw,34px);border-color:rgba(255,255,255,.18)}
+.v2-hero::after{z-index:0;background:radial-gradient(circle at 50% 38%,rgba(232,217,176,.13),transparent 39%),linear-gradient(90deg,rgba(10,16,11,.08),transparent 40%,rgba(10,16,11,.08))}
+.v2-hero-image{animation:v2cinema 28s cubic-bezier(.2,.7,.2,1) both;filter:saturate(.73) contrast(1.04) brightness(.93)}
+.v2-hero-shade{background:linear-gradient(180deg,rgba(10,17,11,.32) 0%,rgba(10,17,11,.08) 34%,rgba(10,17,11,.18) 56%,rgba(10,17,11,.74) 100%)}
+.v2-hero-content{padding-top:116px;padding-bottom:132px;max-width:1080px}
+.v2-hero-content>.v2-kicker{margin-bottom:22px;opacity:.82}
+.v2-hero-signature{margin:0 0 16px;font:500 clamp(19px,2.1vw,29px)/1 "Cormorant Garamond",serif;letter-spacing:.34em;text-transform:uppercase;text-indent:.34em;color:#f4ecdc;text-shadow:0 8px 26px rgba(0,0,0,.16)}
+.v2-hero h1{font-size:clamp(66px,13vw,160px);line-height:.76;letter-spacing:-.06em}
+.v2-names{margin:28px 0 36px;font-size:clamp(25px,3.2vw,36px);color:#f8f1e6}
+.v2-hero-actions{gap:25px}
+.v2-hero .v2-button-light{box-shadow:0 15px 50px rgba(0,0,0,.13),inset 0 0 0 1px rgba(255,255,255,.6)}
+.v2-scroll{right:36px;bottom:40px;display:flex;align-items:center;gap:13px;writing-mode:vertical-rl;opacity:.66;transition:opacity .3s ease}
+.v2-scroll:hover{opacity:1}
+.v2-scroll-line{display:block;width:1px;height:54px;background:linear-gradient(#fff,rgba(255,255,255,.08));animation:v2scrollLine 2.2s ease-in-out infinite}
+.wedding-countdown{padding:14px 18px;border-radius:19px;background:linear-gradient(135deg,rgba(255,255,255,.13),rgba(18,27,18,.18));border-color:rgba(255,255,255,.3);box-shadow:0 18px 55px rgba(0,0,0,.12)}
+.wedding-countdown strong{font-size:29px}
+
+.v2-journey-photo{position:relative;min-height:82svh;margin:clamp(12px,2.4vw,38px);border-radius:var(--luxury-radius);overflow:hidden;color:#fff;background:#253226;box-shadow:var(--luxury-shadow);isolation:isolate}
+.v2-journey-photo>img{object-fit:cover;object-position:center 57%;filter:saturate(.86) contrast(1.02);transition:transform 1.8s cubic-bezier(.2,.7,.2,1)}
+.v2-journey-photo:hover>img{transform:scale(1.018)}
+.v2-journey-shade{position:absolute;z-index:1;inset:0;background:linear-gradient(180deg,rgba(12,18,12,.04) 25%,rgba(12,18,12,.14) 52%,rgba(12,18,12,.76) 100%),linear-gradient(90deg,rgba(11,18,12,.36),transparent 58%)}
+.v2-journey-copy{position:absolute;z-index:2;left:clamp(24px,6vw,95px);right:24px;bottom:clamp(78px,10vw,130px);max-width:950px}
+.v2-journey-copy .v2-kicker{color:#f1e8d7;opacity:.82}
+.v2-journey-copy h2{margin:0;font:500 clamp(47px,7.2vw,104px)/.88 "Cormorant Garamond",serif;letter-spacing:-.05em;text-wrap:balance;text-shadow:0 12px 45px rgba(0,0,0,.14)}
+.v2-journey-copy h2 em{font-weight:400}
+.v2-journey-caption{position:absolute;z-index:2;right:clamp(24px,4vw,58px);bottom:clamp(26px,3.5vw,50px);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.76)}
+
+.v2-intro,.v2-programme,.v2-travel,.v2-practical,.v2-map-placeholder{padding-block:clamp(150px,16vw,240px)}
+.v2-intro{min-height:78svh;align-content:center}
+.v2-intro h2{max-width:920px;font-size:clamp(54px,8.4vw,112px)}
+.v2-intro>p:last-child{margin-top:18px;font-size:15px;max-width:390px}
+.v2-section-number{display:inline-grid;place-items:center;width:23px;height:23px;margin-right:10px;border:1px solid rgba(89,101,77,.28);border-radius:50%;font-family:"Cormorant Garamond",serif;font-size:11px;letter-spacing:0;vertical-align:middle}
+
+.v2-domaine,.v2-stay,.v2-rsvp{margin-inline:clamp(12px,2.5vw,40px);border-radius:var(--luxury-radius);box-shadow:var(--luxury-shadow)}
+.v2-domaine{background:linear-gradient(135deg,#e8e2d7,#ddd5c6)}
+.v2-domaine-photo{min-height:68svh}
+.v2-domaine-copy{padding-block:clamp(90px,10vw,150px)}
+.v2-domaine h2,.v2-stay h2{font-size:clamp(52px,6.6vw,91px)}
+.v2-facts{gap:28px;margin-top:56px}
+
+.v2-programme{display:grid;grid-template-columns:1fr;gap:45px}
+.v2-section-head{margin-bottom:50px}
+.v2-timeline-stop{padding-bottom:74px}
+.v2-timeline h3{font-size:clamp(34px,4.1vw,48px)}
+.v2-timeline p:last-child{font-size:14px;line-height:1.85}
+.v2-timeline-index{width:25px;height:25px;left:-13px;line-height:23px;background:#f8f5ee;box-shadow:0 0 0 9px #f8f5ee}
+
+.v2-rsvp{min-height:min(86svh,900px)}
+.v2-rsvp img{filter:saturate(.66) contrast(1.04)}
+.v2-rsvp-shade{background:radial-gradient(circle at 50% 40%,rgba(224,208,167,.08),transparent 38%),linear-gradient(180deg,rgba(18,27,18,.23),rgba(16,24,16,.72))}
+.v2-rsvp h2{font-size:clamp(68px,11.5vw,138px)}
+.v2-rsvp-copy>p:not(.v2-kicker){font-size:15px}
+
+.v2-travel-cards{gap:24px}
+.v2-travel-cards article{min-height:410px;padding:38px;border-radius:36px;background:linear-gradient(150deg,#fffefa 0%,#f7f1e7 100%);box-shadow:0 18px 55px rgba(42,48,36,.055)}
+.v2-travel-cards article:hover{transform:translateY(-9px) scale(1.006);box-shadow:0 34px 80px rgba(42,48,36,.12)}
+.v2-travel-cards>article>span{font-size:25px;opacity:.66}
+.v2-travel-icon{width:58px;height:58px;display:grid;place-items:center;border:1px solid rgba(89,101,77,.13);border-radius:50%;font-size:32px;background:rgba(255,255,255,.48)}
+
+.v2-carpool{max-width:calc(1240px + 6vw);margin:clamp(65px,8vw,120px) auto;padding-inline:clamp(24px,8vw,130px);border-radius:var(--luxury-radius);box-shadow:var(--luxury-shadow)}
+.v2-ride-preview{padding:clamp(25px,4vw,52px);border:1px solid rgba(255,255,255,.54);border-radius:30px;background:rgba(255,255,255,.18);box-shadow:inset 0 1px rgba(255,255,255,.42);backdrop-filter:blur(14px)}
+.v2-ride-card{transition:transform .35s ease,box-shadow .35s ease}
+.v2-ride-card:hover{transform:translateY(-4px);box-shadow:0 28px 62px rgba(55,63,49,.13)}
+
+.v2-map-placeholder{min-height:72svh;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.v2-map-placeholder::before{width:min(62vw,620px);height:min(62vw,620px);box-shadow:0 0 0 95px rgba(180,154,104,.02),0 0 0 190px rgba(180,154,104,.015)}
+.v2-map-lines{font-family:"Cormorant Garamond",serif}
+.v2-map-bike{font-size:34px;font-style:italic;transform:rotate(-4deg)}
+
+.v2-practical>div{gap:16px}
+.v2-practical article{min-height:205px;padding:36px;border-radius:29px;background:linear-gradient(145deg,#fffdf9,#f8f3e9);box-shadow:0 14px 42px rgba(43,48,38,.035)}
+.v2-practical article:hover{transform:translateY(-6px);box-shadow:0 28px 62px rgba(43,48,38,.09)}
+.v2-practical b{font-size:34px}
+
+.v2-stay{margin-bottom:clamp(12px,2.5vw,40px)}
+.v2-stay-photo{min-height:70svh}
+.v2-stay>div:last-child{padding-block:clamp(90px,10vw,150px)}
+.v2-availability{margin:40px 0;padding-block:30px;gap:42px}
+.v2-stay .v2-button-dark{box-shadow:0 12px 30px rgba(0,0,0,.12)}
+
+.v2-footer{margin:0 clamp(0px,1.2vw,18px) clamp(0px,1.2vw,18px);padding:75px clamp(24px,4vw,60px);border-radius:clamp(0px,2vw,30px);background:linear-gradient(135deg,#202a20,#182118)}
+.v2-footer p{font-size:38px}
+.v2-bike{font-family:"Cormorant Garamond",serif;font-size:32px}
+
+@keyframes v2cinema{from{transform:scale(1.09)}to{transform:scale(1.015)}}
+@keyframes v2scrollLine{0%,100%{transform:scaleY(.45);transform-origin:top;opacity:.35}50%{transform:scaleY(1);opacity:1}}
+
+@media(min-width:900px){
+  .v2-programme{grid-template-columns:minmax(280px,.72fr) 1.28fr;gap:8vw;align-items:start}
+  .v2-programme .v2-section-head{position:sticky;top:150px}
+  .v2-timeline{margin-left:18px;padding-left:56px}
+  .v2-timeline-stop{grid-template-columns:96px 1fr;padding-left:42px}
+  .v2-carpool{grid-template-columns:.86fr 1.14fr}
+}
+
+@media(max-width:759px){
+  .v2-nav{padding-left:14px}.v2-brand{gap:6px}.v2-brand-date{display:none}
+  .v2-hero-content{padding-top:105px;padding-bottom:150px}
+  .v2-hero-content>.v2-kicker{max-width:260px;margin-inline:auto;margin-bottom:18px}
+  .v2-hero-signature{font-size:17px;margin-bottom:14px;letter-spacing:.26em;text-indent:.26em}
+  .v2-hero h1{font-size:clamp(61px,18vw,84px);line-height:.79}
+  .v2-names{margin-top:26px;margin-bottom:30px}
+  .v2-hero-actions{gap:19px}
+  .wedding-countdown{left:16px;bottom:16px;padding:11px 14px}
+  .v2-scroll{display:none}
+  .v2-journey-photo{min-height:76svh;margin:12px;border-radius:28px}
+  .v2-journey-photo>img{object-position:61% center}
+  .v2-journey-shade{background:linear-gradient(180deg,rgba(12,18,12,.04) 22%,rgba(12,18,12,.15) 48%,rgba(12,18,12,.78) 100%)}
+  .v2-journey-copy{left:22px;right:18px;bottom:84px}
+  .v2-journey-copy h2{font-size:clamp(43px,13vw,61px);line-height:.92}
+  .v2-journey-copy h2 br{display:none}
+  .v2-journey-caption{left:22px;right:22px;bottom:29px;font-size:8px;line-height:1.5}
+  .v2-intro,.v2-programme,.v2-travel,.v2-practical,.v2-map-placeholder{padding-block:135px}
+  .v2-intro{min-height:70svh;padding-top:150px}
+  .v2-domaine,.v2-stay,.v2-rsvp{border-radius:28px;margin-inline:12px}
+  .v2-domaine-photo,.v2-stay-photo{min-height:61svh}
+  .v2-domaine-copy,.v2-stay>div:last-child{padding-block:86px}
+  .v2-facts{margin-top:45px}
+  .v2-rsvp{min-height:78svh}
+  .v2-travel-cards{gap:16px}
+  .v2-travel-cards article{min-height:350px;padding:30px;border-radius:30px}
+  .v2-carpool{margin-inline:12px;border-radius:28px;padding-block:100px}
+  .v2-ride-preview{padding:24px 18px;border-radius:24px}
+  .v2-practical article{min-height:170px;padding:29px;border-radius:25px}
+  .v2-map-placeholder{min-height:65svh}
+  .v2-footer{margin:0 12px 12px;border-radius:26px;padding-block:58px}
+}
+
+@media(prefers-reduced-motion:reduce){.v2-hero-image,.v2-scroll-line{animation:none!important}.v2-journey-photo>img,.v2-ride-card{transition:none!important}}
