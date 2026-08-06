@@ -1,4 +1,5 @@
 import Image from "next/image";
+import WeddingCountdown from "./components/WeddingCountdown";
 
 const programme = [
   { day: "Vendredi", time: "17h", title: "Premiers pas à Massacan", text: "Installation, pizzas, baignade et soirée libre sous les pins." },
@@ -33,7 +34,7 @@ export default function Home() {
             <a className="v2-text-link" href="#programme">Découvrir le programme <span>↓</span></a>
           </div>
         </div>
-        <div className="v2-countdown"><strong>289</strong><span>jours avant<br />le grand départ</span></div>
+        <WeddingCountdown />
         <p className="v2-scroll">Faire défiler <span>↓</span></p>
       </section>
 
