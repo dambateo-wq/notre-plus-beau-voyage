@@ -1,319 +1,103 @@
-import WeddingSurvey from "./components/WeddingSurvey";
-import CarpoolBoard from "./components/CarpoolBoard";
-import RsvpReminder from "./components/RsvpReminder";
-import WeddingCountdown from "./components/WeddingCountdown";
-import LodgingBooking from "./components/LodgingBooking";
+import Image from "next/image";
+
+const programme = [
+  { day: "Vendredi", time: "17h", title: "Premiers pas à Massacan", text: "Installation, pizzas, baignade et soirée libre sous les pins." },
+  { day: "Samedi", time: "14h", title: "Rendez-vous au Revest", text: "Un transport dédié partira du domaine pour l’église." },
+  { day: "Samedi", time: "18h", title: "Cocktail dans la pinède", text: "La Méditerranée en contrebas, vous tous autour de nous." },
+  { day: "Samedi", time: "20h → 3h", title: "Dîner, danse & plage", text: "Le repas, la piste de danse, puis une fin de nuit au bord de l’eau." },
+  { day: "Dimanche", time: "11h", title: "Dernier festin", text: "Food truck et une journée à ralentir, jusqu’à 16h." },
+];
 
 export default function Home() {
   return (
     <main>
-      <section className="hero">
-        <div className="hero-content">
-          <p>29 & 30 mai 2027</p>
-          <h1>Notre plus beau voyage</h1>
-          <h2>Damien ❤️ Julie</h2>
-          <p>Domaine du Massacan</p>
+      <nav className="v2-nav" aria-label="Navigation principale">
+        <a className="v2-brand" href="#top">D&J <span>•</span> 2027</a>
+        <div className="v2-nav-links">
+          <a href="#programme">Programme</a>
+          <a href="#venir">Venir</a>
+          <a href="#reponse">Répondre</a>
         </div>
-        <WeddingCountdown />
-      </section>
+        <a className="v2-nav-cta" href="#reponse">Inscription</a>
+      </nav>
 
-      <section className="section">
-        <p className="eyebrow">Bienvenue</p>
-        <h2>Toutes les routes nous ont menés jusqu’ici…</h2>
-        <p>
-          Il ne manque plus que vous pour partager avec nous ce week-end
-          au Domaine du Massacan.
-        </p>
-      </section>
-
-      <section className="section cards">
-        <a className="card" href="#domaine">
-          <span>🌿</span>
-          <h3>Le Domaine</h3>
-          <p>Découvrez le lieu, son parc et les espaces du mariage.</p>
-        </a>
-
-        <a className="card" href="#programme">
-          <span>📅</span>
-          <h3>Le programme</h3>
-          <p>Trois jours de fête, de sport, de baignade et de danse.</p>
-        </a>
-
-        <a className="card registration-card" href="#sondage">
-          <span>🚲</span>
-          <h3>Inscription au voyage</h3>
-          <p>Confirmez votre présence et vos souhaits pour le week-end.</p>
-        </a>
-
-        <a className="card" href="#venir">
-          <span>🧭</span>
-          <h3>Comment venir</h3>
-          <p>Adresse, transports et itinéraires pour rejoindre le domaine.</p>
-        </a>
-
-        <a className="card" href="#covoiturage">
-          <span>🚗</span>
-          <h3>Covoiturage</h3>
-          <p>Proposez ou recherchez un trajet avec les autres invités.</p>
-        </a>
-
-        <a className="card" href="#infos-pratiques">
-          <span>ℹ️</span>
-          <h3>Infos pratiques</h3>
-          <p>Les derniers détails utiles pour profiter du week-end.</p>
-        </a>
-
-        <a className="card lodging-card" href="#hebergement">
-          <span>🛏️</span>
-          <h3>Réserver une nuitée</h3>
-          <p>Réservez vos couchages au domaine et réglez à votre rythme.</p>
-        </a>
-      </section>
-
-      <section className="domain-section" id="domaine">
-        <div className="domain-copy">
-          <p className="eyebrow">Le Domaine</p>
-          <h2>Un écrin entre pinède et Méditerranée</h2>
-
-          <p>
-            Pour célébrer notre plus beau voyage, nous avons choisi un lieu où
-            la nature rencontre la mer : le Domaine de Massacan.
-          </p>
-
-          <p>
-            Niché au cœur d’un parc de trois hectares peuplé d’arbres
-            centenaires, le domaine offre un cadre paisible et préservé à
-            seulement quelques minutes de Toulon. Un chemin privé permet même
-            de rejoindre directement la plage de Magaud pour profiter de la
-            Méditerranée les pieds dans le sable.
-          </p>
-
-          <p>
-            C’est ici, sous les pins et dans la douce lumière du Sud, que nous
-            aurons le bonheur de vous retrouver. Le cocktail, le dîner et la
-            fête se dérouleront au même endroit, entre jardins, grande terrasse
-            et salle de réception.
-          </p>
-
-          <p>
-            Et parce que nous souhaitons prolonger cette aventure avec vous, le
-            domaine dispose de nombreux hébergements sur place. Après la fête,
-            pas besoin de reprendre la route : nous pourrons nous retrouver le
-            lendemain pour partager un brunch et savourer encore un peu ce
-            week-end hors du temps.
-          </p>
-
-          <p className="domain-dates">
-            Le domaine est à nous du 28 au 30 mai 2027 pour écrire ensemble
-            l’une des plus belles étapes de notre voyage.
-          </p>
+      <section className="v2-hero" id="top">
+        <Image className="v2-hero-image" src="/domaine.jpg" alt="Domaine du Massacan" fill priority sizes="100vw" />
+        <div className="v2-hero-shade" />
+        <div className="v2-hero-content">
+          <p className="v2-kicker">29 & 30 mai 2027 · Domaine du Massacan</p>
+          <h1>Notre plus<br /><em>beau voyage</em></h1>
+          <p className="v2-names">Damien & Julie</p>
+          <div className="v2-hero-actions">
+            <a className="v2-button v2-button-light" href="#reponse">Répondre au voyage <span>↗</span></a>
+            <a className="v2-text-link" href="#programme">Découvrir le programme <span>↓</span></a>
+          </div>
         </div>
-
-        <aside className="domain-highlights">
-          <p className="eyebrow">Les petits plus du domaine</p>
-          <ul>
-            <li>Un parc arboré de trois hectares</li>
-            <li>Un accès direct à la plage de Magaud</li>
-            <li>Une cérémonie et un cocktail possibles sous les pins</li>
-            <li>Une grande terrasse et une salle festive</li>
-            <li>Environ une centaine de couchages sur place</li>
-            <li>
-              Un lieu engagé, labellisé « Esprit parc national de Port-Cros »
-              et refuge LPO
-            </li>
-          </ul>
-        </aside>
+        <div className="v2-countdown"><strong>289</strong><span>jours avant<br />le grand départ</span></div>
+        <p className="v2-scroll">Faire défiler <span>↓</span></p>
       </section>
 
-      <section className="programme-section" id="programme">
-        <div className="programme-intro">
-          <p className="eyebrow">Le programme</p>
-          <h2>Trois jours pour profiter ensemble</h2>
-          <p>
-            Voici le fil conducteur du week-end. Il pourra encore évoluer sur
-            quelques détails, mais l’essentiel est là : prendre le temps, faire
-            la fête et prolonger le voyage ensemble.
-          </p>
-        </div>
+      <section className="v2-intro v2-reveal">
+        <p className="v2-kicker v2-kicker-dark">Une parenthèse au sud</p>
+        <h2>Toutes les routes nous ont menés jusqu’ici.<br /><em>Il ne manque plus que vous.</em></h2>
+        <p>Trois jours à respirer l’air marin, rire très fort, danser pieds nus et célébrer ce qui compte vraiment.</p>
+      </section>
 
-        <div className="programme-days">
-          <article className="programme-day">
-            <header>
-              <p>Vendredi</p>
-              <h3>28 mai</h3>
-            </header>
-            <ol>
-              <li>
-                <time>Matin</time>
-                <div>
-                  <h4>Mariage à la mairie</h4>
-                  <p>
-                    Pour les personnes informées, suivi d’un restaurant au
-                    Revest.
-                  </p>
-                </div>
-              </li>
-              <li>
-                <time>17h</time>
-                <div>
-                  <h4>Arrivée au Domaine de Massacan</h4>
-                  <p>
-                    Installation, soirée libre, pizzas, mise en place et
-                    première baignade.
-                  </p>
-                </div>
-              </li>
-            </ol>
-          </article>
-
-          <article className="programme-day programme-day-featured">
-            <header>
-              <p>Samedi</p>
-              <h3>29 mai</h3>
-            </header>
-            <ol>
-              <li>
-                <time>Matin</time>
-                <div>
-                  <h4>Petit déjeuner & activités</h4>
-                  <p>Volley, course à pied, pétanque et baignade.</p>
-                </div>
-              </li>
-              <li>
-                <time>14h</time>
-                <div>
-                  <h4>Rendez-vous à l’église du Revest</h4>
-                  <p>
-                    Horaire à confirmer. Un transport dédié partira du domaine.
-                  </p>
-                </div>
-              </li>
-              <li>
-                <time>18h</time>
-                <div>
-                  <h4>Début du cocktail</h4>
-                  <p>Dans la pinède, en bord de mer.</p>
-                </div>
-              </li>
-              <li>
-                <time>20h</time>
-                <div>
-                  <h4>Début du repas</h4>
-                </div>
-              </li>
-              <li>
-                <time>22h</time>
-                <div>
-                  <h4>Ouverture de la piste de danse</h4>
-                </div>
-              </li>
-            </ol>
-          </article>
-
-          <article className="programme-day">
-            <header>
-              <p>Dimanche</p>
-              <h3>30 mai</h3>
-            </header>
-            <ol>
-              <li>
-                <time>3h</time>
-                <div>
-                  <h4>La fête continue sur la plage</h4>
-                  <p>
-                    Fermeture de la piste, puis rendez-vous sur la plage avec
-                    projecteurs, enceintes et Phoenix.
-                  </p>
-                </div>
-              </li>
-              <li>
-                <time>11h</time>
-                <div>
-                  <h4>Food truck</h4>
-                </div>
-              </li>
-              <li>
-                <time>16h</time>
-                <div>
-                  <h4>Fin du week-end</h4>
-                  <p>Derniers moments chill avant de libérer le domaine.</p>
-                </div>
-              </li>
-            </ol>
-          </article>
+      <section className="v2-domaine v2-reveal" id="domaine">
+        <div className="v2-domaine-photo"><Image src="/domaine.jpg" alt="" fill sizes="(max-width: 800px) 100vw, 50vw" /></div>
+        <div className="v2-domaine-copy">
+          <p className="v2-kicker v2-kicker-dark">Le domaine</p>
+          <h2>Entre pinède<br />et <em>Méditerranée</em></h2>
+          <p>Un parc de trois hectares, un accès privé à la plage de Magaud et une grande maison qui sera la nôtre, le temps d’un week-end.</p>
+          <div className="v2-facts"><span>3 hectares<br /><b>de nature</b></span><span>à quelques pas<br /><b>de la mer</b></span><span>28 → 30 mai<br /><b>rien que nous</b></span></div>
         </div>
       </section>
 
-      <WeddingSurvey />
-      <RsvpReminder />
-
-      <section className="travel-section" id="venir">
-        <div className="travel-intro">
-          <p className="eyebrow">Comment venir</p>
-          <h2>Toutes les routes mènent à Massacan</h2>
-          <p>Choisissez l’itinéraire qui vous convient le mieux. L’essentiel : arriver pour profiter du week-end avec nous.</p>
-        </div>
-        <div className="travel-options">
-          <article><span>🚗</span><h3>En voiture</h3><p><strong>Domaine de Massacan</strong><br />1589 avenue du Commandant Houot<br />83130 La Garde</p><p>Pour le stationnement, rendez-vous dans l’onglet <a href="#infos-pratiques">Infos pratiques</a>.</p></article>
-          <article><span>✈️</span><h3>En avion</h3><p><strong>Depuis la Belgique et le nord de la France</strong></p><p>Toulon–Hyères est l’aéroport le plus proche du domaine, à environ 30 minutes en voiture. Marseille Provence offre davantage de vols et se situe à environ 1 h 15 du domaine.</p><p>Au départ de Charleroi, Bruxelles ou Lille, plusieurs compagnies desservent ces deux aéroports selon la saison.</p><p>Une fois sur place : louez une voiture pour profiter du week-end et de la région, ou utilisez notre espace <a href="#covoiturage">Covoiturage</a> pour partager un trajet avec d’autres invités.</p></article>
-          <article><span>🚆</span><h3>En train</h3><p>Arrivez à la gare de Toulon, puis empruntez les lignes <strong>36, 2 ou 29</strong> du réseau Mistral.</p></article>
+      <section className="v2-programme v2-reveal" id="programme">
+        <div className="v2-section-head"><p className="v2-kicker v2-kicker-dark">L’itinéraire</p><h2>Le programme<br />du <em>voyage</em></h2><p>Quelques repères, beaucoup de moments à inventer ensemble.</p></div>
+        <div className="v2-timeline">
+          {programme.map((item, index) => <article className="v2-timeline-stop" key={item.title}>
+            <div className="v2-timeline-index">0{index + 1}</div><div className="v2-timeline-line" />
+            <div><p className="v2-stop-meta">{item.day} · {item.time}</p><h3>{item.title}</h3><p>{item.text}</p></div>
+          </article>)}
         </div>
       </section>
 
-      <CarpoolBoard />
-
-      <section className="practical-section" id="infos-pratiques">
-        <p className="eyebrow">Infos pratiques</p>
-        <h2>Les petits détails qui font un week-end parfait</h2>
-        <div className="practical-grid">
-          <article>
-            <span>🧸</span>
-            <h3>Enfants</h3>
-            <p>
-              Nous sommes sincèrement désolés, mais la capacité d’accueil du
-              domaine est limitée. À l’exception de la famille, nous vous
-              demanderons donc de venir sans vos rejetons.
-            </p>
-          </article>
-          <article>
-            <span>🅿️</span>
-            <h3>Parking</h3>
-            <p>
-              Le domaine compte 25 places de parking. Un parking extérieur,
-              non privatisé, se trouve également juste devant : si une place y
-              est disponible à votre arrivée, n’hésitez pas à la privilégier.
-            </p>
-          </article>
-          <article>
-            <span>👗</span>
-            <h3>Dress code</h3>
-            <p>
-              Une seule chose à garder en tête : le cocktail se déroule dans
-              le parc. Attention aux talons hauts !
-            </p>
-          </article>
-          <article>
-            <span>🎒</span>
-            <h3>À ne pas oublier</h3>
-            <p>
-              Maillot de bain, serviette et tenue de sport pour celles et ceux
-              qui le souhaitent.
-            </p>
-          </article>
-        </div>
-        <p className="practical-contact">
-          Évidemment, n’hésitez pas à nous contacter pour toute question.
-        </p>
+      <section className="v2-rsvp v2-reveal" id="reponse">
+        <Image src="/domaine.jpg" alt="" fill sizes="100vw" />
+        <div className="v2-rsvp-shade" />
+        <div className="v2-rsvp-copy"><p className="v2-kicker">Votre siège est prêt</p><h2>Prêts à prendre<br /><em>la route ?</em></h2><p>Votre réponse nous aide à préparer chaque détail de cette aventure.</p><a className="v2-button v2-button-light" href="#inscription">Répondre au voyage <span>↗</span></a></div>
       </section>
 
-      <LodgingBooking />
+      <section className="v2-travel v2-reveal" id="venir">
+        <div className="v2-section-head"><p className="v2-kicker v2-kicker-dark">Comment venir</p><h2>Choisissez<br /><em>votre chemin</em></h2></div>
+        <div className="v2-travel-cards">
+          <article><span>01</span><div className="v2-travel-icon">⌁</div><h3>En voiture</h3><p>Cap sur le Domaine du Massacan, à La Garde. Les informations de stationnement arriveront dans les infos pratiques.</p><a href="#infos-pratiques">Voir les infos pratiques →</a></article>
+          <article><span>02</span><div className="v2-travel-icon">✈</div><h3>En avion</h3><p>Toulon–Hyères est le plus proche. Marseille Provence offre davantage de possibilités depuis la Belgique et le nord.</p><a href="#covoiturage">Trouver un covoiturage →</a></article>
+          <article><span>03</span><div className="v2-travel-icon">↝</div><h3>En train</h3><p>Arrivée gare de Toulon, puis le réseau Mistral vous emmène jusqu’au domaine.</p><a href="#infos-pratiques">Préparer son trajet →</a></article>
+        </div>
+      </section>
 
-      <footer>
-        <span>Damien & Julie · 29 & 30 mai 2027</span>
-        <a className="admin-link" href="/admin" aria-label="Accès administrateur">
-          🔒 Admin
-        </a>
-      </footer>
+      <section className="v2-carpool v2-reveal" id="covoiturage">
+        <div><p className="v2-kicker v2-kicker-dark">À plusieurs, c’est mieux</p><h2>Partageons<br />la <em>route</em></h2><p>Un siège libre, un trajet à chercher, une playlist à choisir : l’espace covoiturage sera votre point de rendez-vous.</p><button className="v2-button v2-button-dark" type="button">Découvrir le covoiturage <span>↗</span></button></div>
+        <div className="v2-ride-preview"><div className="v2-ride-route"><span>Bruxelles</span><i /><span>Massacan</span></div><div className="v2-ride-card"><div className="v2-avatar">J</div><div><b>Votre prochain trajet</b><small>Les propositions apparaîtront ici</small></div><span>→</span></div></div>
+      </section>
+
+      <section className="v2-map-placeholder v2-reveal">
+        <p className="v2-kicker v2-kicker-dark">La carte collective</p><h2>Nos vélos arriveront<br /><em>bientôt ici.</em></h2><p>La carte des départs fera partie de la prochaine étape du voyage.</p><div className="v2-map-lines"><span>✦</span><i /><span>♧</span><i /><span>🚲</span></div>
+      </section>
+
+      <section className="v2-practical v2-reveal" id="infos-pratiques">
+        <p className="v2-kicker v2-kicker-dark">Bien préparer le départ</p><h2>Infos <em>pratiques</em></h2>
+        <div><article><b>Enfants</b><p>À l’exception de la famille, nous vous demanderons de venir sans vos rejetons.</p></article><article><b>Parking</b><p>25 places au domaine et un parking extérieur juste devant.</p></article><article><b>Dress code</b><p>Le cocktail se déroule dans le parc : attention aux talons hauts.</p></article><article><b>À glisser dans le sac</b><p>Maillot, serviette et tenue de sport selon vos envies.</p></article></div>
+      </section>
+
+      <section className="v2-stay v2-reveal" id="hebergement">
+        <div className="v2-stay-photo"><Image src="/domaine.jpg" alt="" fill sizes="(max-width: 800px) 100vw, 50vw" /></div>
+        <div><p className="v2-kicker v2-kicker-dark">Dormir au domaine</p><h2>Prolongez<br /><em>l’histoire</em></h2><p>Des chambres de 2 à 5 lits simples, à partager jusqu’au dimanche. 35 € par personne et par nuit.</p><div className="v2-availability"><span><b>106</b> places invitées</span><span><b>35 €</b> par nuit</span></div><button className="v2-button v2-button-dark" type="button">Réserver une nuitée <span>↗</span></button></div>
+      </section>
+
+      <footer className="v2-footer"><div><p>Damien & Julie</p><span>29 & 30 mai 2027 · Domaine du Massacan</span></div><span className="v2-bike">⌁</span><a href="#top">Retour en haut ↑</a></footer>
     </main>
   );
 }
