@@ -29,40 +29,6 @@
   line-height:1.85;
 }
 
-.journey-map{
-  position:relative;
-  margin:0 0 32px;
-  padding:28px;
-  overflow:hidden;
-  border:1px solid rgba(39,49,38,.1);
-  border-radius:32px;
-  background:linear-gradient(145deg,#eee6d7,#e2dacb);
-  box-shadow:0 22px 65px rgba(47,59,47,.07);
-}
-.map-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:22px}
-.map-heading h3{margin:7px 0 0;font:500 clamp(28px,4vw,44px)/1 "Cormorant Garamond",serif;letter-spacing:-.025em}
-.bike-counter{white-space:nowrap;padding:9px 13px;border-radius:999px;background:var(--ink);color:#fff;font-size:10px;letter-spacing:.06em}
-.world-map{display:block;width:100%;height:auto;overflow:hidden;border-radius:23px}
-.countries{fill:#b8bea9;stroke:#87917d;stroke-width:1.7;stroke-linejoin:round}
-.countries .country-focus{fill:#a7b39a}
-.country-labels{fill:rgba(53,69,50,.48);font-size:14px;font-weight:800;letter-spacing:3px;text-anchor:middle;paint-order:stroke;stroke:#dfe0d0;stroke-width:4px}
-.map-grid{fill:none;stroke:rgba(64,84,60,.11);stroke-width:1;stroke-dasharray:5 8}
-.moving-bike,.parked-bike{font-size:14px;dominant-baseline:middle;text-anchor:middle}
-.bike-marker,.distant-origin,.destination-pin{cursor:pointer}
-.bike-marker:hover .parked-bike{font-size:17px}
-.destination-hit{fill:transparent;pointer-events:all}
-.destination-dot{fill:#40543c;stroke:#f5f1e8;stroke-width:1.5;pointer-events:none}
-.map-tooltip{position:absolute;z-index:10;max-width:min(300px,calc(100% - 28px));padding:9px 12px;border-radius:10px;background:#2f3f2d;color:#fff;box-shadow:0 8px 24px rgba(40,50,39,.24);font-size:.78rem;font-weight:700;line-height:1.4;pointer-events:none;transform:translate(-50%,calc(-100% - 12px))}
-.map-tooltip::after{content:"";position:absolute;top:100%;left:50%;border:6px solid transparent;border-top-color:#2f3f2d;transform:translateX(-50%)}
-.world-inset>rect{fill:rgba(255,253,248,.58);stroke:rgba(64,84,60,.2);stroke-width:1.5}
-.mini-world-land{fill:#b8bea9;stroke:#87917d;stroke-width:.45}
-.distant-title{fill:#7d634f;font-size:12px;font-weight:800;letter-spacing:1.5px}
-.distant-origin circle{fill:#b06f4f;stroke:#fffdf8;stroke-width:3}
-.distant-origin text,.distant-more{fill:#596256;font-size:11px}
-.map-empty{width:fit-content;max-width:100%;margin:12px auto 0;padding:10px 15px;border-radius:12px;background:rgba(245,241,232,.9);color:#5f675c;font-size:.82rem;text-align:center}
-.distant-note{margin:10px 0 0;color:#6f776d;font-size:.75rem;font-style:italic;text-align:center}
-.map-attribution{margin:10px 0 0;color:#7a8077;font-size:.66rem;text-align:right}
-
 .wedding-form{
   position:relative;
   overflow:hidden;
@@ -176,7 +142,6 @@
 
 @media(max-width:800px){
   .survey-experience{padding:120px 16px}.survey-intro{margin-bottom:38px}
-  .journey-map{padding:20px 14px;border-radius:22px}.map-heading{align-items:flex-start;flex-direction:column}.bike-counter{font-size:.72rem}.world-inset .distant-title{font-size:20px}.world-inset .distant-origin text,.world-inset .distant-more{display:none}
   .wedding-form{padding:38px 20px;border-radius:22px}.wedding-form legend{font-size:1.3rem}.choice-grid,.lodging-choices,.sleepers-grid{grid-template-columns:1fr}.location-search{grid-template-columns:1fr}.location-search button{padding:14px}
   .carpool-section,.lodging-section{margin:12px 12px 120px;padding:78px 20px;border-radius:28px}.carpool-layout,.lodging-layout,.carpool-form-row,.lodging-form-row,.lodging-availability,.lodging-payment-choices{grid-template-columns:1fr}.carpool-form,.carpool-offers,.lodging-form,.lodging-lookup{padding:25px 20px}.carpool-offers-heading{flex-direction:column}.lodging-confirmation{padding:28px 18px}.lodging-confirmation>dl,.lodging-payment-details dl{grid-template-columns:1fr}
   .rsvp-reminder{padding:38px 24px 28px;border-radius:21px}

@@ -1,14 +1,6 @@
 "use client";
 
-import {
-  FormEvent,
-  MouseEvent as ReactMouseEvent,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-import { mapGeometry } from "./mapGeometry";
-
+import { FormEvent, useMemo, useState } from "react";
 type Place = {
   label: string;
   city: string;
@@ -16,379 +8,11 @@ type Place = {
   latitude: number;
   longitude: number;
 };
-
-type GuestRoute = {
-  id: string;
-  display_name: string;
-  city: string;
-  country: string;
-  latitude: number;
-  longitude: number;
-  created_at: string;
-  animate?: boolean;
-};
-
-type GuestRouteGroup = GuestRoute & {
-  members: GuestRoute[];
-};
-
-const MASSACAN = {
-  city: "Domaine de Massacan",
-  latitude: 43.108305,
-  longitude: 5.9821616,
-};
-
 const attendanceOptions = [
   { value: "2027-05-28", label: "Vendredi 28 mai 2027" },
   { value: "2027-05-29", label: "Samedi 29 mai 2027" },
   { value: "2027-05-30", label: "Dimanche 30 mai 2027" },
 ];
-
-const MAP_BOUNDS = {
-  minLatitude: 40,
-  maxLatitude: 53,
-  minLongitude: -6,
-  maxLongitude: 12,
-};
-
-const MAIN_MAP_ZOOM = {
-  factor: 1.65,
-  centerX: 250,
-  centerY: 245,
-};
-
-function project(latitude: number, longitude: number) {
-  const longitudeRadians = (longitude * Math.PI) / 180;
-  const latitudeRadians = (latitude * Math.PI) / 180;
-  const baseX =
-    mapGeometry.mainTranslate[0] +
-    mapGeometry.mainScale * longitudeRadians;
-  const baseY =
-    mapGeometry.mainTranslate[1] -
-    mapGeometry.mainScale *
-      Math.log(Math.tan((Math.PI / 2 + latitudeRadians) / 2));
-
-  return {
-    x:
-      MAIN_MAP_ZOOM.centerX +
-      (baseX - MAIN_MAP_ZOOM.centerX) * MAIN_MAP_ZOOM.factor,
-    y:
-      MAIN_MAP_ZOOM.centerY +
-      (baseY - MAIN_MAP_ZOOM.centerY) * MAIN_MAP_ZOOM.factor,
-  };
-}
-
-function projectWorld(latitude: number, longitude: number) {
-  return {
-    x:
-      mapGeometry.worldTranslate[0] +
-      mapGeometry.worldScale * ((longitude * Math.PI) / 180),
-    y:
-      mapGeometry.worldTranslate[1] -
-      mapGeometry.worldScale * ((latitude * Math.PI) / 180),
-  };
-}
-
-function isRegionalRoute(route: GuestRoute) {
-  return (
-    route.latitude >= MAP_BOUNDS.minLatitude &&
-    route.latitude <= MAP_BOUNDS.maxLatitude &&
-    route.longitude >= MAP_BOUNDS.minLongitude &&
-    route.longitude <= MAP_BOUNDS.maxLongitude
-  );
-}
-
-function groupRoutesByCity(routes: GuestRoute[]) {
-  const groups = new Map<string, GuestRouteGroup>();
-
-  for (const route of routes) {
-    const key = `${route.city.trim().toLocaleLowerCase("fr")}|${route.country
-      .trim()
-      .toLocaleLowerCase("fr")}`;
-    const existing = groups.get(key);
-
-    if (existing) {
-      existing.members.push(route);
-      existing.animate = existing.animate || route.animate;
-    } else {
-      groups.set(key, { ...route, members: [route] });
-    }
-  }
-
-  return [...groups.values()];
-}
-
-function routeTooltip(route: GuestRouteGroup) {
-  const names = [...new Set(route.members.map((member) => member.display_name))];
-  return `${route.city}, ${route.country} · ${route.members.length} réponse${
-    route.members.length > 1 ? "s" : ""
-  } · ${names.join(", ")}`;
-}
-
-function curveFor(route: GuestRoute, index: number) {
-  const start = project(route.latitude, route.longitude);
-  const end = project(MASSACAN.latitude, MASSACAN.longitude);
-  const distance = Math.hypot(end.x - start.x, end.y - start.y);
-  const direction = index % 2 === 0 ? -1 : 1;
-  const lift = Math.min(130, 35 + distance * 0.22) * direction;
-  const middleX = (start.x + end.x) / 2;
-  const middleY = (start.y + end.y) / 2 + lift;
-
-  return {
-    start,
-    end,
-    path: `M ${start.x} ${start.y} Q ${middleX} ${middleY} ${end.x} ${end.y}`,
-  };
-}
-
-function JourneyMap({ routes }: { routes: GuestRoute[] }) {
-  const [tooltip, setTooltip] = useState<{
-    text: string;
-    x: number;
-    y: number;
-  } | null>(null);
-  const destination = project(MASSACAN.latitude, MASSACAN.longitude);
-  const routeGroups = groupRoutesByCity(routes);
-  const regionalRoutes = routeGroups.filter(isRegionalRoute);
-  const distantRoutes = routeGroups.filter((route) => !isRegionalRoute(route));
-  const visibleDistantRoutes = distantRoutes.slice(0, 12);
-  const mapWidth = distantRoutes.length ? 720 : 550;
-
-  function showTooltip(
-    event: ReactMouseEvent<SVGGElement>,
-    text: string,
-  ) {
-    const container = event.currentTarget
-      .closest(".journey-map")
-      ?.getBoundingClientRect();
-    if (!container) return;
-
-    setTooltip({
-      text,
-      x: event.clientX - container.left,
-      y: event.clientY - container.top,
-    });
-  }
-
-  return (
-    <div className="journey-map">
-      <div className="map-heading">
-        <div>
-          <p className="eyebrow">La carte collective</p>
-          <h3>Tous les chemins mènent à Massacan</h3>
-        </div>
-        <span className="bike-counter">
-          {routeGroups.length} ville{routeGroups.length > 1 ? "s" : ""} ·{" "}
-          {routes.length} réponse{routes.length > 1 ? "s" : ""}
-        </span>
-      </div>
-
-      <svg
-        className="world-map"
-        viewBox={`0 0 ${mapWidth} 420`}
-        preserveAspectRatio="xMidYMid meet"
-        role="img"
-        aria-label="Carte centrée sur la France et la Belgique montrant les trajets vers le Domaine de Massacan"
-      >
-        <defs>
-          <linearGradient id="paper" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stopColor="#eee5d3" />
-            <stop offset="1" stopColor="#dcd3bf" />
-          </linearGradient>
-          <filter id="map-shadow">
-            <feDropShadow dx="0" dy="3" stdDeviation="4" floodOpacity=".16" />
-          </filter>
-          <clipPath id="main-map-clip">
-            <rect x="0" y="0" width="520" height="420" rx="22" />
-          </clipPath>
-        </defs>
-
-        <rect width={mapWidth} height="420" rx="22" fill="url(#paper)" />
-        <g className="map-grid">
-          <path d="M25 115H520M25 210H520M25 305H520" />
-          <path d="M149 20V400M273 20V400M396 20V400" />
-        </g>
-
-        <g
-          className="countries"
-          filter="url(#map-shadow)"
-          clipPath="url(#main-map-clip)"
-          transform={`translate(${MAIN_MAP_ZOOM.centerX} ${MAIN_MAP_ZOOM.centerY}) scale(${MAIN_MAP_ZOOM.factor}) translate(${-MAIN_MAP_ZOOM.centerX} ${-MAIN_MAP_ZOOM.centerY})`}
-        >
-          {mapGeometry.regionPaths.map((country) => (
-            <path
-              className={
-                country.name === "France" || country.name === "Belgium"
-                  ? "country-focus"
-                  : undefined
-              }
-              d={country.path}
-              key={country.name}
-            />
-          ))}
-        </g>
-
-        <g className="country-labels" aria-hidden="true">
-          <text x={project(46.4, 2.1).x} y={project(46.4, 2.1).y}>
-            FRANCE
-          </text>
-          <text x={project(50.7, 4.5).x} y={project(50.7, 4.5).y}>
-            BELGIQUE
-          </text>
-        </g>
-
-        {regionalRoutes.map((route, index) => {
-          const curve = curveFor(route, index);
-          const clusterAngle = index * 2.35;
-          const clusterRadius = 12 + Math.min(32, index * 2.5);
-          const parkedX =
-            destination.x + Math.cos(clusterAngle) * clusterRadius;
-          const parkedY =
-            destination.y + Math.sin(clusterAngle) * clusterRadius;
-
-          return (
-            <g
-              className="bike-marker"
-              key={`${route.city}-${route.country}`}
-              role="img"
-              aria-label={routeTooltip(route)}
-              onMouseEnter={(event) =>
-                showTooltip(event, routeTooltip(route))
-              }
-              onMouseMove={(event) =>
-                showTooltip(event, routeTooltip(route))
-              }
-              onMouseLeave={() => setTooltip(null)}
-            >
-              <title>{routeTooltip(route)}</title>
-
-              {route.animate ? (
-                <text className="moving-bike">
-                  🚲
-                  <animateMotion
-                    dur="4.8s"
-                    path={curve.path}
-                    fill="freeze"
-                    keyPoints="0;1"
-                    keyTimes="0;1"
-                    calcMode="spline"
-                    keySplines=".42 0 .2 1"
-                  />
-                </text>
-              ) : (
-                <text
-                  className="parked-bike"
-                  x={parkedX}
-                  y={parkedY}
-                >
-                  🚲
-                </text>
-              )}
-            </g>
-          );
-        })}
-
-        <g
-          className="destination-pin"
-          role="img"
-          aria-label="Domaine de Massacan, destination du mariage"
-          onMouseEnter={(event) =>
-            showTooltip(
-              event,
-              "Domaine de Massacan · Destination du mariage",
-            )
-          }
-          onMouseMove={(event) =>
-            showTooltip(
-              event,
-              "Domaine de Massacan · Destination du mariage",
-            )
-          }
-          onMouseLeave={() => setTooltip(null)}
-        >
-          <title>Domaine de Massacan · Destination du mariage</title>
-          <circle
-            className="destination-hit"
-            cx={destination.x}
-            cy={destination.y}
-            r="11"
-          />
-          <circle
-            className="destination-dot"
-            cx={destination.x}
-            cy={destination.y}
-            r="3"
-          />
-        </g>
-
-        {distantRoutes.length > 0 && (
-          <g className="world-inset">
-            <rect x="535" y="35" width="170" height="350" rx="16" />
-            <text className="distant-title" x="550" y="60">
-              DÉPARTS LOINTAINS
-            </text>
-            <path className="mini-world-land" d={mapGeometry.worldPath} />
-            {visibleDistantRoutes.map((route) => {
-              const point = projectWorld(route.latitude, route.longitude);
-              return (
-                <g
-                  className="distant-origin"
-                  key={`${route.city}-${route.country}`}
-                  role="img"
-                  aria-label={routeTooltip(route)}
-                  onMouseEnter={(event) =>
-                    showTooltip(event, routeTooltip(route))
-                  }
-                  onMouseMove={(event) =>
-                    showTooltip(event, routeTooltip(route))
-                  }
-                  onMouseLeave={() => setTooltip(null)}
-                >
-                  <title>{routeTooltip(route)}</title>
-                  <circle cx={point.x} cy={point.y} r="4.5" />
-                </g>
-              );
-            })}
-            {distantRoutes.length > visibleDistantRoutes.length && (
-              <text className="distant-more" x="550" y="388">
-                + {distantRoutes.length - visibleDistantRoutes.length} autre
-                {distantRoutes.length - visibleDistantRoutes.length > 1
-                  ? "s"
-                  : ""}
-              </text>
-            )}
-          </g>
-        )}
-      </svg>
-
-      {tooltip && (
-        <div
-          className="map-tooltip"
-          style={{ left: tooltip.x, top: tooltip.y }}
-          role="status"
-        >
-          {tooltip.text}
-        </div>
-      )}
-
-      {routes.length === 0 && (
-        <p className="map-empty">
-          Le premier vélo apparaîtra ici dès qu’une réponse sera envoyée.
-        </p>
-      )}
-      {distantRoutes.length > 0 && (
-        <p className="distant-note">
-          Survolez un vélo ou un point pour afficher les informations. Le
-          mini-planisphère apparaît uniquement pour les départs éloignés.
-        </p>
-      )}
-      <p className="map-attribution">
-        Géographie : Natural Earth · Recherche : © OpenStreetMap contributors
-      </p>
-    </div>
-  );
-}
-
 export default function WeddingSurvey() {
   const [respondentName, setRespondentName] = useState("");
   const [respondentEmail, setRespondentEmail] = useState("");
@@ -406,18 +30,10 @@ export default function WeddingSurvey() {
   const [saturdaySleepers, setSaturdaySleepers] = useState(1);
   const [roommateWishes, setRoommateWishes] = useState("");
   const [songs, setSongs] = useState<string[]>([""]);
-  const [routes, setRoutes] = useState<GuestRoute[]>([]);
   const [status, setStatus] = useState<
     "idle" | "submitting" | "success" | "declined"
   >("idle");
   const [error, setError] = useState("");
-
-  useEffect(() => {
-    fetch("/api/routes")
-      .then((response) => response.json())
-      .then((data: GuestRoute[]) => setRoutes(Array.isArray(data) ? data : []))
-      .catch(() => setRoutes([]));
-  }, []);
 
   const groupSize = 1 + companions.filter((name) => name.trim()).length;
   const lodgingTotal =
@@ -561,21 +177,6 @@ export default function WeddingSurvey() {
         return;
       }
 
-      if (selectedPlace) {
-        setRoutes((current) => [
-          ...current,
-          {
-            id: `new-${Date.now()}`,
-            display_name: respondentName.trim(),
-            city: selectedPlace.city,
-            country: selectedPlace.country,
-            latitude: selectedPlace.latitude,
-            longitude: selectedPlace.longitude,
-            created_at: new Date().toISOString(),
-            animate: true,
-          },
-        ]);
-      }
       setStatus("success");
     } catch (submitError) {
       setStatus("idle");
@@ -601,7 +202,6 @@ export default function WeddingSurvey() {
         </p>
       </div>
 
-      <JourneyMap routes={routes} />
 
       <form className="wedding-form" onSubmit={submitResponse}>
         <div className="form-progress" aria-hidden="true">
@@ -933,3 +533,4 @@ export default function WeddingSurvey() {
     </section>
   );
 }
+

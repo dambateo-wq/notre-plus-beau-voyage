@@ -2,6 +2,7 @@ import Image from "next/image";
 import WeddingCountdown from "./components/WeddingCountdown";
 import WeddingSurvey from "./components/WeddingSurvey";
 import RsvpReminder from "./components/RsvpReminder";
+import GuestJourneyMap from "./components/GuestJourneyMap";
 import CarpoolBoard from "./components/CarpoolBoard";
 import LodgingBooking from "./components/LodgingBooking";
 
@@ -109,6 +110,7 @@ export default function Home() {
 
       <WeddingSurvey />
       <RsvpReminder />
+      <GuestJourneyMap />
 
       <section className="v2-travel v2-reveal" id="venir">
         <div className="v2-section-head"><p className="v2-kicker v2-kicker-dark"><span className="v2-section-number">03</span> Comment venir</p><h2>Choisissez<br /><em>votre chemin</em></h2></div>
@@ -120,10 +122,6 @@ export default function Home() {
       </section>
 
       <CarpoolBoard />
-
-      <section className="v2-map-placeholder v2-reveal">
-        <p className="v2-kicker v2-kicker-dark">La carte collective</p><h2>Chaque réponse dessine<br /><em>un nouveau départ.</em></h2><p>À chaque inscription, un vélo rejoint la carte du voyage vers Massacan.</p><div className="v2-map-lines" aria-hidden="true"><span>✦</span><i /><span>◇</span><i /><span className="v2-map-bike">⌁</span></div>
-      </section>
 
       <section className="v2-practical v2-reveal" id="infos-pratiques">
         <p className="v2-kicker v2-kicker-dark"><span className="v2-section-number">05</span> Bien préparer le départ</p><h2>Infos <em>pratiques</em></h2>
