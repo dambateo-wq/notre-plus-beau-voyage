@@ -76,6 +76,8 @@ export default function Home() {
         <span className="v2-journey-caption">Et la prochaine étape, c’est avec vous.</span>
       </section>
 
+      <GuestJourneyMap />
+
       <section className="v2-intro v2-reveal">
         <p className="v2-kicker v2-kicker-dark">Une parenthèse au sud</p>
         <h2>Trois jours pour<br /><em>écrire la suite.</em></h2>
@@ -110,7 +112,6 @@ export default function Home() {
 
       <WeddingSurvey />
       <RsvpReminder />
-      <GuestJourneyMap />
 
       <section className="v2-travel v2-reveal" id="venir">
         <div className="v2-section-head"><p className="v2-kicker v2-kicker-dark"><span className="v2-section-number">03</span> Comment venir</p><h2>Choisissez<br /><em>votre chemin</em></h2></div>

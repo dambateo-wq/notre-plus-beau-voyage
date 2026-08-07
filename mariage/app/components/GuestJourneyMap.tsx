@@ -249,10 +249,11 @@ function addCityLayers(
 
     schedule(() => {
       const icon = L.divIcon({
-        html: BIKE_SVG,
+        html: `<span class="${styles.bikeGlyph}" aria-hidden="true">${BIKE_SVG}</span>`,
         className: styles.bikeIcon,
         iconAnchor: [15, 10],
         iconSize: [30, 20],
+        popupAnchor: [0, -10],
       });
       const marker = L.marker(origin, {
         alt: `Départ de ${group.city}, ${group.country}`,

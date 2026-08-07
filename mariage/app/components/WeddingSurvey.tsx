@@ -35,7 +35,6 @@ export default function WeddingSurvey() {
   >("idle");
   const [error, setError] = useState("");
 
-  const groupSize = 1 + companions.filter((name) => name.trim()).length;
   const lodgingTotal =
     ((fridayLodging ? fridaySleepers : 0) +
       (saturdayLodging ? saturdaySleepers : 0)) *
@@ -411,7 +410,7 @@ export default function WeddingSurvey() {
                       <input
                         type="number"
                         min="1"
-                        max={Math.max(groupSize, 1)}
+                        max="20"
                         value={fridaySleepers}
                         onChange={(event) =>
                           setFridaySleepers(Number(event.target.value))
@@ -425,7 +424,7 @@ export default function WeddingSurvey() {
                       <input
                         type="number"
                         min="1"
-                        max={Math.max(groupSize, 1)}
+                        max="20"
                         value={saturdaySleepers}
                         onChange={(event) =>
                           setSaturdaySleepers(Number(event.target.value))
@@ -533,4 +532,3 @@ export default function WeddingSurvey() {
     </section>
   );
 }
-

@@ -261,6 +261,33 @@
   font-weight: 750;
 }
 
+.placementStatus {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.placementStatus > span {
+  border-radius: 999px;
+  background: #dfe9db;
+  color: #345033;
+  padding: 7px 11px;
+  font-size: .78rem;
+  font-weight: 800;
+}
+
+.planLink {
+  width: fit-content;
+  color: #53654d;
+  font-size: .75rem;
+  font-weight: 800;
+  text-decoration: underline;
+  text-decoration-color: #b6ad9c;
+  text-underline-offset: 3px;
+}
+
 .placementForm {
   display: grid;
   width: min(520px, 100%);
@@ -372,6 +399,180 @@
   border-top: 1px solid #ddd4c5;
 }
 
+.floorPlans {
+  margin-bottom: 28px;
+  padding: clamp(18px, 3vw, 28px);
+  border: 1px solid #d9d0c0;
+  border-radius: 24px;
+  background: #eee8dc;
+}
+
+.floorPlansHeading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 20px;
+}
+
+.floorPlansHeading h3 {
+  margin: 5px 0 0;
+  font: 500 clamp(1.7rem, 4vw, 2.6rem) Georgia, "Times New Roman", serif;
+}
+
+.floorPlansHeading > p {
+  max-width: 430px;
+  margin: 0;
+  color: #687064;
+  font-size: .83rem;
+  line-height: 1.55;
+}
+
+.planGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.planCard {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid #dcd3c4;
+  border-radius: 18px;
+  background: #fffdf8;
+}
+
+.planCardTitle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 13px 15px;
+  border-bottom: 1px solid #e6ded0;
+}
+
+.planCardTitle h4 {
+  margin: 0;
+  font: 600 1rem Georgia, "Times New Roman", serif;
+}
+
+.planCardTitle span {
+  color: #8a705a;
+  font-size: .68rem;
+  font-weight: 750;
+}
+
+.planScroller {
+  overflow: auto;
+  padding: 12px;
+  background: #f8f5ee;
+  overscroll-behavior-inline: contain;
+}
+
+.planCanvas {
+  position: relative;
+  margin: 0 auto;
+  transform-origin: top left;
+}
+
+.planLandscape {
+  width: max(820px, 100%);
+}
+
+.planPortrait {
+  width: max(620px, 100%);
+}
+
+.planImage {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.roomLabel {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  width: max-content;
+  max-width: 150px;
+  transform: translate(-50%, -50%);
+  padding: 5px 7px;
+  border: 1px solid rgba(255,255,255,.86);
+  border-radius: 7px;
+  background: rgba(45, 59, 44, .93);
+  box-shadow: 0 4px 12px rgba(35, 44, 33, .18);
+  color: #fff;
+  text-align: center;
+  pointer-events: none;
+}
+
+.roomLabel strong {
+  font-size: .66rem;
+  line-height: 1.1;
+}
+
+.roomLabel span {
+  margin-top: 2px;
+  font-size: .6rem;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.roomLabel small {
+  margin-top: 3px;
+  color: #d7c59a;
+  font-size: .51rem;
+  font-weight: 750;
+  letter-spacing: .02em;
+}
+
+.detailPlans {
+  margin-top: 16px;
+  border: 1px solid #d9d0c0;
+  border-radius: 15px;
+  background: #fffdf8;
+}
+
+.detailPlans summary {
+  cursor: pointer;
+  padding: 14px 16px;
+  font-size: .82rem;
+  font-weight: 800;
+}
+
+.detailPlans > p {
+  margin: 0;
+  padding: 0 16px 14px;
+  color: #6d756b;
+  font-size: .78rem;
+}
+
+.detailPlans > div {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  padding: 0 12px 12px;
+}
+
+.detailPlans figure {
+  margin: 0;
+}
+
+.detailPlans img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid #e3dacb;
+  border-radius: 10px;
+}
+
+.detailPlans figcaption {
+  padding-top: 6px;
+  color: #766c5d;
+  font-size: .68rem;
+  text-align: center;
+}
+
 .sectionHeading {
   display: flex;
   align-items: flex-end;
@@ -435,6 +636,15 @@
   .details {
     grid-template-columns: 1fr;
   }
+
+  .planGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .floorPlansHeading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
 }
 
 @media (max-width: 520px) {
@@ -468,6 +678,14 @@
 
   .responseActions {
     align-items: flex-start;
+  }
+
+  .placementStatus {
+    justify-content: flex-start;
+  }
+
+  .detailPlans > div {
+    grid-template-columns: 1fr;
   }
 
   .sectionHeading {

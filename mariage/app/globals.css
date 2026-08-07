@@ -177,6 +177,9 @@ body{overflow-x:hidden}
   .v2-footer{margin:0 12px 12px;border-radius:26px;padding-block:58px}
 }
 
+/* Keep decorative travel-card overlays from blocking their in-page links. */
+.v2-travel-cards article::before{pointer-events:none}
+
 @media(prefers-reduced-motion:reduce){.v2-hero-image,.v2-scroll-line{animation:none!important}.v2-journey-photo>img,.v2-ride-card{transition:none!important}}
 
 /* Navigation + Hero refinements */

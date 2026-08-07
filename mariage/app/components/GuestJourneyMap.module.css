@@ -119,14 +119,26 @@
 
 .bikeIcon {
   filter: drop-shadow(0 3px 4px rgba(42, 46, 35, .18));
-  animation: bikeArrival .72s cubic-bezier(.2, .75, .25, 1) both;
-  transition: transform .28s ease, filter .28s ease;
+  transition: filter .28s ease;
 }
 
 .bikeIcon:hover,
 .bikeIcon:focus {
   z-index: 900 !important;
   filter: drop-shadow(0 5px 7px rgba(42, 46, 35, .25));
+}
+
+.bikeGlyph {
+  display: block;
+  width: 30px;
+  height: 20px;
+  transform-origin: center;
+  animation: bikeArrival .72s cubic-bezier(.2, .75, .25, 1) both;
+  transition: transform .28s ease;
+}
+
+.bikeIcon:hover .bikeGlyph,
+.bikeIcon:focus .bikeGlyph {
   transform: translateY(-2px) scale(1.12);
 }
 
@@ -402,14 +414,14 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .bikeIcon,
+  .bikeGlyph,
   .originDot,
   .routeLine,
   .loading span {
     animation: none !important;
   }
 
-  .bikeIcon {
+  .bikeGlyph {
     transition: none;
   }
 }
