@@ -713,7 +713,7 @@ export default function WeddingSurvey() {
               </legend>
               <p className="field-help">
                 Indiquez une ville et un pays, puis sélectionnez le bon résultat.
-                Exemples : Toulon, Charleroi, Faro ou Cayenne.
+                Exemples : Toulon, Charleroi, Faro, Cayenne ou Stavanger.
               </p>
               <div className="location-search">
                 <input
