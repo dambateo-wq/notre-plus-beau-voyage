@@ -12,6 +12,7 @@ import DeleteResponseButton from "./DeleteResponseButton";
 import DeleteCarpoolButton from "./DeleteCarpoolButton";
 import LodgingActions from "./LodgingActions";
 import LodgingPlacement from "./LodgingPlacement";
+import LodgingFloorPlans from "./LodgingFloorPlans";
 import styles from "./admin.module.css";
 
 export const metadata: Metadata = {
@@ -320,6 +321,11 @@ export default async function AdminPage({
               {lodgingReservations.filter((reservation) => reservation.booking_status === "active").length > 1 ? "s" : ""}
             </span>
           </div>
+
+          <LodgingFloorPlans
+            assignments={lodgingAssignments}
+            reservations={lodgingReservations}
+          />
 
           {lodgingReservations.length === 0 ? (
             <p className={styles.empty}>
