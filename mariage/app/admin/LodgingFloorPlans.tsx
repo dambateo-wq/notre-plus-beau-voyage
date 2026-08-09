@@ -106,7 +106,14 @@ export default function LodgingFloorPlans({
             </div>
             <div className={styles.planScroller}>
               <div className={`${styles.planCanvas} ${plan.landscape ? styles.planLandscape : styles.planPortrait}`}>
-                <Image alt={`Plan ${plan.title}`} className={styles.planImage} height={plan.height} src={plan.src} width={plan.width} />
+                <Image
+                  alt={`Plan ${plan.title}`}
+                  className={styles.planImage}
+                  height={plan.height}
+                  src={plan.src}
+                  unoptimized
+                  width={plan.width}
+                />
                 {plan.rooms.map((room) => {
                   const placed = occupancy.get(room.name);
                   if (!placed) return null;
@@ -137,7 +144,13 @@ export default function LodgingFloorPlans({
         <div>
           {detailPlans.map((plan) => (
             <figure key={plan.src}>
-              <Image alt={`Détail des chambres ${plan.title}`} height={1430} src={plan.src} width={1105} />
+              <Image
+                alt={`Détail des chambres ${plan.title}`}
+                height={1430}
+                src={plan.src}
+                unoptimized
+                width={1105}
+              />
               <figcaption>{plan.title}</figcaption>
             </figure>
           ))}
