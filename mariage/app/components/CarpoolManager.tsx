@@ -15,7 +15,6 @@ type Seat = {
 
 type Offer = {
   driver_name: string;
-  driver_email: string;
   direction: "to_massacan" | "from_massacan";
   other_place: string;
   departure_local: string;
@@ -26,14 +25,14 @@ type Offer = {
   carpool_seats: Seat[];
 };
 
-async function fetchOffer(token: string) {
-  const response = await fetch(`/api/carpool/manage/${token}`, { cache: "no-store" });
+async function fetchOffer(offerId: string) {
+  const response = await fetch(`/api/carpool/manage/${offerId}`, { cache: "no-store" });
   const data = await response.json();
   if (!response.ok) throw new Error(data.error);
   return data.offer as Offer;
 }
 
-export default function CarpoolManager({ token }: { token: string }) {
+export default function CarpoolManager({ offerId }: { offerId: string }) {
   const [offer, setOffer] = useState<Offer | null>(null);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
@@ -44,7 +43,7 @@ export default function CarpoolManager({ token }: { token: string }) {
     let active = true;
     async function bootstrap() {
       try {
-        const nextOffer = await fetchOffer(token);
+        const nextOffer = await fetchOffer(offerId);
         if (active) setOffer(nextOffer);
       } catch (caught) {
         if (active) setError(caught instanceof Error ? caught.message : "Lien invalide.");
@@ -54,36 +53,36 @@ export default function CarpoolManager({ token }: { token: string }) {
     }
     void bootstrap();
     return () => { active = false; };
-  }, [token]);
+  }, [offerId]);
 
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setMessage(""); setError("");
     const form = new FormData(event.currentTarget);
-    const response = await fetch(`/api/carpool/manage/${token}`, {
+    const response = await fetch(`/api/carpool/manage/${offerId}`, {
       method: "PATCH", headers: { "Content-Type": "application/json" },
       body: JSON.stringify(Object.fromEntries(form)),
     });
     const data = await response.json();
     if (!response.ok) return setError(data.error);
-    setOffer(await fetchOffer(token));
+    setOffer(await fetchOffer(offerId));
     setMessage("Les modifications sont enregistrées.");
   }
 
   async function cycleSeat(seatId: string) {
     setMessage(""); setError("");
-    const response = await fetch(`/api/carpool/manage/${token}`, {
+    const response = await fetch(`/api/carpool/manage/${offerId}`, {
       method: "PATCH", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action: "cycle-seat", seatId }),
     });
     const data = await response.json();
     if (!response.ok) return setError(data.error);
-    setOffer(await fetchOffer(token));
+    setOffer(await fetchOffer(offerId));
   }
 
   async function removeOffer() {
     if (!window.confirm("Supprimer définitivement cette annonce ?")) return;
-    const response = await fetch(`/api/carpool/manage/${token}`, { method: "DELETE" });
+    const response = await fetch(`/api/carpool/manage/${offerId}`, { method: "DELETE" });
     if (!response.ok) return setError("L’annonce n’a pas pu être supprimée.");
     setDeleted(true);
   }
@@ -95,7 +94,7 @@ export default function CarpoolManager({ token }: { token: string }) {
   return (
     <main className="carpool-manage-page">
       <section className="carpool-manager">
-        <p className="eyebrow">Lien privé conducteur</p>
+        <p className="eyebrow">Espace conducteur</p>
         <h1>Gérer mon trajet</h1>
         <p className="carpool-manager-intro">{formatCarpoolDate(offer.departure_local, true)} · {offer.seats_available} place{offer.seats_available > 1 ? "s" : ""} libre{offer.seats_available > 1 ? "s" : ""}</p>
 

@@ -11,6 +11,6 @@ export default async function CarpoolManagePage({
 }: {
   params: Promise<{ token: string }>;
 }) {
-  const { token } = await params;
-  return <CarpoolManager token={token} />;
+  const { token: offerId } = await params;
+  return <CarpoolManager offerId={offerId} />;
 }

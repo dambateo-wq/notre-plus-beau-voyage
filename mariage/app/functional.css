@@ -112,11 +112,6 @@
 .carpool-honeypot,.lodging-honeypot{position:absolute!important;left:-10000px!important;width:1px!important;height:1px!important;overflow:hidden!important}
 .carpool-error,.carpool-success,.lodging-error{padding:12px 14px;border-radius:11px;font-size:.85rem;font-weight:700;line-height:1.45}
 .carpool-error,.lodging-error{background:#f6e2dc;color:#8a3f32}.carpool-success{background:#e4ecdf;color:#3f593b}
-.carpool-success a{display:block;width:fit-content;margin-top:8px;color:#31472f;text-decoration:underline;text-underline-offset:3px}
-.carpool-recovery{padding:17px 20px;border:1px solid rgba(39,49,38,.12);border-radius:18px;background:#fffdf9}
-.carpool-recovery summary{cursor:pointer;color:#40523d;font-size:.82rem;font-weight:750}
-.carpool-recovery form{display:grid;gap:10px;margin-top:14px}.carpool-recovery p{margin:10px 0 0;color:#687064;font-size:.77rem;line-height:1.5}
-.carpool-recovery label{display:grid;gap:7px;color:#384537;font-size:.79rem;font-weight:700}.carpool-recovery input{width:100%;padding:12px 13px;border:1px solid #cec6b8;border-radius:11px;background:#fff;color:var(--ink);font:inherit}.carpool-recovery button{padding:12px;border:0;border-radius:11px;background:var(--ink);color:#fff;cursor:pointer;font-weight:700}
 .carpool-offers{padding:32px}
 .carpool-offers-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:22px}
 .carpool-offers-heading h3{margin-top:7px}.carpool-offers-heading>span{padding:8px 11px;border-radius:999px;background:#e4eadf;color:var(--olive);font-size:.75rem;font-weight:700;white-space:nowrap}
@@ -128,6 +123,8 @@
 .carpool-public-seats{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}.carpool-seat-dot,.carpool-seat-legend i{display:inline-block;width:18px;height:18px;border:2px solid #7b806f;border-radius:50%;background:#fff;box-shadow:0 2px 5px rgba(40,49,39,.1)}.carpool-seat-dot.seat-reserved,.carpool-seat-legend .seat-reserved{border-color:#b86f45;background:#c9845b}.carpool-seat-dot.seat-validated,.carpool-seat-legend .seat-validated{border-color:#3d653e;background:#538052}.carpool-seat-legend .seat-free{background:#fff}
 .carpool-request-toggle{margin-top:15px;padding:10px 13px;border:0;border-radius:10px;background:var(--ink);color:#fff;cursor:pointer;font-size:.8rem;font-weight:700}
 .carpool-request-toggle:disabled{cursor:not-allowed;opacity:.55}
+.carpool-manage-link{display:block;width:fit-content;margin-top:10px;color:#5c6858;font-size:.72rem;font-weight:700;line-height:1.45;text-decoration:underline;text-decoration-color:rgba(92,104,88,.38);text-underline-offset:4px;transition:color .2s ease,text-decoration-color .2s ease}
+.carpool-manage-link:hover,.carpool-manage-link:focus-visible{color:var(--ink);text-decoration-color:currentColor}
 .carpool-request-form{display:grid;gap:12px;margin-top:14px;padding-top:15px;border-top:1px solid #ded5c5}
 .carpool-contact-reveal{margin-top:4px;padding:14px;border-radius:12px;background:#e4eadf;color:#40543c;font-size:.82rem;line-height:1.5}.carpool-contact-reveal p{margin:0 0 8px}.carpool-contact-reveal a,.carpool-contact-reveal strong{display:block;color:#40543c;font-weight:700;overflow-wrap:anywhere}
 .carpool-empty{padding:35px 20px;border:1px dashed #cfc4b1;border-radius:16px;color:#70776d;line-height:1.6;text-align:center}

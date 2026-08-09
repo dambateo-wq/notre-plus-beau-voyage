@@ -1,14 +1,14 @@
+import { getPrivateSupabaseConfig } from "@/lib/admin-data";
 import {
-  getPrivateSupabaseConfig,
-} from "@/lib/admin-data";
-import { sendCarpoolManagementEmail } from "@/lib/carpool-email";
-import { isAllowedCarpoolDate, legacyUtcClockToLocal } from "@/lib/carpool-time";
+  isAllowedCarpoolDate,
+  legacyUtcClockToLocal,
+  parisLocalToInstant,
+} from "@/lib/carpool-time";
 
 export const dynamic = "force-dynamic";
 
 type CarpoolRequest = {
   driverName?: unknown;
-  driverEmail?: unknown;
   direction?: unknown;
   otherPlace?: unknown;
   departureAt?: unknown;
@@ -20,10 +20,6 @@ type CarpoolRequest = {
 
 function cleanString(value: unknown, maxLength: number) {
   return typeof value === "string" ? value.trim().slice(0, maxLength) : "";
-}
-
-function isEmail(value: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
 export async function GET() {
@@ -72,7 +68,6 @@ export async function POST(request: Request) {
   try {
     const body = (await request.json()) as CarpoolRequest;
     const driverName = cleanString(body.driverName, 80);
-    const driverEmail = cleanString(body.driverEmail, 120).toLowerCase();
     const direction = cleanString(body.direction, 20);
     const otherPlace = cleanString(body.otherPlace, 140);
     const departureAt = cleanString(body.departureAt, 40);
@@ -87,7 +82,6 @@ export async function POST(request: Request) {
     if (
       !driverName ||
       !otherPlace ||
-      !isEmail(driverEmail) ||
       !contact ||
       !["to_massacan", "from_massacan"].includes(direction) ||
       !isAllowedCarpoolDate(departureAt) ||
@@ -101,11 +95,9 @@ export async function POST(request: Request) {
       );
     }
 
-    const managementToken = crypto.randomUUID();
-
     const { url, headers } = getPrivateSupabaseConfig();
     const response = await fetch(
-      `${url}/rest/v1/rpc/create_carpool_offer`,
+      `${url}/rest/v1/carpool_offers?select=id,driver_name,direction,other_place,departure_at,departure_local,seats_available,seats_total,details,created_at`,
       {
         method: "POST",
         headers: {
@@ -114,15 +106,15 @@ export async function POST(request: Request) {
           Prefer: "return=representation",
         },
         body: JSON.stringify({
-          p_driver_name: driverName,
-          p_driver_email: driverEmail,
-          p_direction: direction,
-          p_other_place: otherPlace,
-          p_departure_local: departureAt.replace("T", " ") + ":00",
-          p_seats_total: seatsAvailable,
-          p_contact: contact,
-          p_details: details,
-          p_management_token: managementToken,
+          driver_name: driverName,
+          direction,
+          other_place: otherPlace,
+          departure_at: parisLocalToInstant(departureAt).toISOString(),
+          departure_local: departureAt.replace("T", " ") + ":00",
+          seats_available: seatsAvailable,
+          seats_total: seatsAvailable,
+          contact,
+          details: details || null,
         }),
       },
     );
@@ -149,20 +141,7 @@ export async function POST(request: Request) {
         status: "free",
       })),
     };
-    const origin = new URL(request.url).origin;
-    const manageUrl = `${origin}/carpool/manage/${managementToken}`;
-    const journey = direction === "to_massacan"
-      ? `${otherPlace} → Domaine de Massacan`
-      : `Domaine de Massacan → ${otherPlace}`;
-    let emailSent = false;
-    try {
-      emailSent = await sendCarpoolManagementEmail({
-        driverName, email: driverEmail, manageUrl, journey,
-      });
-    } catch {
-      emailSent = false;
-    }
-    return Response.json({ offer, manageUrl, emailSent }, { status: 201 });
+    return Response.json({ offer }, { status: 201 });
   } catch (caught) {
     console.error("carpool.create", caught);
     return Response.json(

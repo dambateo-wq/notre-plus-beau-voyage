@@ -7,14 +7,7 @@ Les évolutions covoiturage et hébergement utilisent deux migrations additives 
 1. `supabase/carpool_management_migration.sql`
 2. `supabase/lodging_guest_assignments_migration.sql`
 
-La gestion privée des trajets fonctionne sans clé exposée au navigateur. Pour envoyer automatiquement les liens conducteurs, ajouter sur Vercel :
-
-```text
-RESEND_API_KEY=re_...
-CARPOOL_EMAIL_FROM=Damien & Julie <covoiturage@votre-domaine.fr>
-```
-
-`CARPOOL_EMAIL_FROM` doit utiliser un domaine validé dans Resend. Sans ces deux variables, l’annonce reste créée et son lien privé est affiché immédiatement au conducteur, mais aucun e-mail n’est envoyé.
+La gestion des trajets est volontairement déclarative : chaque annonce publique affiche un bouton conducteur permettant de la modifier, de gérer ses places ou de la supprimer. Aucun service d’e-mail ni variable Resend n’est nécessaire.
 
 ## Getting Started
 

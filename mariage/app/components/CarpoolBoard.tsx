@@ -39,7 +39,7 @@ export default function CarpoolBoard() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState<{ manageUrl: string; emailSent: boolean } | null>(null);
+  const [success, setSuccess] = useState(false);
   const [direction, setDirection] = useState("to_massacan");
   const [requestingOffer, setRequestingOffer] = useState<string | null>(null);
   const [requestStatus, setRequestStatus] = useState<Record<string, string>>(
@@ -48,7 +48,6 @@ export default function CarpoolBoard() {
   const [driverContacts, setDriverContacts] = useState<Record<string, string>>(
     {},
   );
-  const [recoveryStatus, setRecoveryStatus] = useState("");
 
   useEffect(() => {
     fetch("/api/carpool")
@@ -67,13 +66,12 @@ export default function CarpoolBoard() {
     event.preventDefault();
     setSubmitting(true);
     setError("");
-    setSuccess(null);
+    setSuccess(false);
 
     const form = event.currentTarget;
     const formData = new FormData(form);
     const payload = {
       driverName: formData.get("driverName"),
-      driverEmail: formData.get("driverEmail"),
       direction: formData.get("direction"),
       otherPlace: formData.get("otherPlace"),
       departureAt: formData.get("departureAt"),
@@ -101,7 +99,7 @@ export default function CarpoolBoard() {
       );
       form.reset();
       setDirection("to_massacan");
-      setSuccess({ manageUrl: data.manageUrl, emailSent: Boolean(data.emailSent) });
+      setSuccess(true);
     } catch (caught) {
       setError(
         caught instanceof Error
@@ -167,22 +165,6 @@ export default function CarpoolBoard() {
     }
   }
 
-  async function recoverOffer(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setRecoveryStatus("Envoi…");
-    const email = new FormData(event.currentTarget).get("recoveryEmail");
-    try {
-      const response = await fetch("/api/carpool/recover", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-      const data = await response.json();
-      setRecoveryStatus(response.ok ? data.message : data.error);
-    } catch {
-      setRecoveryStatus("Le lien n’a pas pu être envoyé. Réessayez.");
-    }
-  }
-
   return (
     <section className="carpool-section" id="covoiturage">
       <div className="carpool-intro">
@@ -209,18 +191,6 @@ export default function CarpoolBoard() {
               type="text"
               maxLength={80}
               autoComplete="name"
-              required
-            />
-          </label>
-
-          <label>
-            Votre adresse e-mail
-            <input
-              name="driverEmail"
-              type="email"
-              maxLength={120}
-              autoComplete="email"
-              placeholder="Pour recevoir votre lien privé de gestion"
               required
             />
           </label>
@@ -311,10 +281,7 @@ export default function CarpoolBoard() {
           {success && (
             <div className="carpool-success">
               <strong>Votre trajet est publié.</strong>{" "}
-              {success.emailSent
-                ? "Le lien privé de gestion vient de vous être envoyé par e-mail."
-                : "Conservez le lien privé ci-dessous pour le gérer."}
-              <a href={success.manageUrl}>Gérer mon trajet</a>
+              Vous pourrez le modifier depuis le bouton affiché sur son annonce.
             </div>
           )}
 
@@ -322,17 +289,6 @@ export default function CarpoolBoard() {
             {submitting ? "Publication…" : "Publier mon trajet"}
           </button>
           </form>
-          <details className="carpool-recovery">
-            <summary>Retrouver mon annonce</summary>
-            <form onSubmit={recoverOffer}>
-              <label>
-                Adresse e-mail utilisée
-                <input name="recoveryEmail" type="email" autoComplete="email" required />
-              </label>
-              <button type="submit">Renvoyer mon lien privé</button>
-            </form>
-            {recoveryStatus && <p role="status">{recoveryStatus}</p>}
-          </details>
         </div>
 
         <div className="carpool-offers">
@@ -400,6 +356,12 @@ export default function CarpoolBoard() {
                     >
                       {offer.seats_available > 0 ? "Demander une place" : "Trajet complet"}
                     </button>
+                    <a
+                      className="carpool-manage-link"
+                      href={`/carpool/manage/${offer.id}`}
+                    >
+                      Je suis le conducteur, je veux gérer mon annonce
+                    </a>
 
                     {requestingOffer === offer.id && (
                       <form
