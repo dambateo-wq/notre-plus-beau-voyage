@@ -1,6 +1,13 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import { formatCarpoolDate } from "@/lib/carpool-time";
+
+type CarpoolSeat = {
+  id: string;
+  position: number;
+  status: "free" | "reserved" | "validated";
+};
 
 type CarpoolOffer = {
   id: string;
@@ -8,9 +15,12 @@ type CarpoolOffer = {
   direction: "to_massacan" | "from_massacan";
   other_place: string;
   departure_at: string;
+  departure_local: string;
   seats_available: number;
+  seats_total: number;
   details: string | null;
   created_at: string;
+  carpool_seats: CarpoolSeat[];
 };
 
 function journeyLabel(offer: CarpoolOffer) {
@@ -29,7 +39,7 @@ export default function CarpoolBoard() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
+  const [success, setSuccess] = useState<{ manageUrl: string; emailSent: boolean } | null>(null);
   const [direction, setDirection] = useState("to_massacan");
   const [requestingOffer, setRequestingOffer] = useState<string | null>(null);
   const [requestStatus, setRequestStatus] = useState<Record<string, string>>(
@@ -38,6 +48,7 @@ export default function CarpoolBoard() {
   const [driverContacts, setDriverContacts] = useState<Record<string, string>>(
     {},
   );
+  const [recoveryStatus, setRecoveryStatus] = useState("");
 
   useEffect(() => {
     fetch("/api/carpool")
@@ -56,12 +67,13 @@ export default function CarpoolBoard() {
     event.preventDefault();
     setSubmitting(true);
     setError("");
-    setSuccess(false);
+    setSuccess(null);
 
     const form = event.currentTarget;
     const formData = new FormData(form);
     const payload = {
       driverName: formData.get("driverName"),
+      driverEmail: formData.get("driverEmail"),
       direction: formData.get("direction"),
       otherPlace: formData.get("otherPlace"),
       departureAt: formData.get("departureAt"),
@@ -83,15 +95,13 @@ export default function CarpoolBoard() {
       }
 
       setOffers((current) =>
-        [...current, data.offer].sort(
-          (a, b) =>
-            new Date(a.departure_at).getTime() -
-            new Date(b.departure_at).getTime(),
+        [...current, data.offer].sort((a, b) =>
+          a.departure_local.localeCompare(b.departure_local),
         ),
       );
       form.reset();
       setDirection("to_massacan");
-      setSuccess(true);
+      setSuccess({ manageUrl: data.manageUrl, emailSent: Boolean(data.emailSent) });
     } catch (caught) {
       setError(
         caught instanceof Error
@@ -135,9 +145,41 @@ export default function CarpoolBoard() {
         ...current,
         [offerId]: data.driverContact,
       }));
+      setOffers((current) => current.map((offer) => {
+        if (offer.id !== offerId) return offer;
+        const requested = Number(formData.get("seatsRequested"));
+        let remaining = requested;
+        return {
+          ...offer,
+          seats_available: Number(data.remainingSeats),
+          carpool_seats: offer.carpool_seats.map((seat) => {
+            if (remaining > 0 && seat.status === "free") {
+              remaining -= 1;
+              return { ...seat, status: "reserved" as const };
+            }
+            return seat;
+          }),
+        };
+      }));
       setRequestStatus((current) => ({ ...current, [offerId]: "sent" }));
     } catch {
       setRequestStatus((current) => ({ ...current, [offerId]: "error" }));
+    }
+  }
+
+  async function recoverOffer(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setRecoveryStatus("Envoi…");
+    const email = new FormData(event.currentTarget).get("recoveryEmail");
+    try {
+      const response = await fetch("/api/carpool/recover", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await response.json();
+      setRecoveryStatus(response.ok ? data.message : data.error);
+    } catch {
+      setRecoveryStatus("Le lien n’a pas pu être envoyé. Réessayez.");
     }
   }
 
@@ -155,7 +197,8 @@ export default function CarpoolBoard() {
       </div>
 
       <div className="carpool-layout">
-        <form className="carpool-form" onSubmit={submitOffer}>
+        <div className="carpool-form-stack">
+          <form className="carpool-form" onSubmit={submitOffer}>
           <p className="eyebrow">Proposer un trajet</p>
           <h3>J’ai de la place dans ma voiture</h3>
 
@@ -166,6 +209,18 @@ export default function CarpoolBoard() {
               type="text"
               maxLength={80}
               autoComplete="name"
+              required
+            />
+          </label>
+
+          <label>
+            Votre adresse e-mail
+            <input
+              name="driverEmail"
+              type="email"
+              maxLength={120}
+              autoComplete="email"
+              placeholder="Pour recevoir votre lien privé de gestion"
               required
             />
           </label>
@@ -254,15 +309,31 @@ export default function CarpoolBoard() {
 
           {error && <p className="carpool-error">{error}</p>}
           {success && (
-            <p className="carpool-success">
-              Votre trajet est publié. Bonne route !
-            </p>
+            <div className="carpool-success">
+              <strong>Votre trajet est publié.</strong>{" "}
+              {success.emailSent
+                ? "Le lien privé de gestion vient de vous être envoyé par e-mail."
+                : "Conservez le lien privé ci-dessous pour le gérer."}
+              <a href={success.manageUrl}>Gérer mon trajet</a>
+            </div>
           )}
 
           <button type="submit" disabled={submitting}>
             {submitting ? "Publication…" : "Publier mon trajet"}
           </button>
-        </form>
+          </form>
+          <details className="carpool-recovery">
+            <summary>Retrouver mon annonce</summary>
+            <form onSubmit={recoverOffer}>
+              <label>
+                Adresse e-mail utilisée
+                <input name="recoveryEmail" type="email" autoComplete="email" required />
+              </label>
+              <button type="submit">Renvoyer mon lien privé</button>
+            </form>
+            {recoveryStatus && <p role="status">{recoveryStatus}</p>}
+          </details>
+        </div>
 
         <div className="carpool-offers">
           <div className="carpool-offers-heading">
@@ -300,29 +371,34 @@ export default function CarpoolBoard() {
                     </div>
                     <h4>{journeyLabel(offer)}</h4>
                     <p className="carpool-date">
-                      {new Intl.DateTimeFormat("fr-FR", {
-                        weekday: "long",
-                        day: "numeric",
-                        month: "long",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        timeZone: "Europe/Paris",
-                      }).format(new Date(offer.departure_at))}
+                      {formatCarpoolDate(offer.departure_local)}
                     </p>
                     <p>
                       <b>{offer.driver_name}</b>
                       {offer.details && ` · ${offer.details}`}
                     </p>
+                    <div className="carpool-public-seats" aria-label={`${offer.seats_available} places libres sur ${offer.seats_total}`}>
+                      {offer.carpool_seats.map((seat) => (
+                        <span
+                          className={`carpool-seat-dot seat-${seat.status}`}
+                          key={seat.id}
+                          title={`Place ${seat.position} : ${seat.status === "free" ? "libre" : seat.status === "reserved" ? "réservée" : "validée"}`}
+                        >
+                          <span className="sr-only">Place {seat.position} : {seat.status}</span>
+                        </span>
+                      ))}
+                    </div>
                     <button
                       className="carpool-request-toggle"
                       type="button"
+                      disabled={offer.seats_available === 0}
                       onClick={() =>
                         setRequestingOffer((current) =>
                           current === offer.id ? null : offer.id,
                         )
                       }
                     >
-                      Demander une place
+                      {offer.seats_available > 0 ? "Demander une place" : "Trajet complet"}
                     </button>
 
                     {requestingOffer === offer.id && (

@@ -5,14 +5,15 @@ import {
   getCarpoolRequests,
   getWeddingResponses,
 } from "@/lib/admin-data";
-import { getLodgingAssignments, getLodgingReservations } from "@/lib/lodging";
+import { getLodgingAssignments, getLodgingGuestAssignments, getLodgingReservations, legacyGuestAssignments } from "@/lib/lodging";
+import { formatCarpoolDate, legacyUtcClockToLocal } from "@/lib/carpool-time";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { login, logout } from "./actions";
 import DeleteResponseButton from "./DeleteResponseButton";
 import DeleteCarpoolButton from "./DeleteCarpoolButton";
 import LodgingActions from "./LodgingActions";
-import LodgingPlacement from "./LodgingPlacement";
 import LodgingFloorPlans from "./LodgingFloorPlans";
+import LodgingGuestPlanner from "./LodgingGuestPlanner";
 import styles from "./admin.module.css";
 
 export const metadata: Metadata = {
@@ -72,13 +73,17 @@ export default async function AdminPage({
     );
   }
 
-  const [responses, carpoolOffers, carpoolRequests, lodgingReservations, lodgingAssignments] = await Promise.all([
+  const [responses, carpoolOffers, carpoolRequests, lodgingReservations, lodgingAssignments, storedGuestAssignments] = await Promise.all([
     getWeddingResponses(),
     getCarpoolOffers(),
     getCarpoolRequests(),
     getLodgingReservations(),
     getLodgingAssignments(),
+    getLodgingGuestAssignments(),
   ]);
+  const lodgingGuestAssignments = storedGuestAssignments.length
+    ? storedGuestAssignments
+    : legacyGuestAssignments(lodgingReservations, lodgingAssignments);
   const attending = responses.filter((response) => !response.not_attending);
   const declined = responses.length - attending.length;
   const totalGuests = attending.reduce(
@@ -246,13 +251,12 @@ export default async function AdminPage({
                   <div className={styles.responseTop}>
                     <div>
                       <h2>{offer.driver_name}</h2>
-                      <time dateTime={offer.departure_at}>
+                      <time dateTime={offer.departure_local ?? offer.departure_at}>
                         Départ le{" "}
-                        {new Intl.DateTimeFormat("fr-FR", {
-                          dateStyle: "long",
-                          timeStyle: "short",
-                          timeZone: "Europe/Paris",
-                        }).format(new Date(offer.departure_at))}
+                        {formatCarpoolDate(
+                          offer.departure_local ?? legacyUtcClockToLocal(offer.departure_at),
+                          true,
+                        )}
                       </time>
                     </div>
                     <div className={styles.responseActions}>
@@ -322,8 +326,13 @@ export default async function AdminPage({
             </span>
           </div>
 
+          <LodgingGuestPlanner
+            reservations={lodgingReservations}
+            initialAssignments={lodgingGuestAssignments}
+          />
+
           <LodgingFloorPlans
-            assignments={lodgingAssignments}
+            assignments={lodgingGuestAssignments}
             reservations={lodgingReservations}
           />
 
@@ -363,14 +372,16 @@ export default async function AdminPage({
                           paymentStatus={reservation.payment_status}
                         />
                       )}
-                      {reservation.booking_status === "active" && reservation.payment_status === "confirmed" && (
-                        <LodgingPlacement
-                          reservationId={reservation.id}
-                          guestsCount={reservation.guests_count}
-                          nights={reservation.nights}
-                          assignment={lodgingAssignments.find((assignment) => assignment.reservation_id === reservation.id)}
-                        />
-                      )}
+                      {reservation.booking_status === "active" && reservation.payment_status === "confirmed" && (() => {
+                        const placed = lodgingGuestAssignments.filter((assignment) => assignment.reservation_id === reservation.id).length;
+                        return (
+                          <a className={styles.placementStatusLink} href="#guest-planner-title">
+                            {placed === reservation.guests_count
+                              ? `✓ Placé · ${placed}/${reservation.guests_count} · Modifier`
+                              : `${placed}/${reservation.guests_count} placés · Compléter`}
+                          </a>
+                        );
+                      })()}
                     </div>
                   </div>
                   <dl className={styles.details}>

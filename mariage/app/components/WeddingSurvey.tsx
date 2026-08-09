@@ -405,32 +405,24 @@ export default function WeddingSurvey() {
               {(fridayLodging || saturdayLodging) && (
                 <div className="sleepers-grid">
                   {fridayLodging && (
-                    <label>
-                      Nombre de personnes le vendredi
-                      <input
-                        type="number"
-                        min="1"
-                        max="20"
+                    <div className="sleeper-field">
+                      <span>Nombre de personnes le vendredi</span>
+                      <SleeperCounter
+                        label="Nombre de personnes le vendredi"
                         value={fridaySleepers}
-                        onChange={(event) =>
-                          setFridaySleepers(Number(event.target.value))
-                        }
+                        onChange={setFridaySleepers}
                       />
-                    </label>
+                    </div>
                   )}
                   {saturdayLodging && (
-                    <label>
-                      Nombre de personnes le samedi
-                      <input
-                        type="number"
-                        min="1"
-                        max="20"
+                    <div className="sleeper-field">
+                      <span>Nombre de personnes le samedi</span>
+                      <SleeperCounter
+                        label="Nombre de personnes le samedi"
                         value={saturdaySleepers}
-                        onChange={(event) =>
-                          setSaturdaySleepers(Number(event.target.value))
-                        }
+                        onChange={setSaturdaySleepers}
                       />
-                    </label>
+                    </div>
                   )}
                 </div>
               )}
@@ -505,8 +497,7 @@ export default function WeddingSurvey() {
             <span>🚲</span>
             <h3>Votre vélo est arrivé à Massacan !</h3>
             <p>
-              Merci pour votre réponse. Votre trajet reste maintenant visible
-              sur notre carte collective.
+              Ton inscription est bien enregistrée, ton vélo est visible sur la carte collective.
             </p>
           </div>
         ) : status === "declined" ? (
@@ -530,5 +521,36 @@ export default function WeddingSurvey() {
         )}
       </form>
     </section>
+  );
+}
+
+function SleeperCounter({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: number;
+  onChange: (value: number) => void;
+}) {
+  const clamp = (next: number) => Math.min(20, Math.max(1, next));
+  return (
+    <div className="sleeper-counter">
+      <button type="button" onClick={() => onChange(clamp(value - 1))} disabled={value <= 1} aria-label={`Diminuer ${label.toLowerCase()}`}>−</button>
+      <input
+        type="number"
+        min="1"
+        max="20"
+        step="1"
+        inputMode="numeric"
+        value={value}
+        onChange={(event) => {
+          const next = event.currentTarget.valueAsNumber;
+          if (Number.isFinite(next)) onChange(clamp(next));
+        }}
+        aria-label={label}
+      />
+      <button type="button" onClick={() => onChange(clamp(value + 1))} disabled={value >= 20} aria-label={`Augmenter ${label.toLowerCase()}`}>+</button>
+    </div>
   );
 }

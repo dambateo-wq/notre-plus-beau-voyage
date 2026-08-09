@@ -1,5 +1,6 @@
 .page {
   min-height: 100vh;
+  overflow-x: hidden;
   background: #f5f0e5;
   color: #2d3b2c;
   padding: 48px 20px 80px;
@@ -7,6 +8,7 @@
 
 .shell {
   width: min(1180px, 100%);
+  min-width: 0;
   margin: 0 auto;
 }
 
@@ -278,6 +280,16 @@
   font-weight: 800;
 }
 
+.placementStatusLink {
+  border-radius: 999px;
+  background: #dfe9db;
+  color: #345033;
+  padding: 7px 11px;
+  font-size: .78rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
 .planLink {
   width: fit-content;
   color: #53654d;
@@ -400,6 +412,7 @@
 }
 
 .floorPlans {
+  min-width: 0;
   margin-bottom: 28px;
   padding: clamp(18px, 3vw, 28px);
   border: 1px solid #d9d0c0;
@@ -463,15 +476,20 @@
 }
 
 .planScroller {
-  overflow: auto;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
   padding: 12px;
   background: #f8f5ee;
   overscroll-behavior-inline: contain;
+  scrollbar-color: #9d927f #e8e1d5;
+  scrollbar-width: thin;
 }
 
 .planCanvas {
   position: relative;
-  margin: 0 auto;
+  margin: 0;
   transform-origin: top left;
 }
 
@@ -486,8 +504,130 @@
 .planImage {
   display: block;
   width: 100%;
+  max-width: none;
   height: auto;
 }
+
+.guestPlanner {
+  min-width: 0;
+  margin-bottom: 28px;
+  padding: clamp(18px, 3vw, 28px);
+  border: 1px solid #d9d0c0;
+  border-radius: 24px;
+  background: #fffdf8;
+}
+
+.plannerError {
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #f7e1dc;
+  color: #8b3e32;
+  font-size: .82rem;
+  font-weight: 750;
+}
+
+.guestGroups {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.guestGroup {
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid #e0d7c8;
+  border-radius: 16px;
+  background: #f6f1e8;
+}
+
+.guestGroup > header,
+.roomDrop > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.guestGroup > header span,
+.roomDrop > header span {
+  color: #786f60;
+  font-size: .67rem;
+  font-weight: 750;
+}
+
+.guestGroup > div {
+  display: grid;
+  gap: 7px;
+}
+
+.guestChip {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(118px, .55fr);
+  align-items: center;
+  gap: 9px;
+  padding: 9px 10px;
+  border: 1px solid #ded5c5;
+  border-radius: 11px;
+  background: #fff;
+  cursor: grab;
+}
+
+.guestChip:active { cursor: grabbing; }
+.guestChip > span { min-width: 0; }
+.guestChip strong,
+.guestChip small { display: block; overflow-wrap: anywhere; }
+.guestChip strong { font-size: .78rem; }
+.guestChip small { margin-top: 2px; color: #778074; font-size: .65rem; }
+.guestChip select {
+  min-width: 0;
+  padding: 7px;
+  border: 1px solid #d0c6b6;
+  border-radius: 8px;
+  background: #fffdf8;
+  color: #344333;
+  font-size: .69rem;
+}
+
+.roomDropGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.roomDrop {
+  min-width: 0;
+  min-height: 105px;
+  padding: 11px;
+  border: 1px dashed #bdb19f;
+  border-radius: 13px;
+  background: #f5f0e6;
+  transition: border-color .2s ease, background .2s ease;
+}
+
+.roomDrop:hover {
+  border-color: #6f8068;
+  background: #edf1e8;
+}
+
+.roomDrop > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.roomDrop > div span {
+  padding: 4px 6px;
+  border-radius: 999px;
+  background: #fff;
+  color: #40513e;
+  font-size: .63rem;
+  font-weight: 700;
+}
+
+.roomDrop > div small { color: #8a8f85; font-size: .66rem; }
 
 .roomLabel {
   position: absolute;
@@ -628,7 +768,7 @@
   overflow-wrap: anywhere;
 }
 
-@media (max-width: 800px) {
+@media (max-width: 900px) {
   .stats {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -639,6 +779,10 @@
 
   .planGrid {
     grid-template-columns: 1fr;
+  }
+
+  .roomDropGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .floorPlansHeading {
@@ -686,6 +830,16 @@
 
   .detailPlans > div {
     grid-template-columns: 1fr;
+  }
+
+  .guestGroups,
+  .roomDropGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .guestChip {
+    grid-template-columns: 1fr;
+    cursor: default;
   }
 
   .sectionHeading {

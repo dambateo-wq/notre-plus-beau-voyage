@@ -7,7 +7,7 @@ import {
   isValidAdminPassword,
 } from "@/lib/admin-auth";
 import { deleteCarpoolOffer, deleteWeddingResponse } from "@/lib/admin-data";
-import { getLodgingAssignments, getLodgingReservations, saveLodgingAssignment, updateLodgingReservation } from "@/lib/lodging";
+import { getLodgingAssignments, getLodgingReservations, placeLodgingGuest as persistLodgingGuest, saveLodgingAssignment, unplaceLodgingGuest as removeLodgingGuest, updateLodgingReservation } from "@/lib/lodging";
 import { getRoomCapacity, LODGING_ROOM_NAMES } from "@/lib/lodging-rooms";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -118,5 +118,32 @@ export async function saveLodgingPlacement(formData: FormData) {
     throw new Error("Cette chambre n’a pas assez de places libres pour ce placement.");
   }
   await saveLodgingAssignment(id, values);
+  revalidatePath("/admin");
+}
+
+export async function saveGuestLodgingPlacement(formData: FormData) {
+  if (!(await isAdminAuthenticated())) redirect("/admin");
+  const reservationId = String(formData.get("reservationId") ?? "");
+  const guestIndex = Number(formData.get("guestIndex"));
+  const roomName = String(formData.get("roomName") ?? "");
+  if (
+    !/^[0-9a-f-]{36}$/i.test(reservationId) ||
+    !Number.isInteger(guestIndex) || guestIndex < 1 || guestIndex > 20 ||
+    !LODGING_ROOM_NAMES.includes(roomName as never)
+  ) throw new Error("Le placement individuel est invalide.");
+
+  const assignment = await persistLodgingGuest(reservationId, guestIndex, roomName);
+  revalidatePath("/admin");
+  return assignment;
+}
+
+export async function removeGuestLodgingPlacement(formData: FormData) {
+  if (!(await isAdminAuthenticated())) redirect("/admin");
+  const reservationId = String(formData.get("reservationId") ?? "");
+  const guestIndex = Number(formData.get("guestIndex"));
+  if (!/^[0-9a-f-]{36}$/i.test(reservationId) || !Number.isInteger(guestIndex)) {
+    throw new Error("Le placement individuel est invalide.");
+  }
+  await removeLodgingGuest(reservationId, guestIndex);
   revalidatePath("/admin");
 }

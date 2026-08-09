@@ -69,8 +69,13 @@
 .lodging-note{margin:-5px 0 20px;padding:16px;border-left:3px solid var(--gold);border-radius:0 12px 12px 0;background:#f4ece1;line-height:1.6}
 .lodging-choices{grid-template-columns:repeat(3,minmax(0,1fr))}
 .sleepers-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:20px}
-.sleepers-grid label,.roommate-field{display:grid;gap:8px;font-weight:600}
+.sleepers-grid label,.sleeper-field,.roommate-field{display:grid;gap:8px;font-weight:600}
 .sleepers-grid input{max-width:150px}
+.sleeper-counter{display:grid;grid-template-columns:42px minmax(70px,100px) 42px;gap:7px;align-items:center}
+.sleeper-counter input{max-width:none;text-align:center;font-weight:750;-moz-appearance:textfield}
+.sleeper-counter input::-webkit-inner-spin-button,.sleeper-counter input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.sleeper-counter button{height:44px;border:1px solid #c9c0b1;border-radius:12px;background:#f3eee5;color:var(--ink);cursor:pointer;font-size:1.15rem;font-weight:750}
+.sleeper-counter button:disabled{cursor:not-allowed;opacity:.42}
 .roommate-field{margin-top:22px}
 .roommate-field small{color:#73796f;font-weight:400;line-height:1.45}
 .lodging-total{margin-top:22px;padding:15px;border-radius:12px;background:#e4eadf;color:var(--olive)}
@@ -93,6 +98,7 @@
 .carpool-intro,.lodging-intro{max-width:760px;margin-bottom:45px}
 .carpool-layout,.lodging-layout{display:grid;grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);align-items:start;gap:24px}
 .carpool-form,.carpool-offers,.lodging-form,.lodging-lookup,.lodging-confirmation{border:1px solid rgba(39,49,38,.1);border-radius:27px;background:#fffdf9;box-shadow:0 18px 50px rgba(47,59,47,.07)}
+.carpool-form-stack{display:grid;gap:12px;min-width:0}
 .carpool-form,.lodging-form{display:grid;gap:17px;padding:32px}
 .carpool-form h3,.carpool-offers h3,.lodging-form h3,.lodging-lookup h3,.lodging-confirmation h3{margin:-6px 0 6px;font:500 30px/1.1 "Cormorant Garamond",serif}
 .carpool-form label,.carpool-request-form label,.lodging-form label,.lodging-lookup label{display:grid;gap:8px;color:#384537;font-size:.86rem;font-weight:600}
@@ -106,6 +112,11 @@
 .carpool-honeypot,.lodging-honeypot{position:absolute!important;left:-10000px!important;width:1px!important;height:1px!important;overflow:hidden!important}
 .carpool-error,.carpool-success,.lodging-error{padding:12px 14px;border-radius:11px;font-size:.85rem;font-weight:700;line-height:1.45}
 .carpool-error,.lodging-error{background:#f6e2dc;color:#8a3f32}.carpool-success{background:#e4ecdf;color:#3f593b}
+.carpool-success a{display:block;width:fit-content;margin-top:8px;color:#31472f;text-decoration:underline;text-underline-offset:3px}
+.carpool-recovery{padding:17px 20px;border:1px solid rgba(39,49,38,.12);border-radius:18px;background:#fffdf9}
+.carpool-recovery summary{cursor:pointer;color:#40523d;font-size:.82rem;font-weight:750}
+.carpool-recovery form{display:grid;gap:10px;margin-top:14px}.carpool-recovery p{margin:10px 0 0;color:#687064;font-size:.77rem;line-height:1.5}
+.carpool-recovery label{display:grid;gap:7px;color:#384537;font-size:.79rem;font-weight:700}.carpool-recovery input{width:100%;padding:12px 13px;border:1px solid #cec6b8;border-radius:11px;background:#fff;color:var(--ink);font:inherit}.carpool-recovery button{padding:12px;border:0;border-radius:11px;background:var(--ink);color:#fff;cursor:pointer;font-weight:700}
 .carpool-offers{padding:32px}
 .carpool-offers-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:22px}
 .carpool-offers-heading h3{margin-top:7px}.carpool-offers-heading>span{padding:8px 11px;border-radius:999px;background:#e4eadf;color:var(--olive);font-size:.75rem;font-weight:700;white-space:nowrap}
@@ -114,10 +125,16 @@
 .carpool-offer-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
 .carpool-offer-top span{color:#9b6549;font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase}.carpool-offer-top strong{padding:6px 9px;border-radius:999px;background:#dfe8d9;color:#3e593a;font-size:.72rem}
 .carpool-offer h4{margin:0;font:500 22px/1.25 "Cormorant Garamond",serif}.carpool-offer p{margin:9px 0 0;color:#636b60;font-size:.85rem;line-height:1.55}.carpool-offer .carpool-date{color:var(--olive);font-weight:600;text-transform:capitalize}
+.carpool-public-seats{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}.carpool-seat-dot,.carpool-seat-legend i{display:inline-block;width:18px;height:18px;border:2px solid #7b806f;border-radius:50%;background:#fff;box-shadow:0 2px 5px rgba(40,49,39,.1)}.carpool-seat-dot.seat-reserved,.carpool-seat-legend .seat-reserved{border-color:#b86f45;background:#c9845b}.carpool-seat-dot.seat-validated,.carpool-seat-legend .seat-validated{border-color:#3d653e;background:#538052}.carpool-seat-legend .seat-free{background:#fff}
 .carpool-request-toggle{margin-top:15px;padding:10px 13px;border:0;border-radius:10px;background:var(--ink);color:#fff;cursor:pointer;font-size:.8rem;font-weight:700}
+.carpool-request-toggle:disabled{cursor:not-allowed;opacity:.55}
 .carpool-request-form{display:grid;gap:12px;margin-top:14px;padding-top:15px;border-top:1px solid #ded5c5}
 .carpool-contact-reveal{margin-top:4px;padding:14px;border-radius:12px;background:#e4eadf;color:#40543c;font-size:.82rem;line-height:1.5}.carpool-contact-reveal p{margin:0 0 8px}.carpool-contact-reveal a,.carpool-contact-reveal strong{display:block;color:#40543c;font-weight:700;overflow-wrap:anywhere}
 .carpool-empty{padding:35px 20px;border:1px dashed #cfc4b1;border-radius:16px;color:#70776d;line-height:1.6;text-align:center}
+
+.carpool-manage-page{min-height:100vh;padding:clamp(28px,7vw,80px) 16px;background:linear-gradient(145deg,#f4efe4,#e4e6dc);color:var(--ink)}
+.carpool-manager{width:min(820px,100%);margin:auto;padding:clamp(24px,6vw,52px);border:1px solid rgba(39,49,38,.12);border-radius:30px;background:#fffdf9;box-shadow:0 30px 90px rgba(40,50,39,.12)}
+.carpool-manager h1{margin:10px 0 9px;font:500 clamp(45px,8vw,76px)/.95 "Cormorant Garamond",serif}.carpool-manager-intro{color:#657063;line-height:1.6}.carpool-seat-manager{margin:30px 0;padding:20px;border-radius:18px;background:#f2ede4}.carpool-seat-legend{display:flex;flex-wrap:wrap;gap:15px;margin-bottom:15px}.carpool-seat-legend span{display:flex;align-items:center;gap:6px;color:#61685f;font-size:.72rem;font-weight:700}.carpool-seat-legend i{width:13px;height:13px}.carpool-seat-list{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}.carpool-seat{display:grid;gap:3px;min-height:78px;padding:10px;border:2px solid #7b806f;border-radius:14px;background:#fff;color:var(--ink);cursor:pointer;text-align:left}.carpool-seat.seat-reserved{border-color:#b86f45;background:#f3dfd2}.carpool-seat.seat-validated{border-color:#3d653e;background:#dce9d9}.carpool-seat span,.carpool-seat small{font-size:.67rem;overflow-wrap:anywhere}.carpool-seat-help{margin:13px 0 0;color:#72786f;font-size:.72rem;line-height:1.5}.carpool-manager-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}.carpool-manager-form label{display:grid;gap:7px;font-size:.8rem;font-weight:700}.carpool-manager-form input,.carpool-manager-form select,.carpool-manager-form textarea{width:100%;padding:13px;border:1px solid #cec6b8;border-radius:11px;background:#fff;color:var(--ink);font:inherit}.carpool-manager-form textarea{min-height:100px;resize:vertical}.carpool-manager-form label:last-of-type,.carpool-manager-form>p,.carpool-manager-form>button{grid-column:1/-1}.carpool-manager-form>button{padding:15px;border:0;border-radius:12px;background:var(--ink);color:#fff;cursor:pointer;font-weight:750}.carpool-manager-actions{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:22px}.carpool-manager-actions a{color:#425440;font-weight:700}.carpool-manager-actions button{border:1px solid #d1a99c;border-radius:10px;background:transparent;color:#8a4438;cursor:pointer;padding:10px 12px}
 
 .lodging-section{background:linear-gradient(145deg,#e9e2d5,#dfd5c5)}
 .lodging-availability{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:28px}
@@ -145,6 +162,7 @@
   .wedding-form{padding:38px 20px;border-radius:22px}.wedding-form legend{font-size:1.3rem}.choice-grid,.lodging-choices,.sleepers-grid{grid-template-columns:1fr}.location-search{grid-template-columns:1fr}.location-search button{padding:14px}
   .carpool-section,.lodging-section{margin:12px 12px 120px;padding:78px 20px;border-radius:28px}.carpool-layout,.lodging-layout,.carpool-form-row,.lodging-form-row,.lodging-availability,.lodging-payment-choices{grid-template-columns:1fr}.carpool-form,.carpool-offers,.lodging-form,.lodging-lookup{padding:25px 20px}.carpool-offers-heading{flex-direction:column}.lodging-confirmation{padding:28px 18px}.lodging-confirmation>dl,.lodging-payment-details dl{grid-template-columns:1fr}
   .rsvp-reminder{padding:38px 24px 28px;border-radius:21px}
+  .carpool-manager-form{grid-template-columns:1fr}.carpool-manager-form>*{grid-column:1!important}.carpool-seat-list{grid-template-columns:repeat(2,minmax(0,1fr))}.carpool-manager-actions{align-items:stretch;flex-direction:column}.carpool-manager-actions a,.carpool-manager-actions button{text-align:center}
 }
 
 @media(prefers-reduced-motion:reduce){.rsvp-reminder-backdrop,.rsvp-reminder{animation:none!important}}

@@ -1,5 +1,21 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Configuration design-v2
+
+Les évolutions covoiturage et hébergement utilisent deux migrations additives :
+
+1. `supabase/carpool_management_migration.sql`
+2. `supabase/lodging_guest_assignments_migration.sql`
+
+La gestion privée des trajets fonctionne sans clé exposée au navigateur. Pour envoyer automatiquement les liens conducteurs, ajouter sur Vercel :
+
+```text
+RESEND_API_KEY=re_...
+CARPOOL_EMAIL_FROM=Damien & Julie <covoiturage@votre-domaine.fr>
+```
+
+`CARPOOL_EMAIL_FROM` doit utiliser un domaine validé dans Resend. Sans ces deux variables, l’annonce reste créée et son lien privé est affiché immédiatement au conducteur, mais aucun e-mail n’est envoyé.
+
 ## Getting Started
 
 First, run the development server:

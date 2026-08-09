@@ -38,6 +38,15 @@ export type LodgingAssignment = {
   updated_at: string;
 };
 
+export type LodgingGuestAssignment = {
+  id: string;
+  reservation_id: string;
+  guest_index: number;
+  guest_name: string;
+  room_name: string;
+  updated_at: string;
+};
+
 export function getPaymentDetails() {
   const weroPhone = process.env.LODGING_WERO_PHONE;
   const iban = process.env.LODGING_IBAN;
@@ -145,4 +154,73 @@ export async function saveLodgingAssignment(
     },
   );
   if (!response.ok) throw new Error("Le placement n’a pas pu être enregistré.");
+}
+
+export async function getLodgingGuestAssignments() {
+  const { url, headers } = getPrivateSupabaseConfig();
+  const response = await fetch(
+    url + "/rest/v1/lodging_guest_assignments?select=*&order=room_name.asc,guest_name.asc",
+    { headers, cache: "no-store" },
+  );
+  if (!response.ok) {
+    const error = await response.text();
+    if (error.includes("lodging_guest_assignments") || error.includes("PGRST205")) return [];
+    throw new Error("Les placements individuels ne peuvent pas être chargés.");
+  }
+  return (await response.json()) as LodgingGuestAssignment[];
+}
+
+export async function placeLodgingGuest(
+  reservationId: string,
+  guestIndex: number,
+  roomName: string,
+) {
+  const { url, headers } = getPrivateSupabaseConfig();
+  const response = await fetch(url + "/rest/v1/rpc/place_lodging_guest", {
+    method: "POST",
+    headers: { ...headers, "Content-Type": "application/json", Prefer: "return=representation" },
+    body: JSON.stringify({
+      p_reservation_id: reservationId,
+      p_guest_index: guestIndex,
+      p_room_name: roomName,
+    }),
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    const error = await response.text();
+    if (error.includes("ROOM_FULL")) throw new Error("Cette chambre est complète pour au moins une des nuits choisies.");
+    throw new Error("Le placement individuel n’a pas pu être enregistré.");
+  }
+  const [assignment] = (await response.json()) as LodgingGuestAssignment[];
+  return assignment;
+}
+
+export async function unplaceLodgingGuest(reservationId: string, guestIndex: number) {
+  const { url, headers } = getPrivateSupabaseConfig();
+  const response = await fetch(url + "/rest/v1/rpc/unplace_lodging_guest", {
+    method: "POST",
+    headers: { ...headers, "Content-Type": "application/json", Prefer: "return=minimal" },
+    body: JSON.stringify({ p_reservation_id: reservationId, p_guest_index: guestIndex }),
+    cache: "no-store",
+  });
+  if (!response.ok) throw new Error("Ce placement n’a pas pu être retiré.");
+}
+
+export function legacyGuestAssignments(
+  reservations: LodgingReservation[],
+  assignments: LodgingAssignment[],
+): LodgingGuestAssignment[] {
+  return assignments.flatMap((assignment) => {
+    const reservation = reservations.find((item) => item.id === assignment.reservation_id);
+    if (!reservation) return [];
+    return Array.from({ length: reservation.guests_count }, (_, index) => ({
+      id: `legacy-${reservation.id}-${index + 1}`,
+      reservation_id: reservation.id,
+      guest_index: index + 1,
+      guest_name: reservation.guest_names[index]?.trim() ||
+        (index === 0 ? reservation.booker_name : `${reservation.booker_name} · ${index + 1}`),
+      room_name: assignment.room_name,
+      updated_at: assignment.updated_at,
+    }));
+  });
 }

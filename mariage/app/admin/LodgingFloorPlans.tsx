@@ -4,19 +4,16 @@ import styles from "./admin.module.css";
 
 type Assignment = {
   reservation_id: string;
+  guest_index: number;
+  guest_name: string;
   room_name: string;
-  friday_adults: number;
-  friday_children: number;
-  friday_babies: number;
-  saturday_adults: number;
-  saturday_children: number;
-  saturday_babies: number;
 };
 
 type Reservation = {
   id: string;
   booker_name: string;
   guest_names: string[];
+  nights: string[];
   booking_status: string;
 };
 
@@ -84,10 +81,9 @@ export default function LodgingFloorPlans({
     const reservation = reservationsById.get(assignment.reservation_id);
     if (!reservation) return;
     const current = occupancy.get(assignment.room_name) ?? { names: [], friday: 0, saturday: 0 };
-    const names = reservation.guest_names.map((name) => name.trim()).filter(Boolean);
-    current.names.push(...(names.length ? names : [reservation.booker_name]));
-    current.friday += assignment.friday_adults + assignment.friday_children + assignment.friday_babies;
-    current.saturday += assignment.saturday_adults + assignment.saturday_children + assignment.saturday_babies;
+    current.names.push(assignment.guest_name);
+    if (reservation.nights.includes("2027-05-28")) current.friday += 1;
+    if (reservation.nights.includes("2027-05-29")) current.saturday += 1;
     occupancy.set(assignment.room_name, current);
   });
 
