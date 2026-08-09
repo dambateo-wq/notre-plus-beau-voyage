@@ -1,4 +1,9 @@
-const LOCAL_DATE_TIME = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/;
+// Les champs `datetime-local` du navigateur utilisent les minutes, tandis que
+// PostgREST sérialise un `timestamp without time zone` avec les secondes (et
+// parfois une fraction de seconde). Les deux formats représentent la même
+// heure locale et doivent donc être acceptés.
+const LOCAL_DATE_TIME =
+  /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2})(?:\.\d{1,6})?)?$/;
 
 const offsetFormatter = new Intl.DateTimeFormat("en-US", {
   timeZone: "Europe/Paris",
@@ -9,16 +14,24 @@ function parseLocalDateTime(value: string) {
   const match = LOCAL_DATE_TIME.exec(value);
   if (!match) return null;
 
-  const [, year, month, day, hour, minute] = match;
+  const [, year, month, day, hour, minute, second = "00"] = match;
   const parts = {
     year: Number(year),
     month: Number(month),
     day: Number(day),
     hour: Number(hour),
     minute: Number(minute),
+    second: Number(second),
   };
   const probe = new Date(
-    Date.UTC(parts.year, parts.month - 1, parts.day, parts.hour, parts.minute),
+    Date.UTC(
+      parts.year,
+      parts.month - 1,
+      parts.day,
+      parts.hour,
+      parts.minute,
+      parts.second,
+    ),
   );
 
   if (
@@ -26,7 +39,8 @@ function parseLocalDateTime(value: string) {
     probe.getUTCMonth() !== parts.month - 1 ||
     probe.getUTCDate() !== parts.day ||
     parts.hour > 23 ||
-    parts.minute > 59
+    parts.minute > 59 ||
+    parts.second > 59
   ) {
     return null;
   }
@@ -45,10 +59,20 @@ function parisOffsetMinutes(date: Date) {
 }
 
 export function isAllowedCarpoolDate(value: string) {
-  return Boolean(
-    parseLocalDateTime(value) &&
-      value >= "2027-05-25T00:00" &&
-      value <= "2027-06-02T23:59",
+  const parts = parseLocalDateTime(value);
+  if (!parts) return false;
+
+  const instant = Date.UTC(
+    parts.year,
+    parts.month - 1,
+    parts.day,
+    parts.hour,
+    parts.minute,
+    parts.second,
+  );
+  return (
+    instant >= Date.UTC(2027, 4, 25, 0, 0, 0) &&
+    instant <= Date.UTC(2027, 5, 2, 23, 59, 59)
   );
 }
 
@@ -62,6 +86,7 @@ export function parisLocalToInstant(value: string) {
     parts.day,
     parts.hour,
     parts.minute,
+    parts.second,
   );
   let instant = new Date(localAsUtc - parisOffsetMinutes(new Date(localAsUtc)) * 60_000);
   instant = new Date(localAsUtc - parisOffsetMinutes(instant) * 60_000);

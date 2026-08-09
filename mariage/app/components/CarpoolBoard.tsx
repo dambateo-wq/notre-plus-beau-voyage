@@ -2,26 +2,10 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { formatCarpoolDate } from "@/lib/carpool-time";
-
-type CarpoolSeat = {
-  id: string;
-  position: number;
-  status: "free" | "reserved" | "validated";
-};
-
-type CarpoolOffer = {
-  id: string;
-  driver_name: string;
-  direction: "to_massacan" | "from_massacan";
-  other_place: string;
-  departure_at: string;
-  departure_local: string;
-  seats_available: number;
-  seats_total: number;
-  details: string | null;
-  created_at: string;
-  carpool_seats: CarpoolSeat[];
-};
+import {
+  normalizePublicCarpoolOffers,
+  type PublicCarpoolOffer as CarpoolOffer,
+} from "@/lib/carpool-public";
 
 function journeyLabel(offer: CarpoolOffer) {
   return offer.direction === "to_massacan"
@@ -52,9 +36,15 @@ export default function CarpoolBoard() {
   useEffect(() => {
     fetch("/api/carpool")
       .then(async (response) => {
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error);
-        setOffers(data);
+        const data: unknown = await response.json();
+        if (!response.ok) {
+          const message =
+            data && typeof data === "object" && "error" in data
+              ? String(data.error)
+              : "Les trajets sont indisponibles.";
+          throw new Error(message);
+        }
+        setOffers(normalizePublicCarpoolOffers(data));
       })
       .catch(() => {
         setError("Les trajets ne peuvent pas être affichés actuellement.");
@@ -87,13 +77,23 @@ export default function CarpoolBoard() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      const data = await response.json();
+      const data: unknown = await response.json();
       if (!response.ok) {
-        throw new Error(data.error);
+        const message =
+          data && typeof data === "object" && "error" in data
+            ? String(data.error)
+            : "Le trajet n’a pas pu être publié.";
+        throw new Error(message);
       }
 
+      const createdOffer =
+        data && typeof data === "object" && "offer" in data
+          ? normalizePublicCarpoolOffers([data.offer])[0]
+          : undefined;
+      if (!createdOffer) throw new Error("La réponse du serveur est incomplète.");
+
       setOffers((current) =>
-        [...current, data.offer].sort((a, b) =>
+        [...current, createdOffer].sort((a, b) =>
           a.departure_local.localeCompare(b.departure_local),
         ),
       );

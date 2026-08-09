@@ -39,17 +39,44 @@ export async function GET(
   _request: Request,
   context: { params: Promise<{ token: string }> },
 ) {
-  const offerId = await offerIdFrom(context);
-  if (!offerId) return Response.json({ error: "Annonce invalide." }, { status: 404 });
+  try {
+    const offerId = await offerIdFrom(context);
+    if (!offerId) return Response.json({ error: "Annonce invalide." }, { status: 404 });
 
-  const { url, headers } = getPrivateSupabaseConfig();
-  const response = await fetch(
-    `${url}/rest/v1/carpool_offers?id=eq.${offerId}&select=id,driver_name,direction,other_place,departure_local,seats_available,seats_total,contact,details,created_at,carpool_seats(id,position,status,passenger_name,passenger_contact,passenger_message,updated_at)&carpool_seats.order=position.asc`,
-    { headers, cache: "no-store" },
-  );
-  const [offer] = response.ok ? await response.json() : [];
-  if (!offer) return Response.json({ error: "Annonce introuvable." }, { status: 404 });
-  return Response.json({ offer });
+    const { url, headers } = getPrivateSupabaseConfig();
+    const offerResponse = await fetch(
+      `${url}/rest/v1/carpool_offers?id=eq.${offerId}&select=id,driver_name,direction,other_place,departure_local,seats_available,seats_total,contact,details,created_at`,
+      { headers, cache: "no-store" },
+    );
+    const offersPayload = offerResponse.ok ? await offerResponse.json() : [];
+    const [offer] = Array.isArray(offersPayload) ? offersPayload : [];
+    if (!offer || typeof offer !== "object" || Array.isArray(offer)) {
+      return Response.json({ error: "Annonce introuvable." }, { status: 404 });
+    }
+
+    const seatsResponse = await fetch(
+      `${url}/rest/v1/carpool_seats?offer_id=eq.${offerId}&select=id,position,status,passenger_name,passenger_contact,passenger_message,updated_at&order=position.asc`,
+      { headers, cache: "no-store" },
+    );
+    if (!seatsResponse.ok) {
+      return Response.json(
+        { error: "Les places de cette annonce sont momentanément indisponibles." },
+        { status: 503 },
+      );
+    }
+    const seatsPayload = await seatsResponse.json();
+    const carpoolSeats = Array.isArray(seatsPayload) ? seatsPayload : [];
+
+    return Response.json({
+      offer: { ...offer, carpool_seats: carpoolSeats },
+    });
+  } catch (caught) {
+    console.error("carpool.manage.read", caught);
+    return Response.json(
+      { error: "Cette annonce ne peut pas être chargée actuellement." },
+      { status: 503 },
+    );
+  }
 }
 
 export async function PATCH(

@@ -70,10 +70,18 @@ export async function POST(request: Request) {
       throw new Error(details);
     }
 
-    const [result] = (await response.json()) as Array<{
+    const resultPayload = await response.json();
+    const [result] = (Array.isArray(resultPayload) ? resultPayload : []) as Array<{
       driver_contact: string;
       remaining_seats: number;
     }>;
+    if (
+      !result ||
+      typeof result.driver_contact !== "string" ||
+      !Number.isInteger(Number(result.remaining_seats))
+    ) {
+      throw new Error("Unexpected reserve_carpool_seats response");
+    }
 
     return Response.json(
       {

@@ -27,9 +27,32 @@ type Offer = {
 
 async function fetchOffer(offerId: string) {
   const response = await fetch(`/api/carpool/manage/${offerId}`, { cache: "no-store" });
-  const data = await response.json();
-  if (!response.ok) throw new Error(data.error);
-  return data.offer as Offer;
+  const data: unknown = await response.json();
+  if (!response.ok) {
+    const message =
+      data && typeof data === "object" && "error" in data
+        ? String(data.error)
+        : "Cette annonce ne peut pas être chargée.";
+    throw new Error(message);
+  }
+  if (
+    !data ||
+    typeof data !== "object" ||
+    !("offer" in data) ||
+    !data.offer ||
+    typeof data.offer !== "object" ||
+    Array.isArray(data.offer)
+  ) {
+    throw new Error("La réponse du serveur est incomplète.");
+  }
+
+  const rawOffer = data.offer as Record<string, unknown>;
+  return {
+    ...rawOffer,
+    carpool_seats: Array.isArray(rawOffer.carpool_seats)
+      ? rawOffer.carpool_seats
+      : [],
+  } as Offer;
 }
 
 export default function CarpoolManager({ offerId }: { offerId: string }) {
