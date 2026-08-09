@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { LODGING_ROOMS } from "@/lib/lodging-rooms";
+import { COUPLE_LODGING, LODGING_ROOMS } from "@/lib/lodging-rooms";
 import type { LodgingGuestAssignment, LodgingReservation } from "@/lib/lodging";
 import {
   removeGuestLodgingPlacement,
@@ -156,6 +156,19 @@ export default function LodgingGuestPlanner({
         <p className={styles.empty}>Confirmez un paiement pour commencer le placement individuel.</p>
       ) : (
         <div className={styles.roomDropGrid}>
+          <article
+            aria-label={`${COUPLE_LODGING.name}, réservé à ${COUPLE_LODGING.occupants.join(" et ")}`}
+            className={`${styles.roomDrop} ${styles.coupleRoom}`}
+          >
+            <header>
+              <strong>{COUPLE_LODGING.name}</strong>
+              <span>V 2/2 · S 2/2</span>
+            </header>
+            <div>
+              {COUPLE_LODGING.occupants.map((occupant) => <span key={occupant}>{occupant}</span>)}
+              <small>Réservé aux mariés</small>
+            </div>
+          </article>
           {LODGING_ROOMS.map((room) => {
             const roomGuests = guests.filter((guest) => assignmentFor(guest)?.room_name === room.name);
             const friday = occupancy(room.name, "2027-05-28");

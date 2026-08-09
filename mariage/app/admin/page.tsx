@@ -366,12 +366,11 @@ export default async function AdminPage({
                               ? "Paiement à vérifier"
                               : "Paiement à venir"}
                       </span>
-                      {reservation.booking_status === "active" && (
-                        <LodgingActions
-                          id={reservation.id}
-                          paymentStatus={reservation.payment_status}
-                        />
-                      )}
+                      <LodgingActions
+                        bookingStatus={reservation.booking_status}
+                        id={reservation.id}
+                        paymentStatus={reservation.payment_status}
+                      />
                       {reservation.booking_status === "active" && reservation.payment_status === "confirmed" && (() => {
                         const placed = lodgingGuestAssignments.filter((assignment) => assignment.reservation_id === reservation.id).length;
                         return (

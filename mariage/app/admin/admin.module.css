@@ -612,6 +612,23 @@
   background: #edf1e8;
 }
 
+.coupleRoom,
+.coupleRoom:hover {
+  border-style: solid;
+  border-color: #b89d61;
+  background: #f8f1df;
+}
+
+.coupleRoom > header span {
+  color: #745d2f;
+}
+
+.coupleRoom > div small {
+  flex-basis: 100%;
+  color: #745d2f;
+  font-weight: 750;
+}
+
 .roomDrop > div {
   display: flex;
   flex-wrap: wrap;

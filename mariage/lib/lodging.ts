@@ -115,6 +115,25 @@ export async function updateLodgingReservation(
   }
 }
 
+export async function deleteLodgingReservation(id: string) {
+  const { url, headers } = getPrivateSupabaseConfig();
+  const response = await fetch(
+    `${url}/rest/v1/lodging_reservations?id=eq.${encodeURIComponent(id)}`,
+    {
+      method: "DELETE",
+      headers: {
+        ...headers,
+        Prefer: "return=minimal",
+      },
+      cache: "no-store",
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error("La réservation n’a pas pu être supprimée.");
+  }
+}
+
 export async function getLodgingAssignments() {
   const { url, headers } = getPrivateSupabaseConfig();
   const response = await fetch(

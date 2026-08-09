@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { getRoomCapacity } from "@/lib/lodging-rooms";
+import { COUPLE_LODGING, getRoomCapacity } from "@/lib/lodging-rooms";
 import styles from "./admin.module.css";
 
 type Assignment = {
@@ -50,11 +50,16 @@ const PLAN_YUCCAS: RoomPoint[] = [
   { name: "YUCCAS CHAMBRE", x: 48, y: 79 },
 ];
 
+const PLAN_PALMIERS_YUCCAS: RoomPoint[] = [
+  { name: COUPLE_LODGING.name, x: 48, y: 28 },
+  ...PLAN_YUCCAS,
+];
+
 const plans = [
   { title: "Bâtiment A", src: "/admin-plans/batiment-a.png", width: 1521, height: 1075, rooms: PLAN_A, landscape: true },
   { title: "Bâtiment B", src: "/admin-plans/batiment-b.png", width: 1075, height: 1521, rooms: PLAN_B, landscape: false },
   { title: "Gîte Les Lauriers", src: "/admin-plans/gite-lauriers.png", width: 1105, height: 1430, rooms: PLAN_LAURIERS, landscape: false },
-  { title: "Gîtes Palmiers & Yuccas", src: "/admin-plans/gites-palmier-yuccas.png", width: 1105, height: 1430, rooms: PLAN_YUCCAS, landscape: false },
+  { title: "Gîtes Palmiers & Yuccas", src: "/admin-plans/gites-palmier-yuccas.png", width: 1105, height: 1430, rooms: PLAN_PALMIERS_YUCCAS, landscape: false },
 ] as const;
 
 const detailPlans = [
@@ -75,7 +80,16 @@ export default function LodgingFloorPlans({
       .filter((reservation) => reservation.booking_status === "active")
       .map((reservation) => [reservation.id, reservation]),
   );
-  const occupancy = new Map<string, { names: string[]; friday: number; saturday: number }>();
+  const occupancy = new Map<string, { names: string[]; friday: number; saturday: number }>([
+    [
+      COUPLE_LODGING.name,
+      {
+        names: [...COUPLE_LODGING.occupants],
+        friday: COUPLE_LODGING.capacity,
+        saturday: COUPLE_LODGING.capacity,
+      },
+    ],
+  ]);
 
   assignments.forEach((assignment) => {
     const reservation = reservationsById.get(assignment.reservation_id);
@@ -102,7 +116,7 @@ export default function LodgingFloorPlans({
           <article className={styles.planCard} key={plan.title}>
             <div className={styles.planCardTitle}>
               <h4>{plan.title}</h4>
-              {plan.title.includes("Palmiers") && <span>Palmiers réservé aux mariés</span>}
+              {plan.title.includes("Palmiers") && <span>Palmiers · réservé aux mariés</span>}
             </div>
             <div className={styles.planScroller}>
               <div className={`${styles.planCanvas} ${plan.landscape ? styles.planLandscape : styles.planPortrait}`}>
@@ -117,7 +131,9 @@ export default function LodgingFloorPlans({
                 {plan.rooms.map((room) => {
                   const placed = occupancy.get(room.name);
                   if (!placed) return null;
-                  const capacity = getRoomCapacity(room.name);
+                  const capacity = room.name === COUPLE_LODGING.name
+                    ? COUPLE_LODGING.capacity
+                    : getRoomCapacity(room.name);
                   return (
                     <div
                       aria-label={`${room.name} : ${placed.names.join(", ")}`}
