@@ -301,10 +301,6 @@ export default function GuestJourneyMap() {
   }, []);
 
   const groups = useMemo(() => groupRoutesByCity(routes ?? []), [routes]);
-  const regionalGroups = useMemo(
-    () => groups.filter(isInMainRegion),
-    [groups],
-  );
   const distantGroups = useMemo(
     () => groups.filter((route) => !isInMainRegion(route)),
     [groups],
@@ -339,7 +335,10 @@ export default function GuestJourneyMap() {
         paddingTopLeft: [28, 28],
       });
       addDestination(L, map, true);
-      addCityLayers(L, map, regionalGroups, timers, reducedMotion);
+      // Every departure remains a real Leaflet marker on the main map.
+      // The inset is only an additional view for cities outside the initial
+      // France/Belgium/Portugal framing; it never replaces their main marker.
+      addCityLayers(L, map, groups, timers, reducedMotion);
 
       if (distantGroups.length && insetElementRef.current) {
         insetMap = L.map(insetElementRef.current, {
@@ -378,7 +377,7 @@ export default function GuestJourneyMap() {
       map?.remove();
       insetMap?.remove();
     };
-  }, [distantGroups, regionalGroups, routes]);
+  }, [distantGroups, groups, routes]);
 
   return (
     <section className={styles.section} aria-labelledby="guest-map-title">
