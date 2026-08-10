@@ -5,6 +5,7 @@ import RsvpReminder from "./components/RsvpReminder";
 import GuestJourneyMap from "./components/GuestJourneyMap";
 import CarpoolBoard from "./components/CarpoolBoard";
 import LodgingBooking from "./components/LodgingBooking";
+import HoneymoonContribution from "./components/HoneymoonContribution";
 
 const programme = [
   { day: "Vendredi 28 mai", time: "Matin", title: "Mariage à la mairie", text: "Pour les personnes informées, suivi d’un restaurant au Revest." },
@@ -35,6 +36,7 @@ export default function Home() {
               <a href="#covoiturage"><span>02</span> Covoiturage</a>
               <a href="#infos-pratiques"><span>03</span> Infos pratiques</a>
               <a href="#hebergement"><span>04</span> Réserver une nuitée</a>
+              <a href="#voyage-de-noces"><span>05</span> Participer au voyage de noces</a>
             </div>
           </div>
         </div>
@@ -49,6 +51,7 @@ export default function Home() {
             <a href="#covoiturage">Covoiturage</a>
             <a href="#infos-pratiques">Infos pratiques</a>
             <a href="#hebergement">Réserver une nuitée</a>
+            <a href="#voyage-de-noces">Participer au voyage de noces</a>
           </div>
         </details>
       </nav>
@@ -136,6 +139,8 @@ export default function Home() {
       </section>
 
       <LodgingBooking />
+
+      <HoneymoonContribution />
 
       <footer className="v2-footer"><div><p>Damien & Julie</p><span>29 & 30 mai 2027 · Domaine du Massacan</span></div><span className="v2-bike">⌁</span><div className="v2-footer-links"><a href="/admin" aria-label="Accès administrateur">🔒 Admin</a><a href="#top">Retour en haut ↑</a></div></footer>
     </main>
