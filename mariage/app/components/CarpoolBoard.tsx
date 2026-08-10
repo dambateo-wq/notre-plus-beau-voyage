@@ -1,17 +1,11 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
-
-type CarpoolOffer = {
-  id: string;
-  driver_name: string;
-  direction: "to_massacan" | "from_massacan";
-  other_place: string;
-  departure_at: string;
-  seats_available: number;
-  details: string | null;
-  created_at: string;
-};
+import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
+import { formatCarpoolDate } from "@/lib/carpool-time";
+import {
+  normalizePublicCarpoolOffers,
+  type PublicCarpoolOffer as CarpoolOffer,
+} from "@/lib/carpool-public";
 
 function journeyLabel(offer: CarpoolOffer) {
   return offer.direction === "to_massacan"
@@ -23,6 +17,8 @@ function phoneHref(contact: string) {
   const phone = contact.replace(/[^\d+]/g, "");
   return /^\+?\d{8,15}$/.test(phone) ? `tel:${phone}` : null;
 }
+
+const CARPOOL_REFRESH_KEY = "carpool-offers-version";
 
 export default function CarpoolBoard() {
   const [offers, setOffers] = useState<CarpoolOffer[]>([]);
@@ -38,19 +34,60 @@ export default function CarpoolBoard() {
   const [driverContacts, setDriverContacts] = useState<Record<string, string>>(
     {},
   );
+  const requestVersion = useRef(0);
+
+  const loadOffers = useCallback(async (initial = false) => {
+    const version = ++requestVersion.current;
+    try {
+      const response = await fetch(`/api/carpool?fresh=${Date.now()}`, {
+        cache: "no-store",
+      });
+      const data: unknown = await response.json();
+      if (!response.ok) {
+        const message =
+          data && typeof data === "object" && "error" in data
+            ? String(data.error)
+            : "Les trajets sont indisponibles.";
+        throw new Error(message);
+      }
+      if (version === requestVersion.current) {
+        setOffers(normalizePublicCarpoolOffers(data));
+      }
+    } catch {
+      if (initial) {
+        setError("Les trajets ne peuvent pas être affichés actuellement.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    fetch("/api/carpool")
-      .then(async (response) => {
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error);
-        setOffers(data);
-      })
-      .catch(() => {
-        setError("Les trajets ne peuvent pas être affichés actuellement.");
-      })
-      .finally(() => setLoading(false));
-  }, []);
+    const initialLoad = window.setTimeout(() => void loadOffers(true), 0);
+
+    const refresh = () => void loadOffers();
+    const refreshWhenVisible = () => {
+      if (document.visibilityState === "visible") refresh();
+    };
+    const refreshFromStorage = (event: StorageEvent) => {
+      if (event.key === CARPOOL_REFRESH_KEY) refresh();
+    };
+    const interval = window.setInterval(refresh, 15_000);
+
+    window.addEventListener("focus", refresh);
+    window.addEventListener("pageshow", refresh);
+    window.addEventListener("storage", refreshFromStorage);
+    document.addEventListener("visibilitychange", refreshWhenVisible);
+
+    return () => {
+      window.clearTimeout(initialLoad);
+      window.clearInterval(interval);
+      window.removeEventListener("focus", refresh);
+      window.removeEventListener("pageshow", refresh);
+      window.removeEventListener("storage", refreshFromStorage);
+      document.removeEventListener("visibilitychange", refreshWhenVisible);
+    };
+  }, [loadOffers]);
 
   async function submitOffer(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -77,16 +114,24 @@ export default function CarpoolBoard() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      const data = await response.json();
+      const data: unknown = await response.json();
       if (!response.ok) {
-        throw new Error(data.error);
+        const message =
+          data && typeof data === "object" && "error" in data
+            ? String(data.error)
+            : "Le trajet n’a pas pu être publié.";
+        throw new Error(message);
       }
 
+      const createdOffer =
+        data && typeof data === "object" && "offer" in data
+          ? normalizePublicCarpoolOffers([data.offer])[0]
+          : undefined;
+      if (!createdOffer) throw new Error("La réponse du serveur est incomplète.");
+
       setOffers((current) =>
-        [...current, data.offer].sort(
-          (a, b) =>
-            new Date(a.departure_at).getTime() -
-            new Date(b.departure_at).getTime(),
+        [...current, createdOffer].sort((a, b) =>
+          a.departure_local.localeCompare(b.departure_local),
         ),
       );
       form.reset();
@@ -135,6 +180,22 @@ export default function CarpoolBoard() {
         ...current,
         [offerId]: data.driverContact,
       }));
+      setOffers((current) => current.map((offer) => {
+        if (offer.id !== offerId) return offer;
+        const requested = Number(formData.get("seatsRequested"));
+        let remaining = requested;
+        return {
+          ...offer,
+          seats_available: Number(data.remainingSeats),
+          carpool_seats: offer.carpool_seats.map((seat) => {
+            if (remaining > 0 && seat.status === "free") {
+              remaining -= 1;
+              return { ...seat, status: "reserved" as const };
+            }
+            return seat;
+          }),
+        };
+      }));
       setRequestStatus((current) => ({ ...current, [offerId]: "sent" }));
     } catch {
       setRequestStatus((current) => ({ ...current, [offerId]: "error" }));
@@ -155,7 +216,8 @@ export default function CarpoolBoard() {
       </div>
 
       <div className="carpool-layout">
-        <form className="carpool-form" onSubmit={submitOffer}>
+        <div className="carpool-form-stack">
+          <form className="carpool-form" onSubmit={submitOffer}>
           <p className="eyebrow">Proposer un trajet</p>
           <h3>J’ai de la place dans ma voiture</h3>
 
@@ -254,15 +316,17 @@ export default function CarpoolBoard() {
 
           {error && <p className="carpool-error">{error}</p>}
           {success && (
-            <p className="carpool-success">
-              Votre trajet est publié. Bonne route !
-            </p>
+            <div className="carpool-success">
+              <strong>Votre trajet est publié.</strong>{" "}
+              Vous pourrez le modifier depuis le bouton affiché sur son annonce.
+            </div>
           )}
 
           <button type="submit" disabled={submitting}>
             {submitting ? "Publication…" : "Publier mon trajet"}
           </button>
-        </form>
+          </form>
+        </div>
 
         <div className="carpool-offers">
           <div className="carpool-offers-heading">
@@ -300,30 +364,41 @@ export default function CarpoolBoard() {
                     </div>
                     <h4>{journeyLabel(offer)}</h4>
                     <p className="carpool-date">
-                      {new Intl.DateTimeFormat("fr-FR", {
-                        weekday: "long",
-                        day: "numeric",
-                        month: "long",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        timeZone: "Europe/Paris",
-                      }).format(new Date(offer.departure_at))}
+                      {formatCarpoolDate(offer.departure_local)}
                     </p>
                     <p>
                       <b>{offer.driver_name}</b>
                       {offer.details && ` · ${offer.details}`}
                     </p>
+                    <div className="carpool-public-seats" aria-label={`${offer.seats_available} places libres sur ${offer.seats_total}`}>
+                      {offer.carpool_seats.map((seat) => (
+                        <span
+                          className={`carpool-seat-dot seat-${seat.status}`}
+                          key={seat.id}
+                          title={`Place ${seat.position} : ${seat.status === "free" ? "libre" : seat.status === "reserved" ? "réservée" : "validée"}`}
+                        >
+                          <span className="sr-only">Place {seat.position} : {seat.status}</span>
+                        </span>
+                      ))}
+                    </div>
                     <button
                       className="carpool-request-toggle"
                       type="button"
+                      disabled={offer.seats_available === 0}
                       onClick={() =>
                         setRequestingOffer((current) =>
                           current === offer.id ? null : offer.id,
                         )
                       }
                     >
-                      Demander une place
+                      {offer.seats_available > 0 ? "Demander une place" : "Trajet complet"}
                     </button>
+                    <a
+                      className="carpool-manage-link"
+                      href={`/carpool/manage/${offer.id}`}
+                    >
+                      Je suis le conducteur, je veux gérer mon annonce
+                    </a>
 
                     {requestingOffer === offer.id && (
                       <form

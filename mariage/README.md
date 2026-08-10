@@ -1,5 +1,14 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Configuration design-v2
+
+Les évolutions covoiturage et hébergement utilisent deux migrations additives :
+
+1. `supabase/carpool_management_migration.sql`
+2. `supabase/lodging_guest_assignments_migration.sql`
+
+La gestion des trajets est volontairement déclarative : chaque annonce publique affiche un bouton conducteur permettant de la modifier, de gérer ses places ou de la supprimer. Aucun service d’e-mail ni variable Resend n’est nécessaire.
+
 ## Getting Started
 
 First, run the development server:

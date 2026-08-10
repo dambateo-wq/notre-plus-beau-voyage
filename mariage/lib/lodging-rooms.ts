@@ -1,3 +1,9 @@
+export const COUPLE_LODGING = {
+  name: "PALMIERS",
+  capacity: 2,
+  occupants: ["Julie Jacques", "Damien Ollier"],
+} as const;
+
 export const LODGING_ROOMS = [
   { name: "LAURIERS HAUT", capacity: 6 },
   { name: "LAURIERS BAS", capacity: 4 },

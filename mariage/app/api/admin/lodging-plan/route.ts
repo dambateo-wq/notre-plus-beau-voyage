@@ -1,13 +1,18 @@
 import ExcelJS from "exceljs";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
-import { getLodgingAssignments, getLodgingReservations } from "@/lib/lodging";
-import { LODGING_ROOMS } from "@/lib/lodging-rooms";
+import { getLodgingAssignments, getLodgingGuestAssignments, getLodgingReservations, legacyGuestAssignments } from "@/lib/lodging";
+import { COUPLE_LODGING, LODGING_ROOMS } from "@/lib/lodging-rooms";
 
 export const runtime = "nodejs";
 
 export async function GET() {
   if (!(await isAdminAuthenticated())) return new Response("Non autorisé", { status: 401 });
-  const [reservations, assignments] = await Promise.all([getLodgingReservations(), getLodgingAssignments()]);
+  const [reservations, legacyAssignments, storedGuestAssignments] = await Promise.all([
+    getLodgingReservations(), getLodgingAssignments(), getLodgingGuestAssignments(),
+  ]);
+  const assignments = storedGuestAssignments.length
+    ? storedGuestAssignments
+    : legacyGuestAssignments(reservations, legacyAssignments);
   const reservationById = new Map(reservations.map((item) => [item.id, item]));
   const workbook = new ExcelJS.Workbook();
   const sheet = workbook.addWorksheet("Hébergements");
@@ -25,17 +30,18 @@ export async function GET() {
     sheet.getCell(cell).alignment = { horizontal: "center" };
     sheet.getCell(cell).fill = { type: "pattern", pattern: "solid", fgColor: { argb: "E8E1D3" } };
   }
-  const roomRows = [{ name: "PALMIER", capacity: 2 }, ...LODGING_ROOMS];
+  const roomRows = [COUPLE_LODGING, ...LODGING_ROOMS];
   for (const room of roomRows) {
     const allocations = assignments.filter((assignment) => assignment.room_name === room.name);
-    const allocatedReservations = allocations.map((allocation) => reservationById.get(allocation.reservation_id)).filter(Boolean);
-    const count = (key: "friday_adults" | "friday_children" | "friday_babies" | "saturday_adults" | "saturday_children" | "saturday_babies") => allocations.reduce((total, allocation) => total + allocation[key], 0);
-    const owners = room.name === "PALMIER";
+    const countNight = (night: string) => allocations.filter((allocation) =>
+      reservationById.get(allocation.reservation_id)?.nights.includes(night),
+    ).length;
+    const owners = room.name === COUPLE_LODGING.name;
     sheet.addRow([
       room.name + " (" + room.capacity + " pers.)",
-      owners ? "Damien & Julie" : allocatedReservations.map((reservation) => reservation!.guest_names.join(", ")).join(" / "),
-      owners ? 2 : count("friday_adults"), owners ? 0 : count("friday_children"), owners ? 0 : count("friday_babies"),
-      owners ? 2 : count("saturday_adults"), owners ? 0 : count("saturday_children"), owners ? 0 : count("saturday_babies"),
+      owners ? COUPLE_LODGING.occupants.join(", ") : allocations.map((allocation) => allocation.guest_name).join(", "),
+      owners ? 2 : countNight("2027-05-28"), 0, 0,
+      owners ? 2 : countNight("2027-05-29"), 0, 0,
     ]);
   }
   const totalRow = sheet.addRow(["TOTAL", "", "=SUM(C5:C" + sheet.rowCount + ")", "=SUM(D5:D" + sheet.rowCount + ")", "=SUM(E5:E" + sheet.rowCount + ")", "=SUM(F5:F" + sheet.rowCount + ")", "=SUM(G5:G" + sheet.rowCount + ")", "=SUM(H5:H" + sheet.rowCount + ")"]);

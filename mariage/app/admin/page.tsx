@@ -5,13 +5,16 @@ import {
   getCarpoolRequests,
   getWeddingResponses,
 } from "@/lib/admin-data";
-import { getLodgingAssignments, getLodgingReservations } from "@/lib/lodging";
+import { getLodgingAssignments, getLodgingGuestAssignments, getLodgingReservations, legacyGuestAssignments } from "@/lib/lodging";
+import { formatCarpoolDate, legacyUtcClockToLocal } from "@/lib/carpool-time";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { login, logout } from "./actions";
 import DeleteResponseButton from "./DeleteResponseButton";
 import DeleteCarpoolButton from "./DeleteCarpoolButton";
 import LodgingActions from "./LodgingActions";
-import LodgingPlacement from "./LodgingPlacement";
+import LodgingFloorPlans from "./LodgingFloorPlans";
+import LodgingGuestPlanner from "./LodgingGuestPlanner";
+import LodgingPlacementAction from "./LodgingPlacementAction";
 import styles from "./admin.module.css";
 
 export const metadata: Metadata = {
@@ -71,13 +74,17 @@ export default async function AdminPage({
     );
   }
 
-  const [responses, carpoolOffers, carpoolRequests, lodgingReservations, lodgingAssignments] = await Promise.all([
+  const [responses, carpoolOffers, carpoolRequests, lodgingReservations, lodgingAssignments, storedGuestAssignments] = await Promise.all([
     getWeddingResponses(),
     getCarpoolOffers(),
     getCarpoolRequests(),
     getLodgingReservations(),
     getLodgingAssignments(),
+    getLodgingGuestAssignments(),
   ]);
+  const lodgingGuestAssignments = storedGuestAssignments.length
+    ? storedGuestAssignments
+    : legacyGuestAssignments(lodgingReservations, lodgingAssignments);
   const attending = responses.filter((response) => !response.not_attending);
   const declined = responses.length - attending.length;
   const totalGuests = attending.reduce(
@@ -245,13 +252,12 @@ export default async function AdminPage({
                   <div className={styles.responseTop}>
                     <div>
                       <h2>{offer.driver_name}</h2>
-                      <time dateTime={offer.departure_at}>
+                      <time dateTime={offer.departure_local ?? offer.departure_at}>
                         Départ le{" "}
-                        {new Intl.DateTimeFormat("fr-FR", {
-                          dateStyle: "long",
-                          timeStyle: "short",
-                          timeZone: "Europe/Paris",
-                        }).format(new Date(offer.departure_at))}
+                        {formatCarpoolDate(
+                          offer.departure_local ?? legacyUtcClockToLocal(offer.departure_at),
+                          true,
+                        )}
                       </time>
                     </div>
                     <div className={styles.responseActions}>
@@ -321,13 +327,35 @@ export default async function AdminPage({
             </span>
           </div>
 
+          <LodgingGuestPlanner
+            reservations={lodgingReservations}
+            initialAssignments={lodgingGuestAssignments}
+          />
+
+          <LodgingFloorPlans
+            assignments={lodgingGuestAssignments}
+            reservations={lodgingReservations}
+          />
+
           {lodgingReservations.length === 0 ? (
             <p className={styles.empty}>
               Aucune réservation de nuitée n’a encore été enregistrée.
             </p>
           ) : (
             <div className={styles.responses}>
-              {lodgingReservations.map((reservation) => (
+              {lodgingReservations.map((reservation) => {
+                const placed = lodgingGuestAssignments.filter(
+                  (assignment) => assignment.reservation_id === reservation.id,
+                ).length;
+                const placementStatus = reservation.placement_status ??
+                  (placed > 0 ? "in_progress" : "pending");
+                const placementLabel = placementStatus === "finalized"
+                  ? "Placement finalisé"
+                  : placementStatus === "in_progress"
+                    ? "Placement en cours"
+                    : "À placer";
+
+                return (
                 <article className={styles.responseCard} key={reservation.id}>
                   <div className={styles.responseTop}>
                     <div>
@@ -351,19 +379,30 @@ export default async function AdminPage({
                               ? "Paiement à vérifier"
                               : "Paiement à venir"}
                       </span>
-                      {reservation.booking_status === "active" && (
-                        <LodgingActions
-                          id={reservation.id}
-                          paymentStatus={reservation.payment_status}
-                        />
-                      )}
+                      <LodgingActions
+                        bookingStatus={reservation.booking_status}
+                        id={reservation.id}
+                        paymentStatus={reservation.payment_status}
+                      />
                       {reservation.booking_status === "active" && reservation.payment_status === "confirmed" && (
-                        <LodgingPlacement
-                          reservationId={reservation.id}
-                          guestsCount={reservation.guests_count}
-                          nights={reservation.nights}
-                          assignment={lodgingAssignments.find((assignment) => assignment.reservation_id === reservation.id)}
-                        />
+                        <div className={styles.placementActionWrap}>
+                          <span className={`${styles.placementBadge} ${
+                            placementStatus === "finalized"
+                              ? styles.placementFinalized
+                              : placementStatus === "in_progress"
+                                ? styles.placementInProgress
+                                : styles.placementPending
+                          }`}>
+                            {placementLabel} · {placed}/{reservation.guests_count}
+                          </span>
+                          {placementStatus === "finalized" ? (
+                            <LodgingPlacementAction reservationId={reservation.id} />
+                          ) : (
+                            <a className={styles.placementStatusLink} href="#guest-planner-title">
+                              {placed > 0 ? "Compléter le placement" : "Placer les voyageurs"}
+                            </a>
+                          )}
+                        </div>
                       )}
                     </div>
                   </div>
@@ -394,7 +433,8 @@ export default async function AdminPage({
                     </div>
                   </dl>
                 </article>
-              ))}
+                );
+              })}
             </div>
           )}
         </section>

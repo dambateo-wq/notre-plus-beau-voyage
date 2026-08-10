@@ -40,7 +40,10 @@ export type CarpoolOffer = {
   direction: "to_massacan" | "from_massacan";
   other_place: string;
   departure_at: string;
+  departure_local?: string;
   seats_available: number;
+  seats_total?: number;
+  driver_email?: string | null;
   contact: string;
   details: string | null;
   created_at: string;
@@ -53,7 +56,20 @@ export type CarpoolRequest = {
   passenger_contact: string;
   seats_requested: number;
   message: string | null;
+  status?: "reserved" | "validated" | "cancelled";
   created_at: string;
+};
+
+export type CarpoolSeat = {
+  id: string;
+  offer_id: string;
+  position: number;
+  status: "free" | "reserved" | "validated";
+  request_id: string | null;
+  passenger_name: string | null;
+  passenger_contact: string | null;
+  passenger_message: string | null;
+  updated_at: string;
 };
 
 export async function getWeddingResponses() {
@@ -95,7 +111,7 @@ export async function deleteWeddingResponse(id: string) {
 export async function getCarpoolOffers() {
   const { url, headers } = getPrivateSupabaseConfig();
   const response = await fetch(
-    `${url}/rest/v1/carpool_offers?select=id,driver_name,direction,other_place,departure_at,seats_available,contact,details,created_at&order=departure_at.asc`,
+    `${url}/rest/v1/carpool_offers?select=id,driver_name,driver_email,direction,other_place,departure_at,departure_local,seats_available,seats_total,contact,details,created_at&order=departure_local.asc`,
     {
       headers,
       cache: "no-store",
@@ -104,6 +120,13 @@ export async function getCarpoolOffers() {
 
   if (!response.ok) {
     const error = await response.text();
+    if (error.includes("departure_local") || error.includes("driver_email")) {
+      const legacy = await fetch(
+        `${url}/rest/v1/carpool_offers?select=id,driver_name,direction,other_place,departure_at,seats_available,contact,details,created_at&order=departure_at.asc`,
+        { headers, cache: "no-store" },
+      );
+      if (legacy.ok) return (await legacy.json()) as CarpoolOffer[];
+    }
     if (error.includes("carpool_offers") || error.includes("PGRST205")) {
       return [];
     }
@@ -137,7 +160,7 @@ export async function deleteCarpoolOffer(id: string) {
 export async function getCarpoolRequests() {
   const { url, headers } = getPrivateSupabaseConfig();
   const response = await fetch(
-    `${url}/rest/v1/carpool_requests?select=id,offer_id,passenger_name,passenger_contact,seats_requested,message,created_at&order=created_at.desc`,
+    `${url}/rest/v1/carpool_requests?select=id,offer_id,passenger_name,passenger_contact,seats_requested,message,status,created_at&order=created_at.desc`,
     {
       headers,
       cache: "no-store",
@@ -146,6 +169,13 @@ export async function getCarpoolRequests() {
 
   if (!response.ok) {
     const error = await response.text();
+    if (error.includes("status")) {
+      const legacy = await fetch(
+        `${url}/rest/v1/carpool_requests?select=id,offer_id,passenger_name,passenger_contact,seats_requested,message,created_at&order=created_at.desc`,
+        { headers, cache: "no-store" },
+      );
+      if (legacy.ok) return (await legacy.json()) as CarpoolRequest[];
+    }
     if (error.includes("carpool_requests") || error.includes("PGRST205")) {
       return [];
     }
@@ -153,4 +183,18 @@ export async function getCarpoolRequests() {
   }
 
   return (await response.json()) as CarpoolRequest[];
+}
+
+export async function getCarpoolSeats() {
+  const { url, headers } = getPrivateSupabaseConfig();
+  const response = await fetch(
+    `${url}/rest/v1/carpool_seats?select=*&order=offer_id.asc,position.asc`,
+    { headers, cache: "no-store" },
+  );
+  if (!response.ok) {
+    const error = await response.text();
+    if (error.includes("carpool_seats") || error.includes("PGRST205")) return [];
+    throw new Error("Les places de covoiturage ne peuvent pas être chargées.");
+  }
+  return (await response.json()) as CarpoolSeat[];
 }

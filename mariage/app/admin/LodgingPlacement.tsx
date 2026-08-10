@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { saveLodgingPlacement } from "./actions";
 import { LODGING_ROOMS } from "@/lib/lodging-rooms";
 import styles from "./admin.module.css";
@@ -27,7 +28,8 @@ export default function LodgingPlacement({
   assignment?: Assignment;
 }) {
   const [pending, startTransition] = useTransition();
-  const [open, setOpen] = useState(Boolean(assignment));
+  const [open, setOpen] = useState(false);
+  const router = useRouter();
   const friday = nights.includes("2027-05-28");
   const saturday = nights.includes("2027-05-29");
 
@@ -36,10 +38,17 @@ export default function LodgingPlacement({
     startTransition(async () => {
       await saveLodgingPlacement(formData);
       setOpen(false);
+      router.refresh();
     });
   }
 
   if (!open) {
+    if (assignment) {
+      return <div className={styles.placementStatus}>
+        <span>✓ Placé · {assignment.room_name}</span>
+        <button className={styles.placeButton} onClick={() => setOpen(true)} type="button">Modifier</button>
+      </div>;
+    }
     return <button className={styles.placeButton} onClick={() => setOpen(true)} type="button">Placer dans une chambre</button>;
   }
 
@@ -51,6 +60,7 @@ export default function LodgingPlacement({
           {LODGING_ROOMS.map((room) => <option key={room.name} value={room.name}>{room.name} · {room.capacity} pers.</option>)}
         </select>
       </label>
+      <a className={styles.planLink} href="#plans-hebergement">Voir les plans d’hébergement ↑</a>
       {friday && <fieldset><legend>Vendredi</legend><Counts prefix="friday" defaults={assignment ? [assignment.friday_adults, assignment.friday_children, assignment.friday_babies] : [guestsCount, 0, 0]} /></fieldset>}
       {saturday && <fieldset><legend>Samedi</legend><Counts prefix="saturday" defaults={assignment ? [assignment.saturday_adults, assignment.saturday_children, assignment.saturday_babies] : [guestsCount, 0, 0]} /></fieldset>}
       <div><button className={styles.confirmButton} disabled={pending} type="submit">{pending ? "Enregistrement…" : "Enregistrer le placement"}</button><button className={styles.cancelButton} onClick={() => setOpen(false)} type="button">Fermer</button></div>

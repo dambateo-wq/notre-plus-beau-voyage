@@ -43,53 +43,56 @@ export async function POST(request: Request) {
     }
 
     const { url, headers } = getPrivateSupabaseConfig();
-    const offerResponse = await fetch(
-      `${url}/rest/v1/carpool_offers?id=eq.${encodeURIComponent(offerId)}&select=seats_available,contact`,
-      { headers, cache: "no-store" },
-    );
-    const [offer] = (offerResponse.ok
-      ? await offerResponse.json()
-      : []) as Array<{ seats_available: number; contact: string }>;
-
-    if (
-      !offer ||
-      !offer.contact ||
-      seatsRequested > Number(offer.seats_available)
-    ) {
-      return Response.json(
-        {
-          error:
-            "Les coordonnées du conducteur ne sont pas disponibles pour ce trajet.",
-        },
-        { status: 409 },
-      );
-    }
-
-    const response = await fetch(`${url}/rest/v1/carpool_requests`, {
+    const response = await fetch(`${url}/rest/v1/rpc/reserve_carpool_seats`, {
       method: "POST",
       headers: {
         ...headers,
         "Content-Type": "application/json",
-        Prefer: "return=minimal",
+        Prefer: "return=representation",
       },
       body: JSON.stringify({
-        offer_id: offerId,
-        passenger_name: passengerName,
-        passenger_contact: passengerContact,
-        seats_requested: seatsRequested,
-        message: message || null,
+        p_offer_id: offerId,
+        p_passenger_name: passengerName,
+        p_passenger_contact: passengerContact,
+        p_seats_requested: seatsRequested,
+        p_message: message,
       }),
     });
 
     if (!response.ok) {
-      throw new Error(await response.text());
+      const details = await response.text();
+      if (details.includes("NOT_ENOUGH_SEATS")) {
+        return Response.json(
+          { error: "Il ne reste plus assez de places libres sur ce trajet." },
+          { status: 409 },
+        );
+      }
+      throw new Error(details);
+    }
+
+    const resultPayload = await response.json();
+    const [result] = (Array.isArray(resultPayload) ? resultPayload : []) as Array<{
+      driver_contact: string;
+      remaining_seats: number;
+    }>;
+    if (
+      !result ||
+      typeof result.driver_contact !== "string" ||
+      !Number.isInteger(Number(result.remaining_seats))
+    ) {
+      throw new Error("Unexpected reserve_carpool_seats response");
     }
 
     return Response.json(
-      { success: true, driverContact: offer.contact },
+      {
+        success: true,
+        driverContact: result.driver_contact,
+        remainingSeats: result.remaining_seats,
+      },
       { status: 201 },
     );
-  } catch {
+  } catch (caught) {
+    console.error("carpool.reserve", caught);
     return Response.json(
       { error: "La demande n’a pas pu être envoyée. Réessayez." },
       { status: 500 },
