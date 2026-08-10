@@ -25,6 +25,12 @@ type Offer = {
   carpool_seats: Seat[];
 };
 
+const CARPOOL_REFRESH_KEY = "carpool-offers-version";
+
+function announcePublicCarpoolChange() {
+  window.localStorage.setItem(CARPOOL_REFRESH_KEY, String(Date.now()));
+}
+
 async function fetchOffer(offerId: string) {
   const response = await fetch(`/api/carpool/manage/${offerId}`, { cache: "no-store" });
   const data: unknown = await response.json();
@@ -61,6 +67,7 @@ export default function CarpoolManager({ offerId }: { offerId: string }) {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [deleted, setDeleted] = useState(false);
+  const [resizing, setResizing] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -89,7 +96,32 @@ export default function CarpoolManager({ offerId }: { offerId: string }) {
     const data = await response.json();
     if (!response.ok) return setError(data.error);
     setOffer(await fetchOffer(offerId));
+    announcePublicCarpoolChange();
     setMessage("Les modifications sont enregistrées.");
+  }
+
+  async function resizeSeats(seatsTotal: number) {
+    if (!offer || seatsTotal === offer.seats_total) return;
+    setMessage("");
+    setError("");
+    setResizing(true);
+    try {
+      const response = await fetch(`/api/carpool/manage/${offerId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "resize-seats", seatsTotal }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        setError(data.error || "Le nombre de places n’a pas pu être enregistré.");
+        return;
+      }
+      setOffer(await fetchOffer(offerId));
+      announcePublicCarpoolChange();
+      setMessage("Le nombre de places est enregistré.");
+    } finally {
+      setResizing(false);
+    }
   }
 
   async function cycleSeat(seatId: string) {
@@ -101,18 +133,23 @@ export default function CarpoolManager({ offerId }: { offerId: string }) {
     const data = await response.json();
     if (!response.ok) return setError(data.error);
     setOffer(await fetchOffer(offerId));
+    announcePublicCarpoolChange();
   }
 
   async function removeOffer() {
     if (!window.confirm("Supprimer définitivement cette annonce ?")) return;
     const response = await fetch(`/api/carpool/manage/${offerId}`, { method: "DELETE" });
     if (!response.ok) return setError("L’annonce n’a pas pu être supprimée.");
+    announcePublicCarpoolChange();
     setDeleted(true);
   }
 
   if (loading) return <main className="carpool-manage-page"><p>Chargement de votre trajet…</p></main>;
   if (deleted) return <main className="carpool-manage-page"><section className="carpool-manager"><h1>Annonce supprimée</h1><p>Votre trajet n’est plus visible sur le site.</p><Link href="/#covoiturage">Retour au covoiturage</Link></section></main>;
   if (!offer) return <main className="carpool-manage-page"><section className="carpool-manager"><h1>Lien indisponible</h1><p>{error || "Cette annonce n’existe plus."}</p><Link href="/">Retour au site</Link></section></main>;
+
+  const occupiedSeats = offer.carpool_seats.filter((seat) => seat.status !== "free").length;
+  const minimumSeats = Math.max(1, occupiedSeats);
 
   return (
     <main className="carpool-manage-page">
@@ -140,6 +177,26 @@ export default function CarpoolManager({ offerId }: { offerId: string }) {
           <label>Sens<select name="direction" defaultValue={offer.direction}><option value="to_massacan">Vers le Domaine de Massacan</option><option value="from_massacan">Retour depuis le domaine</option></select></label>
           <label>Ville ou lieu<input name="otherPlace" defaultValue={offer.other_place} required /></label>
           <label>Date et heure<input name="departureAt" type="datetime-local" min="2027-05-25T00:00" max="2027-06-02T23:59" defaultValue={offer.departure_local.slice(0, 16)} required /></label>
+          <label>
+            Nombre total de places
+            <select
+              aria-describedby="carpool-seats-help"
+              disabled={resizing}
+              value={offer.seats_total}
+              onChange={(event) => void resizeSeats(Number(event.target.value))}
+            >
+              {Array.from({ length: 9 - minimumSeats }, (_, index) => minimumSeats + index).map((count) => (
+                <option key={count} value={count}>
+                  {count} place{count > 1 ? "s" : ""}
+                </option>
+              ))}
+            </select>
+            <small id="carpool-seats-help">
+              {resizing
+                ? "Enregistrement…"
+                : `${occupiedSeats} passager${occupiedSeats > 1 ? "s" : ""} déjà inscrit${occupiedSeats > 1 ? "s" : ""} · minimum ${minimumSeats}`}
+            </small>
+          </label>
           <label>Téléphone<input name="contact" type="tel" defaultValue={offer.contact} required /></label>
           <label>Précisions<textarea name="details" defaultValue={offer.details ?? ""} /></label>
           {error && <p className="carpool-error" role="alert">{error}</p>}

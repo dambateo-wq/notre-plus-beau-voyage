@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { formatCarpoolDate } from "@/lib/carpool-time";
 import {
   normalizePublicCarpoolOffers,
@@ -18,6 +18,8 @@ function phoneHref(contact: string) {
   return /^\+?\d{8,15}$/.test(phone) ? `tel:${phone}` : null;
 }
 
+const CARPOOL_REFRESH_KEY = "carpool-offers-version";
+
 export default function CarpoolBoard() {
   const [offers, setOffers] = useState<CarpoolOffer[]>([]);
   const [loading, setLoading] = useState(true);
@@ -32,25 +34,60 @@ export default function CarpoolBoard() {
   const [driverContacts, setDriverContacts] = useState<Record<string, string>>(
     {},
   );
+  const requestVersion = useRef(0);
+
+  const loadOffers = useCallback(async (initial = false) => {
+    const version = ++requestVersion.current;
+    try {
+      const response = await fetch(`/api/carpool?fresh=${Date.now()}`, {
+        cache: "no-store",
+      });
+      const data: unknown = await response.json();
+      if (!response.ok) {
+        const message =
+          data && typeof data === "object" && "error" in data
+            ? String(data.error)
+            : "Les trajets sont indisponibles.";
+        throw new Error(message);
+      }
+      if (version === requestVersion.current) {
+        setOffers(normalizePublicCarpoolOffers(data));
+      }
+    } catch {
+      if (initial) {
+        setError("Les trajets ne peuvent pas être affichés actuellement.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    fetch("/api/carpool")
-      .then(async (response) => {
-        const data: unknown = await response.json();
-        if (!response.ok) {
-          const message =
-            data && typeof data === "object" && "error" in data
-              ? String(data.error)
-              : "Les trajets sont indisponibles.";
-          throw new Error(message);
-        }
-        setOffers(normalizePublicCarpoolOffers(data));
-      })
-      .catch(() => {
-        setError("Les trajets ne peuvent pas être affichés actuellement.");
-      })
-      .finally(() => setLoading(false));
-  }, []);
+    const initialLoad = window.setTimeout(() => void loadOffers(true), 0);
+
+    const refresh = () => void loadOffers();
+    const refreshWhenVisible = () => {
+      if (document.visibilityState === "visible") refresh();
+    };
+    const refreshFromStorage = (event: StorageEvent) => {
+      if (event.key === CARPOOL_REFRESH_KEY) refresh();
+    };
+    const interval = window.setInterval(refresh, 15_000);
+
+    window.addEventListener("focus", refresh);
+    window.addEventListener("pageshow", refresh);
+    window.addEventListener("storage", refreshFromStorage);
+    document.addEventListener("visibilitychange", refreshWhenVisible);
+
+    return () => {
+      window.clearTimeout(initialLoad);
+      window.clearInterval(interval);
+      window.removeEventListener("focus", refresh);
+      window.removeEventListener("pageshow", refresh);
+      window.removeEventListener("storage", refreshFromStorage);
+      document.removeEventListener("visibilitychange", refreshWhenVisible);
+    };
+  }, [loadOffers]);
 
   async function submitOffer(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

@@ -281,13 +281,64 @@
 }
 
 .placementStatusLink {
+  border: 0;
   border-radius: 999px;
-  background: #dfe9db;
-  color: #345033;
+  background: transparent;
+  color: #53654d;
+  cursor: pointer;
   padding: 7px 11px;
   font-size: .78rem;
   font-weight: 800;
-  text-decoration: none;
+  text-decoration: underline;
+  text-decoration-color: #b6ad9c;
+  text-underline-offset: 3px;
+}
+
+.placementStatusLink:disabled {
+  cursor: wait;
+  opacity: .55;
+}
+
+.placementActionWrap {
+  display: grid;
+  justify-items: end;
+  gap: 4px;
+}
+
+.placementModifyAction {
+  display: grid;
+  justify-items: inherit;
+  gap: 4px;
+}
+
+.placementModifyAction small {
+  max-width: 260px;
+  color: #914b3e;
+  font-size: .7rem;
+  text-align: right;
+}
+
+.placementBadge {
+  border-radius: 999px;
+  padding: 7px 11px;
+  font-size: .78rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.placementPending {
+  background: #f5ead1;
+  color: #815b24;
+}
+
+.placementInProgress {
+  background: #e8e4da;
+  color: #625b4d;
+}
+
+.placementFinalized {
+  background: #dfe9db;
+  color: #345033;
 }
 
 .planLink {
@@ -561,6 +612,40 @@
 .guestGroup > div {
   display: grid;
   gap: 7px;
+}
+
+.guestGroupFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #ded5c5;
+}
+
+.guestGroupFooter small {
+  color: #6f776c;
+  font-size: .68rem;
+  line-height: 1.4;
+}
+
+.finalizePlacementButton {
+  border: 1px solid #9bbb91;
+  border-radius: 10px;
+  background: #e3efdf;
+  color: #345033;
+  cursor: pointer;
+  padding: 8px 11px;
+  font-size: .72rem;
+  font-weight: 800;
+}
+
+.finalizePlacementButton:disabled {
+  border-color: #d4cdbc;
+  background: #ece7dd;
+  color: #8c8b84;
+  cursor: not-allowed;
 }
 
 .guestChip {
@@ -845,6 +930,14 @@
     justify-content: flex-start;
   }
 
+  .placementActionWrap {
+    justify-items: start;
+  }
+
+  .placementModifyAction small {
+    text-align: left;
+  }
+
   .detailPlans > div {
     grid-template-columns: 1fr;
   }
@@ -857,6 +950,12 @@
   .guestChip {
     grid-template-columns: 1fr;
     cursor: default;
+  }
+
+
+  .guestGroupFooter {
+    align-items: stretch;
+    flex-direction: column;
   }
 
   .sectionHeading {

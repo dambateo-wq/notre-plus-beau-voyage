@@ -5,6 +5,11 @@ import {
 } from "@/lib/carpool-time";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+const NO_STORE_HEADERS = {
+  "Cache-Control": "no-store, no-cache, must-revalidate",
+};
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -51,7 +56,10 @@ export async function GET(
     const offersPayload = offerResponse.ok ? await offerResponse.json() : [];
     const [offer] = Array.isArray(offersPayload) ? offersPayload : [];
     if (!offer || typeof offer !== "object" || Array.isArray(offer)) {
-      return Response.json({ error: "Annonce introuvable." }, { status: 404 });
+      return Response.json(
+        { error: "Annonce introuvable." },
+        { status: 404, headers: NO_STORE_HEADERS },
+      );
     }
 
     const seatsResponse = await fetch(
@@ -67,9 +75,10 @@ export async function GET(
     const seatsPayload = await seatsResponse.json();
     const carpoolSeats = Array.isArray(seatsPayload) ? seatsPayload : [];
 
-    return Response.json({
-      offer: { ...offer, carpool_seats: carpoolSeats },
-    });
+    return Response.json(
+      { offer: { ...offer, carpool_seats: carpoolSeats } },
+      { headers: NO_STORE_HEADERS },
+    );
   } catch (caught) {
     console.error("carpool.manage.read", caught);
     return Response.json(
@@ -87,6 +96,66 @@ export async function PATCH(
   if (!offerId) return Response.json({ error: "Annonce invalide." }, { status: 404 });
   const body = (await request.json()) as Record<string, unknown>;
   const { url, headers } = getPrivateSupabaseConfig();
+
+  if (body.action === "resize-seats") {
+    const seatsTotal = Number(body.seatsTotal);
+    if (!Number.isInteger(seatsTotal) || seatsTotal < 1 || seatsTotal > 8) {
+      return Response.json(
+        { error: "Le nombre de places doit être compris entre 1 et 8." },
+        { status: 400, headers: NO_STORE_HEADERS },
+      );
+    }
+
+    const resizeResponse = await fetch(
+      `${url}/rest/v1/rpc/resize_carpool_offer_seats`,
+      {
+        method: "POST",
+        headers: {
+          ...headers,
+          "Content-Type": "application/json",
+          Prefer: "return=representation",
+        },
+        body: JSON.stringify({
+          p_offer_id: offerId,
+          p_seats_total: seatsTotal,
+        }),
+        cache: "no-store",
+      },
+    );
+    const details = await resizeResponse.text();
+    if (!resizeResponse.ok) {
+      if (details.includes("TOO_FEW_SEATS")) {
+        return Response.json(
+          { error: "Impossible de descendre sous le nombre de passagers déjà inscrits." },
+          { status: 409, headers: NO_STORE_HEADERS },
+        );
+      }
+      if (details.includes("OFFER_NOT_FOUND")) {
+        return Response.json(
+          { error: "Annonce introuvable." },
+          { status: 404, headers: NO_STORE_HEADERS },
+        );
+      }
+      return Response.json(
+        { error: "Le nombre de places n’a pas pu être enregistré." },
+        { status: 500, headers: NO_STORE_HEADERS },
+      );
+    }
+
+    const payload = JSON.parse(details) as Array<{
+      seats_total: number;
+      seats_available: number;
+    }>;
+    const [resized] = Array.isArray(payload) ? payload : [];
+    return Response.json(
+      {
+        success: true,
+        seatsTotal: Number(resized?.seats_total ?? seatsTotal),
+        seatsAvailable: Number(resized?.seats_available ?? 0),
+      },
+      { headers: NO_STORE_HEADERS },
+    );
+  }
 
   if (body.action === "cycle-seat") {
     const seatId = clean(body.seatId, 36);
@@ -161,7 +230,7 @@ export async function PATCH(
       cache: "no-store",
     });
 
-    return Response.json({ seat: updatedSeat });
+    return Response.json({ seat: updatedSeat }, { headers: NO_STORE_HEADERS });
   }
 
   const driverName = clean(body.driverName, 80);
@@ -212,7 +281,7 @@ export async function PATCH(
   if (!updated.length) {
     return Response.json({ error: "Annonce introuvable." }, { status: 404 });
   }
-  return Response.json({ success: true });
+  return Response.json({ success: true }, { headers: NO_STORE_HEADERS });
 }
 
 export async function DELETE(
@@ -234,5 +303,5 @@ export async function DELETE(
   if (!response.ok || !deleted.length) {
     return Response.json({ error: "Annonce introuvable." }, { status: 404 });
   }
-  return Response.json({ success: true });
+  return Response.json({ success: true }, { headers: NO_STORE_HEADERS });
 }

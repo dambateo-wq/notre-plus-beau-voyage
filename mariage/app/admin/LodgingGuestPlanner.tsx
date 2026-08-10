@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { COUPLE_LODGING, LODGING_ROOMS } from "@/lib/lodging-rooms";
 import type { LodgingGuestAssignment, LodgingReservation } from "@/lib/lodging";
 import {
+  finalizeLodgingPlacement,
   removeGuestLodgingPlacement,
   saveGuestLodgingPlacement,
 } from "./actions";
@@ -38,15 +39,25 @@ export default function LodgingGuestPlanner({
   reservations: LodgingReservation[];
   initialAssignments: LodgingGuestAssignment[];
 }) {
-  const placeable = reservations.filter(
+  const eligibleReservations = reservations.filter(
     (reservation) => reservation.booking_status === "active" && reservation.payment_status === "confirmed",
   );
-  const guests = placeable.flatMap(guestsFor);
   const [assignments, setAssignments] = useState(initialAssignments);
   const [pending, startTransition] = useTransition();
   const [pendingGuest, setPendingGuest] = useState("");
+  const [pendingReservation, setPendingReservation] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
+
+  const placementStatusFor = (reservation: LodgingReservation) =>
+    reservation.placement_status ??
+    (assignments.some((item) => item.reservation_id === reservation.id)
+      ? "in_progress"
+      : "pending");
+  const workQueue = eligibleReservations.filter(
+    (reservation) => placementStatusFor(reservation) !== "finalized",
+  );
+  const guests = workQueue.flatMap(guestsFor);
 
   const assignmentFor = (guest: Guest) => assignments.find(
     (item) => item.reservation_id === guest.reservationId && item.guest_index === guest.guestIndex,
@@ -55,8 +66,29 @@ export default function LodgingGuestPlanner({
   function occupancy(roomName: string, night: string) {
     return assignments.filter((assignment) => {
       if (assignment.room_name !== roomName) return false;
-      return placeable.find((reservation) => reservation.id === assignment.reservation_id)?.nights.includes(night);
+      return eligibleReservations.find((reservation) => reservation.id === assignment.reservation_id)?.nights.includes(night);
     }).length;
+  }
+
+  function finalizePlacement(reservation: LodgingReservation) {
+    setError("");
+    setPendingReservation(reservation.id);
+    startTransition(async () => {
+      try {
+        const formData = new FormData();
+        formData.set("reservationId", reservation.id);
+        await finalizeLodgingPlacement(formData);
+        router.refresh();
+      } catch (caught) {
+        setError(
+          caught instanceof Error
+            ? caught.message
+            : "Le placement ne peut pas être finalisé.",
+        );
+      } finally {
+        setPendingReservation("");
+      }
+    });
   }
 
   function moveGuest(guest: Guest, roomName: string) {
@@ -108,21 +140,26 @@ export default function LodgingGuestPlanner({
     <section className={styles.guestPlanner} aria-labelledby="guest-planner-title">
       <div className={styles.floorPlansHeading}>
         <div>
-          <p className={styles.eyebrow}>Placement individuel</p>
-          <h3 id="guest-planner-title">Répartir chaque voyageur</h3>
+          <p className={styles.eyebrow}>File de travail</p>
+          <h3 id="guest-planner-title">Placements à traiter</h3>
         </div>
-        <p>Glissez chaque nom vers une chambre. Sur téléphone, utilisez directement le menu sous le nom.</p>
+        <p>Traitez chaque réservation payée, puis confirmez-la lorsque tous ses voyageurs ont une chambre.</p>
       </div>
 
       {error && <p className={styles.plannerError} role="alert">{error}</p>}
 
       <div className={styles.guestGroups}>
-        {placeable.map((reservation) => {
+        {workQueue.map((reservation) => {
           const group = guestsFor(reservation);
           const placed = group.filter((guest) => assignmentFor(guest)).length;
+          const complete = placed === group.length;
+          const statusLabel = placed === 0 ? "À placer" : "Placement en cours";
           return (
             <article className={styles.guestGroup} key={reservation.id}>
-              <header><strong>{reservation.booker_name}</strong><span>{placed}/{group.length} placés · {reservation.reference}</span></header>
+              <header>
+                <strong>{reservation.booker_name}</strong>
+                <span>{statusLabel} · {placed}/{group.length} · {reservation.reference}</span>
+              </header>
               <div>
                 {group.map((guest) => {
                   const assignment = assignmentFor(guest);
@@ -147,15 +184,37 @@ export default function LodgingGuestPlanner({
                   );
                 })}
               </div>
+              <footer className={styles.guestGroupFooter}>
+                <small>
+                  {complete
+                    ? "Tous les voyageurs sont affectés."
+                    : `${group.length - placed} voyageur${group.length - placed > 1 ? "s" : ""} encore à placer.`}
+                </small>
+                <button
+                  className={styles.finalizePlacementButton}
+                  disabled={!complete || pendingReservation === reservation.id}
+                  onClick={() => finalizePlacement(reservation)}
+                  type="button"
+                >
+                  {pendingReservation === reservation.id
+                    ? "Confirmation…"
+                    : "Confirmer le placement"}
+                </button>
+              </footer>
             </article>
           );
         })}
       </div>
 
-      {placeable.length === 0 ? (
-        <p className={styles.empty}>Confirmez un paiement pour commencer le placement individuel.</p>
-      ) : (
-        <div className={styles.roomDropGrid}>
+      {workQueue.length === 0 && (
+        <p className={styles.empty}>
+          {eligibleReservations.length === 0
+            ? "Confirmez un paiement pour alimenter la file de travail."
+            : "Tous les placements payés sont finalisés."}
+        </p>
+      )}
+
+      <div className={styles.roomDropGrid}>
           <article
             aria-label={`${COUPLE_LODGING.name}, réservé à ${COUPLE_LODGING.occupants.join(" et ")}`}
             className={`${styles.roomDrop} ${styles.coupleRoom}`}
@@ -170,7 +229,10 @@ export default function LodgingGuestPlanner({
             </div>
           </article>
           {LODGING_ROOMS.map((room) => {
-            const roomGuests = guests.filter((guest) => assignmentFor(guest)?.room_name === room.name);
+            const roomGuests = assignments.filter((assignment) =>
+              assignment.room_name === room.name &&
+              eligibleReservations.some((reservation) => reservation.id === assignment.reservation_id),
+            );
             const friday = occupancy(room.name, "2027-05-28");
             const saturday = occupancy(room.name, "2027-05-29");
             return (
@@ -186,12 +248,11 @@ export default function LodgingGuestPlanner({
                 }}
               >
                 <header><strong>{room.name}</strong><span>V {friday}/{room.capacity} · S {saturday}/{room.capacity}</span></header>
-                <div>{roomGuests.length ? roomGuests.map((guest) => <span key={guest.key}>{guest.name}</span>) : <small>Déposer un nom ici</small>}</div>
+                <div>{roomGuests.length ? roomGuests.map((guest) => <span key={guest.id}>{guest.guest_name}</span>) : <small>Déposer un nom ici</small>}</div>
               </article>
             );
           })}
-        </div>
-      )}
+      </div>
     </section>
   );
 }

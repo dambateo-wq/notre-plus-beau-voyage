@@ -21,6 +21,7 @@ export type LodgingReservation = {
   payment_method: "wero" | "bank_transfer" | "later";
   payment_status: "unpaid" | "declared" | "confirmed";
   booking_status: "active" | "cancelled";
+  placement_status?: "pending" | "in_progress" | "finalized";
   created_at: string;
   updated_at: string;
 };
@@ -88,7 +89,7 @@ export async function updateLodgingReservation(
   values: Partial<
     Pick<
       LodgingReservation,
-      "payment_status" | "booking_status" | "payment_method"
+      "payment_status" | "booking_status" | "payment_method" | "placement_status"
     >
   >,
 ) {

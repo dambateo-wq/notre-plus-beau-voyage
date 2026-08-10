@@ -7,6 +7,11 @@ import {
 } from "@/lib/carpool-time";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+const NO_STORE_HEADERS = {
+  "Cache-Control": "no-store, no-cache, must-revalidate",
+};
 
 type CarpoolRequest = {
   driverName?: unknown;
@@ -52,7 +57,9 @@ export async function GET() {
           ),
         }))
         : [];
-      return Response.json(normalizePublicCarpoolOffers(legacyOffers));
+      return Response.json(normalizePublicCarpoolOffers(legacyOffers), {
+        headers: NO_STORE_HEADERS,
+      });
     }
 
     const offersPayload = await offersResponse.json();
@@ -88,12 +95,13 @@ export async function GET() {
               : [],
         })),
       ),
+      { headers: NO_STORE_HEADERS },
     );
   } catch (caught) {
     console.error("carpool.list", caught);
     return Response.json(
       { error: "Les trajets sont momentanément indisponibles." },
-      { status: 503 },
+      { status: 503, headers: NO_STORE_HEADERS },
     );
   }
 }

@@ -14,6 +14,7 @@ import DeleteCarpoolButton from "./DeleteCarpoolButton";
 import LodgingActions from "./LodgingActions";
 import LodgingFloorPlans from "./LodgingFloorPlans";
 import LodgingGuestPlanner from "./LodgingGuestPlanner";
+import LodgingPlacementAction from "./LodgingPlacementAction";
 import styles from "./admin.module.css";
 
 export const metadata: Metadata = {
@@ -342,7 +343,19 @@ export default async function AdminPage({
             </p>
           ) : (
             <div className={styles.responses}>
-              {lodgingReservations.map((reservation) => (
+              {lodgingReservations.map((reservation) => {
+                const placed = lodgingGuestAssignments.filter(
+                  (assignment) => assignment.reservation_id === reservation.id,
+                ).length;
+                const placementStatus = reservation.placement_status ??
+                  (placed > 0 ? "in_progress" : "pending");
+                const placementLabel = placementStatus === "finalized"
+                  ? "Placement finalisé"
+                  : placementStatus === "in_progress"
+                    ? "Placement en cours"
+                    : "À placer";
+
+                return (
                 <article className={styles.responseCard} key={reservation.id}>
                   <div className={styles.responseTop}>
                     <div>
@@ -371,16 +384,26 @@ export default async function AdminPage({
                         id={reservation.id}
                         paymentStatus={reservation.payment_status}
                       />
-                      {reservation.booking_status === "active" && reservation.payment_status === "confirmed" && (() => {
-                        const placed = lodgingGuestAssignments.filter((assignment) => assignment.reservation_id === reservation.id).length;
-                        return (
-                          <a className={styles.placementStatusLink} href="#guest-planner-title">
-                            {placed === reservation.guests_count
-                              ? `✓ Placé · ${placed}/${reservation.guests_count} · Modifier`
-                              : `${placed}/${reservation.guests_count} placés · Compléter`}
-                          </a>
-                        );
-                      })()}
+                      {reservation.booking_status === "active" && reservation.payment_status === "confirmed" && (
+                        <div className={styles.placementActionWrap}>
+                          <span className={`${styles.placementBadge} ${
+                            placementStatus === "finalized"
+                              ? styles.placementFinalized
+                              : placementStatus === "in_progress"
+                                ? styles.placementInProgress
+                                : styles.placementPending
+                          }`}>
+                            {placementLabel} · {placed}/{reservation.guests_count}
+                          </span>
+                          {placementStatus === "finalized" ? (
+                            <LodgingPlacementAction reservationId={reservation.id} />
+                          ) : (
+                            <a className={styles.placementStatusLink} href="#guest-planner-title">
+                              {placed > 0 ? "Compléter le placement" : "Placer les voyageurs"}
+                            </a>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                   <dl className={styles.details}>
@@ -410,7 +433,8 @@ export default async function AdminPage({
                     </div>
                   </dl>
                 </article>
-              ))}
+                );
+              })}
             </div>
           )}
         </section>

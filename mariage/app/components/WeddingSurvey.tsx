@@ -495,9 +495,10 @@ export default function WeddingSurvey() {
         {status === "success" ? (
           <div className="form-success">
             <span>🚲</span>
-            <h3>Votre vélo est arrivé à Massacan !</h3>
+            <h3>Ton inscription est bien enregistrée</h3>
             <p>
-              Ton inscription est bien enregistrée, ton vélo est visible sur la carte collective.
+              Ton vélo est désormais visible sur la carte collective. Nous avons
+              hâte de vous retrouver au Domaine du Massacan !
             </p>
           </div>
         ) : status === "declined" ? (

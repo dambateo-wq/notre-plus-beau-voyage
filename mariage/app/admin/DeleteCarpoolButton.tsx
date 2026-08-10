@@ -21,9 +21,14 @@ export default function DeleteCarpoolButton({
   id: string;
   name: string;
 }) {
+  async function deleteAndRefresh(formData: FormData) {
+    await deleteCarpool(formData);
+    window.localStorage.setItem("carpool-offers-version", String(Date.now()));
+  }
+
   return (
     <form
-      action={deleteCarpool}
+      action={deleteAndRefresh}
       onSubmit={(event) => {
         if (
           !window.confirm(
