@@ -247,8 +247,11 @@ body{overflow-x:hidden}
 .honeymoon-section::before{content:"";position:absolute;z-index:-2;inset:0;border-radius:clamp(30px,4vw,56px);background:radial-gradient(circle at 16% 12%,rgba(202,177,124,.19),transparent 31%),radial-gradient(circle at 92% 85%,rgba(125,139,103,.19),transparent 32%),linear-gradient(145deg,#273126 0%,#1d271e 72%,#222d22 100%);box-shadow:0 38px 110px rgba(31,42,31,.14)}
 .honeymoon-section::after{content:"";position:absolute;z-index:-1;width:440px;height:440px;right:-165px;top:-210px;border:1px solid rgba(216,196,151,.12);border-radius:50%;box-shadow:0 0 0 44px rgba(216,196,151,.035),0 0 0 90px rgba(216,196,151,.025)}
 .honeymoon-story{display:grid;gap:clamp(45px,7vw,95px);align-items:end;color:#f8f5ee}
-.honeymoon-destination{min-height:340px;display:flex;flex-direction:column;justify-content:flex-end;padding:clamp(26px,4vw,48px);border:1px solid rgba(255,255,255,.12);border-radius:clamp(26px,3vw,38px);background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(221,193,137,.09));box-shadow:inset 0 1px rgba(255,255,255,.08);overflow:hidden}
-.honeymoon-destination::before{content:"";display:block;width:74px;height:74px;margin-bottom:auto;border:1px solid rgba(211,187,139,.5);border-radius:50%;background:radial-gradient(circle,rgba(211,187,139,.22) 0 4%,transparent 5% 100%),linear-gradient(135deg,transparent 48%,rgba(211,187,139,.38) 49% 51%,transparent 52%);box-shadow:0 0 0 11px rgba(211,187,139,.04)}
+.honeymoon-destination{position:relative;isolation:isolate;min-height:340px;aspect-ratio:3/2;display:flex;flex-direction:column;justify-content:flex-end;padding:clamp(26px,4vw,48px);border:1px solid rgba(255,255,255,.12);border-radius:clamp(26px,3vw,38px);background:#7f5b3c;box-shadow:inset 0 1px rgba(255,255,255,.08);overflow:hidden}
+.honeymoon-destination>img{z-index:0;object-fit:cover;object-position:center 56%;filter:saturate(.78) contrast(1.04) brightness(.82);transition:transform 1.2s cubic-bezier(.2,.7,.2,1)}
+.honeymoon-destination::before{content:"";position:absolute;z-index:1;inset:0;background:linear-gradient(180deg,rgba(35,26,18,.03) 24%,rgba(27,27,19,.18) 56%,rgba(24,31,23,.88) 100%),linear-gradient(90deg,rgba(40,26,17,.14),transparent 55%);pointer-events:none}
+.honeymoon-destination:hover>img{transform:scale(1.025)}
+.honeymoon-destination>span,.honeymoon-destination>strong,.honeymoon-destination>small{position:relative;z-index:2}
 .honeymoon-destination span,.honeymoon-destination small{font-size:9px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#cbbd9d}
 .honeymoon-destination strong{margin:9px 0 7px;font:italic 500 clamp(54px,7vw,92px)/.88 "Cormorant Garamond",serif;letter-spacing:-.04em}
 .honeymoon-destination small{color:rgba(241,239,229,.62);letter-spacing:.1em;text-transform:none}
@@ -306,4 +309,4 @@ body{overflow-x:hidden}
   .honeymoon-copy-actions button{width:100%}
 }
 
-@media(prefers-reduced-motion:reduce){.honeymoon-copy-actions button{transition:none!important}}
+@media(prefers-reduced-motion:reduce){.honeymoon-copy-actions button,.honeymoon-destination>img{transition:none!important}}

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { getPaymentDetails } from "@/lib/lodging";
 import HoneymoonPaymentCard from "./HoneymoonPaymentCard";
 
@@ -11,6 +12,12 @@ export default function HoneymoonContribution() {
     <section className="honeymoon-section v2-reveal" id="voyage-de-noces">
       <div className="honeymoon-story">
         <div className="honeymoon-destination" aria-label="Destination envisagée, non confirmée">
+          <Image
+            src="/namibie-suricates.webp"
+            alt="Des suricates dans les grands espaces de Namibie"
+            fill
+            sizes="(max-width: 1099px) calc(100vw - 60px), 45vw"
+          />
           <span>Une piste qui nous fait rêver</span>
           <strong>Namibie</strong>
           <small>Peut-être notre prochaine escale…</small>
