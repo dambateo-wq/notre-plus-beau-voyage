@@ -360,10 +360,10 @@ body{overflow-x:hidden}
   --v2-space-content:clamp(28px,3vw,42px);
 }
 
-/* Les transitions éditoriales restent plus légères que les vrais chapitres. */
-.v2-intro{padding-bottom:var(--v2-space-chapter)}
-.v2-intro h2{margin-bottom:0;font-size:clamp(52px,7.8vw,104px)}
-.v2-intro>p:last-child{margin:var(--v2-space-content) 0 0}
+/* Cette transition n'est pas un chapitre : elle mène directement au Domaine. */
+.v2-intro{padding-bottom:clamp(48px,4vw,56px)}
+.v2-intro h2{margin-bottom:0;font-size:clamp(50px,7.2vw,96px)}
+.v2-intro>p:last-child{margin:clamp(22px,2.2vw,30px) 0 0}
 
 /* Domaine, Programme et Inscription : grand souffle. */
 .v2-programme{gap:var(--v2-space-content);padding-top:var(--v2-space-chapter);padding-bottom:var(--v2-space-chapter)}
