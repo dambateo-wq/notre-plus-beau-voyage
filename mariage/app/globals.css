@@ -122,7 +122,7 @@ body{overflow-x:hidden}
 
 
 .v2-practical>div{gap:16px}
-.carpool-section + .v2-practical{padding-top:clamp(70px,6vw,86px)}
+.carpool-section + .v2-practical{padding-top:clamp(66px,5.7vw,80px)}
 .v2-practical article{min-height:205px;padding:36px;border-radius:29px;background:linear-gradient(145deg,#fffdf9,#f8f3e9);box-shadow:0 14px 42px rgba(43,48,38,.035)}
 .v2-practical article:hover{transform:translateY(-6px);box-shadow:0 28px 62px rgba(43,48,38,.09)}
 .v2-practical b{font-size:34px}
@@ -179,7 +179,7 @@ body{overflow-x:hidden}
   .v2-carpool{margin-inline:12px;border-radius:28px;padding-block:100px}
   .v2-ride-preview{padding:24px 18px;border-radius:24px}
   .v2-practical article{min-height:170px;padding:29px;border-radius:25px}
-  .carpool-section + .v2-practical{padding-top:60px}
+  .carpool-section + .v2-practical{padding-top:56px}
   .v2-footer{margin:0 12px 12px;border-radius:26px;padding-block:58px}
 }
 
