@@ -9,6 +9,7 @@ import {
 import { deleteCarpoolOffer, deleteWeddingResponse } from "@/lib/admin-data";
 import { deleteLodgingReservation, getLodgingAssignments, getLodgingGuestAssignments, getLodgingReservations, placeLodgingGuest as persistLodgingGuest, saveLodgingAssignment, unplaceLodgingGuest as removeLodgingGuest, updateLodgingReservation } from "@/lib/lodging";
 import { getRoomCapacity, LODGING_ROOM_NAMES } from "@/lib/lodging-rooms";
+import { reviewLodgingChange } from "@/lib/registration";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -224,4 +225,19 @@ export async function reopenLodgingPlacement(formData: FormData) {
 
   await updateLodgingReservation(reservationId, { placement_status: "in_progress" });
   revalidatePath("/admin");
+}
+
+export async function reviewLodgingModification(formData: FormData) {
+  if (!(await isAdminAuthenticated())) redirect("/admin");
+  const changeId = String(formData.get("changeId") ?? "");
+  const decision = String(formData.get("decision") ?? "");
+  if (
+    !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(changeId) ||
+    !["approved", "refused"].includes(decision)
+  ) {
+    throw new Error("Cette décision est invalide.");
+  }
+  await reviewLodgingChange(changeId, decision as "approved" | "refused");
+  revalidatePath("/admin");
+  revalidatePath("/");
 }

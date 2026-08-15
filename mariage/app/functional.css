@@ -14,7 +14,7 @@
 }
 
 .survey-experience{
-  padding:clamp(140px,15vw,220px) 48px;
+  padding:clamp(96px,11vw,165px) 48px;
 }
 .survey-intro{max-width:790px;margin-bottom:58px}
 .survey-intro h2,.carpool-intro h2,.lodging-intro h2{
@@ -79,6 +79,15 @@
 .roommate-field{margin-top:22px}
 .roommate-field small{color:#73796f;font-weight:400;line-height:1.45}
 .lodging-total{margin-top:22px;padding:15px;border-radius:12px;background:#e4eadf;color:var(--olive)}
+.lodging-answer{grid-template-columns:repeat(2,minmax(0,1fr))}
+.unified-lodging{display:grid;gap:25px;margin-top:24px;padding:clamp(18px,3vw,30px);border:1px solid rgba(89,101,77,.12);border-radius:20px;background:#f6f1e8}
+.unified-lodging h3{margin:0 0 13px;font:500 24px/1.15 "Cormorant Garamond",serif}
+.unified-lodging>label{display:grid;gap:8px;color:#384537;font-size:.86rem;font-weight:600}
+.lodging-person-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.choice-disabled{cursor:not-allowed;opacity:.5}
+.lodging-payment-fieldset{margin:0!important;padding:0!important;border:0!important}
+.lodging-payment-fieldset legend{margin-bottom:11px!important;font:600 .86rem Inter,sans-serif!important}
+.manage-registration-link{display:inline-flex;margin-top:10px;padding:13px 20px;border-radius:999px;background:var(--ink);color:#fff;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
 .form-error{margin-bottom:18px;padding:14px 16px;border-radius:12px;background:#f6e2dc;color:#8a3f32;font-weight:700}
 .submit-rsvp{display:block;width:100%;padding:18px 24px;font-size:.9rem;letter-spacing:.04em}
 .form-success{padding:34px;border-radius:22px;background:#e5ecdf;text-align:center}
@@ -89,7 +98,7 @@
 
 .carpool-section,.lodging-section{
   margin-top:clamp(70px,9vw,130px);
-  margin-bottom:clamp(120px,14vw,210px);
+  margin-bottom:clamp(88px,10vw,145px);
   padding:clamp(72px,8vw,115px) clamp(24px,6vw,80px);
   border-radius:38px;
   background:linear-gradient(145deg,#e5e6dc,#dce1d4);
@@ -155,9 +164,9 @@
 @keyframes reminderFade{from{opacity:0}to{opacity:1}}@keyframes reminderRise{from{opacity:0;transform:translateY(16px) scale(.98)}to{opacity:1;transform:none}}
 
 @media(max-width:800px){
-  .survey-experience{padding:120px 16px}.survey-intro{margin-bottom:38px}
-  .wedding-form{padding:38px 20px;border-radius:22px}.wedding-form legend{font-size:1.3rem}.choice-grid,.lodging-choices,.sleepers-grid{grid-template-columns:1fr}.location-search{grid-template-columns:1fr}.location-search button{padding:14px}
-  .carpool-section,.lodging-section{margin:12px 12px 120px;padding:78px 20px;border-radius:28px}.carpool-layout,.lodging-layout,.carpool-form-row,.lodging-form-row,.lodging-availability,.lodging-payment-choices{grid-template-columns:1fr}.carpool-form,.carpool-offers,.lodging-form,.lodging-lookup{padding:25px 20px}.carpool-offers-heading{flex-direction:column}.lodging-confirmation{padding:28px 18px}.lodging-confirmation>dl,.lodging-payment-details dl{grid-template-columns:1fr}
+  .survey-experience{padding:92px 16px}.survey-intro{margin-bottom:38px}
+  .wedding-form{padding:38px 20px;border-radius:22px}.wedding-form legend{font-size:1.3rem}.choice-grid,.lodging-choices,.lodging-answer,.lodging-person-grid,.sleepers-grid{grid-template-columns:1fr}.location-search{grid-template-columns:1fr}.location-search button{padding:14px}
+  .carpool-section,.lodging-section{margin:12px 12px 92px;padding:68px 20px;border-radius:28px}.carpool-layout,.lodging-layout,.carpool-form-row,.lodging-form-row,.lodging-availability,.lodging-payment-choices{grid-template-columns:1fr}.carpool-form,.carpool-offers,.lodging-form,.lodging-lookup{padding:25px 20px}.carpool-offers-heading{flex-direction:column}.lodging-confirmation{padding:28px 18px}.lodging-confirmation>dl,.lodging-payment-details dl{grid-template-columns:1fr}
   .rsvp-reminder{padding:38px 24px 28px;border-radius:21px}
   .carpool-manager-form{grid-template-columns:1fr}.carpool-manager-form>*{grid-column:1!important}.carpool-seat-list{grid-template-columns:repeat(2,minmax(0,1fr))}.carpool-manager-actions{align-items:stretch;flex-direction:column}.carpool-manager-actions a,.carpool-manager-actions button{text-align:center}
 }

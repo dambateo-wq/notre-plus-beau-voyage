@@ -1,7 +1,7 @@
 .section {
   width: min(100%, 1336px);
   margin: 0 auto;
-  padding: clamp(130px, 15vw, 220px) clamp(18px, 4vw, 48px);
+  padding: clamp(92px, 10vw, 150px) clamp(18px, 4vw, 48px);
   color: #273126;
 }
 

@@ -4,7 +4,6 @@ import WeddingSurvey from "./components/WeddingSurvey";
 import RsvpReminder from "./components/RsvpReminder";
 import GuestJourneyMap from "./components/GuestJourneyMap";
 import CarpoolBoard from "./components/CarpoolBoard";
-import LodgingBooking from "./components/LodgingBooking";
 import HoneymoonContribution from "./components/HoneymoonContribution";
 
 const programme = [
@@ -35,8 +34,7 @@ export default function Home() {
               <a href="#venir"><span>01</span> Venir</a>
               <a href="#covoiturage"><span>02</span> Covoiturage</a>
               <a href="#infos-pratiques"><span>03</span> Infos pratiques</a>
-              <a href="#hebergement"><span>04</span> Réserver une nuitée</a>
-              <a href="#voyage-de-noces"><span>05</span> Participer au voyage de noces</a>
+              <a href="#voyage-de-noces"><span>04</span> Participer au voyage de noces</a>
             </div>
           </div>
         </div>
@@ -50,7 +48,6 @@ export default function Home() {
             <a href="#venir">Venir</a>
             <a href="#covoiturage">Covoiturage</a>
             <a href="#infos-pratiques">Infos pratiques</a>
-            <a href="#hebergement">Réserver une nuitée</a>
             <a href="#voyage-de-noces">Participer au voyage de noces</a>
           </div>
         </details>
@@ -60,7 +57,7 @@ export default function Home() {
         <Image className="v2-hero-image" src="/domaine.jpg" alt="Domaine du Massacan" fill priority sizes="100vw" />
         <div className="v2-hero-shade" />
         <div className="v2-hero-content">
-          <p className="v2-kicker">29 & 30 mai 2027 · Domaine du Massacan</p>
+          <p className="v2-kicker v2-hero-event">29 mai 2027 · Domaine du Massacan · Toulon</p>
           <p className="v2-hero-signature">Les Dadju&apos;s</p>
           <h1>Notre plus<br /><em>beau voyage</em></h1>
           <p className="v2-names">Damien & Julie</p>
@@ -135,10 +132,8 @@ export default function Home() {
 
       <section className="v2-stay v2-reveal">
         <div className="v2-stay-photo"><Image src="/bivouac-selfie.jpg" alt="Damien et Julie en voyage à vélo" fill sizes="(max-width: 800px) 100vw, 50vw" /></div>
-        <div><p className="v2-kicker v2-kicker-dark"><span className="v2-section-number">06</span> Dormir au domaine</p><h2>Mieux qu&apos;un<br /><em>bivouac</em></h2><p>35 € par personne et par nuit. Les chambres sont composées de lits simples entre 2 et 5 personnes.</p><div className="v2-availability"><span><b>106</b> places invitées</span><span><b>35 €</b> par nuit</span></div><a className="v2-button v2-button-dark" href="#hebergement">Réserver une nuitée <span>↓</span></a></div>
+        <div><p className="v2-kicker v2-kicker-dark"><span className="v2-section-number">06</span> Dormir au domaine</p><h2>Mieux qu&apos;un<br /><em>bivouac</em></h2><p>35 € par personne et par nuit. Les chambres sont composées de lits simples entre 2 et 5 personnes. La demande se fait directement dans votre inscription, sans remplir un second formulaire.</p><div className="v2-availability"><span><b>106</b> places invitées</span><span><b>35 €</b> par nuit</span></div><a className="v2-button v2-button-dark" href="#sondage">Compléter mon inscription <span>↑</span></a></div>
       </section>
-
-      <LodgingBooking />
 
       <HoneymoonContribution />
 

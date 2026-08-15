@@ -5,7 +5,7 @@ import {
   getCarpoolRequests,
   getWeddingResponses,
 } from "@/lib/admin-data";
-import { getLodgingAssignments, getLodgingGuestAssignments, getLodgingReservations, legacyGuestAssignments } from "@/lib/lodging";
+import { getAdminNotifications, getLodgingAssignments, getLodgingChangeRequests, getLodgingGuestAssignments, getLodgingReservations, legacyGuestAssignments } from "@/lib/lodging";
 import { formatCarpoolDate, legacyUtcClockToLocal } from "@/lib/carpool-time";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { login, logout } from "./actions";
@@ -15,6 +15,7 @@ import LodgingActions from "./LodgingActions";
 import LodgingFloorPlans from "./LodgingFloorPlans";
 import LodgingGuestPlanner from "./LodgingGuestPlanner";
 import LodgingPlacementAction from "./LodgingPlacementAction";
+import LodgingChangeReview from "./LodgingChangeReview";
 import styles from "./admin.module.css";
 
 export const metadata: Metadata = {
@@ -74,13 +75,15 @@ export default async function AdminPage({
     );
   }
 
-  const [responses, carpoolOffers, carpoolRequests, lodgingReservations, lodgingAssignments, storedGuestAssignments] = await Promise.all([
+  const [responses, carpoolOffers, carpoolRequests, lodgingReservations, lodgingAssignments, storedGuestAssignments, lodgingChanges, notifications] = await Promise.all([
     getWeddingResponses(),
     getCarpoolOffers(),
     getCarpoolRequests(),
     getLodgingReservations(),
     getLodgingAssignments(),
     getLodgingGuestAssignments(),
+    getLodgingChangeRequests(),
+    getAdminNotifications(),
   ]);
   const lodgingGuestAssignments = storedGuestAssignments.length
     ? storedGuestAssignments
@@ -142,6 +145,21 @@ export default async function AdminPage({
           </div>
         </section>
 
+        {notifications.some((notification) => !notification.read_at) && (
+          <section className={styles.notifications} aria-labelledby="notifications-title">
+            <div>
+              <p className={styles.eyebrow}>À traiter</p>
+              <h2 id="notifications-title">Notifications</h2>
+            </div>
+            {notifications.filter((notification) => !notification.read_at).map((notification) => (
+              <article key={notification.id}>
+                <strong>{notification.message}</strong>
+                <time dateTime={notification.created_at}>{new Intl.DateTimeFormat("fr-FR", { dateStyle: "long", timeStyle: "short", timeZone: "Europe/Paris" }).format(new Date(notification.created_at))}</time>
+              </article>
+            ))}
+          </section>
+        )}
+
         <section className={styles.responses}>
           {responses.length === 0 ? (
             <p className={styles.empty}>
@@ -202,6 +220,10 @@ export default async function AdminPage({
                           ? `${response.departure_city}, ${response.departure_country}`
                           : "—"}
                       </dd>
+                    </div>
+                    <div>
+                      <dt>Contact</dt>
+                      <dd>{response.respondent_email}{response.phone ? ` · ${response.phone}` : ""}</dd>
                     </div>
                     <div>
                       <dt>Hébergement</dt>
@@ -354,6 +376,9 @@ export default async function AdminPage({
                   : placementStatus === "in_progress"
                     ? "Placement en cours"
                     : "À placer";
+                const pendingChange = lodgingChanges.find(
+                  (change) => change.reservation_id === reservation.id && change.status === "pending",
+                );
 
                 return (
                 <article className={styles.responseCard} key={reservation.id}>
@@ -370,8 +395,10 @@ export default async function AdminPage({
                       </time>
                     </div>
                     <div className={styles.responseActions}>
-                      <span className={reservation.booking_status === "cancelled" ? styles.status + " " + styles.declined : reservation.payment_status === "confirmed" ? styles.status : styles.status + " " + styles.pendingStatus}>
-                        {reservation.booking_status === "cancelled"
+                      <span className={pendingChange ? styles.status + " " + styles.reviewStatus : reservation.booking_status === "cancelled" ? styles.status + " " + styles.declined : reservation.payment_status === "confirmed" ? styles.status : styles.status + " " + styles.pendingStatus}>
+                        {pendingChange
+                          ? "Modification à valider"
+                          : reservation.booking_status === "cancelled"
                           ? "Annulée"
                           : reservation.payment_status === "confirmed"
                             ? "Paiement confirmé"
@@ -384,7 +411,7 @@ export default async function AdminPage({
                         id={reservation.id}
                         paymentStatus={reservation.payment_status}
                       />
-                      {reservation.booking_status === "active" && reservation.payment_status === "confirmed" && (
+                      {reservation.booking_status === "active" && reservation.payment_status === "confirmed" && !pendingChange && (
                         <div className={styles.placementActionWrap}>
                           <span className={`${styles.placementBadge} ${
                             placementStatus === "finalized"
@@ -406,6 +433,7 @@ export default async function AdminPage({
                       )}
                     </div>
                   </div>
+                  {pendingChange && <LodgingChangeReview change={pendingChange} />}
                   <dl className={styles.details}>
                     <div>
                       <dt>Nuitées</dt>

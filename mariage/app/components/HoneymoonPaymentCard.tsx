@@ -32,6 +32,7 @@ export default function HoneymoonPaymentCard({
   bic,
 }: HoneymoonPaymentCardProps) {
   const [copied, setCopied] = useState<CopyTarget | null>(null);
+  const [expanded, setExpanded] = useState(false);
   const resetTimer = useRef<number | null>(null);
 
   useEffect(
@@ -72,6 +73,19 @@ export default function HoneymoonPaymentCard({
         <span aria-hidden="true">D&amp;J</span>
       </div>
 
+      {!expanded ? (
+        <button
+          className="honeymoon-reveal-button"
+          type="button"
+          aria-expanded="false"
+          aria-controls="honeymoon-bank-panel"
+          onClick={() => setExpanded(true)}
+        >
+          Participer à notre voyage de noces <span aria-hidden="true">↓</span>
+        </button>
+      ) : (
+        <div className="honeymoon-bank-panel" id="honeymoon-bank-panel">
+
       <dl className="honeymoon-bank-details">
         <div>
           <dt>Titulaire du compte</dt>
@@ -108,6 +122,11 @@ export default function HoneymoonPaymentCard({
       <p className="honeymoon-copy-status" aria-live="polite" aria-atomic="true">
         {copied ? "Copié" : ""}
       </p>
+          <button className="honeymoon-close-button" type="button" onClick={() => setExpanded(false)}>
+            Masquer les coordonnées <span aria-hidden="true">↑</span>
+          </button>
+        </div>
+      )}
     </article>
   );
 }

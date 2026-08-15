@@ -3,6 +3,7 @@ import "server-only";
 export type WeddingResponse = {
   id: string;
   respondent_name: string;
+  respondent_email: string;
   companions: string[];
   attendance_days: string[];
   not_attending: boolean;
@@ -12,7 +13,13 @@ export type WeddingResponse = {
   saturday_sleepers: number;
   roommate_wishes: string | null;
   songs: string[];
+  phone: string | null;
+  lodging_guest_names: string[];
+  lodging_nights: string[];
+  lodging_payment_method: "wero" | "bank_transfer" | "later";
+  lodging_reservation_id: string | null;
   created_at: string;
+  updated_at: string;
 };
 
 export function getPrivateSupabaseConfig() {
@@ -75,7 +82,7 @@ export type CarpoolSeat = {
 export async function getWeddingResponses() {
   const { url, headers } = getPrivateSupabaseConfig();
   const response = await fetch(
-    `${url}/rest/v1/wedding_responses?select=id,respondent_name,companions,attendance_days,not_attending,departure_city,departure_country,friday_sleepers,saturday_sleepers,roommate_wishes,songs,created_at&order=created_at.desc`,
+    `${url}/rest/v1/wedding_responses?select=id,respondent_name,respondent_email,companions,attendance_days,not_attending,departure_city,departure_country,friday_sleepers,saturday_sleepers,roommate_wishes,songs,phone,lodging_guest_names,lodging_nights,lodging_payment_method,lodging_reservation_id,created_at,updated_at&order=created_at.desc`,
     {
       headers,
       cache: "no-store",

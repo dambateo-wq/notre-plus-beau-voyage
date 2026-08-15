@@ -40,7 +40,10 @@ export default function LodgingGuestPlanner({
   initialAssignments: LodgingGuestAssignment[];
 }) {
   const eligibleReservations = reservations.filter(
-    (reservation) => reservation.booking_status === "active" && reservation.payment_status === "confirmed",
+    (reservation) =>
+      reservation.booking_status === "active" &&
+      reservation.payment_status === "confirmed" &&
+      reservation.financial_review_status !== "pending",
   );
   const [assignments, setAssignments] = useState(initialAssignments);
   const [pending, startTransition] = useTransition();

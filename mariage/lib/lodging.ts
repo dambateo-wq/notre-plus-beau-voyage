@@ -22,8 +22,45 @@ export type LodgingReservation = {
   payment_status: "unpaid" | "declared" | "confirmed";
   booking_status: "active" | "cancelled";
   placement_status?: "pending" | "in_progress" | "finalized";
+  wedding_response_id?: string | null;
+  financial_review_status?: "none" | "pending";
+  previous_amount_cents?: number | null;
+  proposed_amount_cents?: number | null;
   created_at: string;
   updated_at: string;
+};
+
+export type LodgingSnapshot = {
+  guestNames: string[];
+  guestsCount: number;
+  nights: string[];
+  amountCents: number;
+  roommateWishes: string;
+  paymentMethod: "wero" | "bank_transfer" | "later";
+};
+
+export type LodgingChangeRequest = {
+  id: string;
+  wedding_response_id: string;
+  reservation_id: string;
+  old_amount_cents: number;
+  new_amount_cents: number;
+  difference_cents: number;
+  old_details: LodgingSnapshot;
+  new_details: LodgingSnapshot;
+  status: "pending" | "approved" | "refused" | "superseded";
+  decision_at: string | null;
+  created_at: string;
+};
+
+export type AdminNotification = {
+  id: string;
+  notification_type: string;
+  message: string;
+  wedding_response_id: string | null;
+  lodging_change_request_id: string | null;
+  read_at: string | null;
+  created_at: string;
 };
 
 export type LodgingAssignment = {
@@ -86,12 +123,7 @@ export async function getLodgingReservations() {
 
 export async function updateLodgingReservation(
   id: string,
-  values: Partial<
-    Pick<
-      LodgingReservation,
-      "payment_status" | "booking_status" | "payment_method" | "placement_status"
-    >
-  >,
+  values: Partial<Omit<LodgingReservation, "id" | "created_at" | "updated_at">>,
 ) {
   const { url, headers } = getPrivateSupabaseConfig();
   const response = await fetch(
@@ -114,6 +146,34 @@ export async function updateLodgingReservation(
   if (!response.ok) {
     throw new Error("La réservation n’a pas pu être mise à jour.");
   }
+}
+
+export async function getLodgingChangeRequests() {
+  const { url, headers } = getPrivateSupabaseConfig();
+  const response = await fetch(
+    `${url}/rest/v1/lodging_change_requests?select=*&order=created_at.desc`,
+    { headers, cache: "no-store" },
+  );
+  if (!response.ok) {
+    const error = await response.text();
+    if (error.includes("lodging_change_requests") || error.includes("PGRST205")) return [];
+    throw new Error("Les demandes de modification ne peuvent pas être chargées.");
+  }
+  return (await response.json()) as LodgingChangeRequest[];
+}
+
+export async function getAdminNotifications() {
+  const { url, headers } = getPrivateSupabaseConfig();
+  const response = await fetch(
+    `${url}/rest/v1/admin_notifications?select=*&order=created_at.desc&limit=30`,
+    { headers, cache: "no-store" },
+  );
+  if (!response.ok) {
+    const error = await response.text();
+    if (error.includes("admin_notifications") || error.includes("PGRST205")) return [];
+    throw new Error("Les notifications ne peuvent pas être chargées.");
+  }
+  return (await response.json()) as AdminNotification[];
 }
 
 export async function deleteLodgingReservation(id: string) {

@@ -245,6 +245,104 @@
   color: #815b24;
 }
 
+.reviewStatus {
+  background: #f4dfbd;
+  color: #8a5729;
+}
+
+.notifications {
+  display: grid;
+  gap: 12px;
+  margin: 24px 0 34px;
+  padding: 24px;
+  border: 1px solid #e7cfa7;
+  border-radius: 24px;
+  background: #fff7e8;
+}
+
+.notifications h2 {
+  margin: 4px 0 8px;
+  font: 600 30px/1 "Cormorant Garamond", serif;
+}
+
+.notifications article {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .7);
+}
+
+.notifications time {
+  color: #7b705f;
+  font-size: 11px;
+}
+
+.financialReview {
+  margin: 18px 0 4px;
+  padding: 20px;
+  border: 1px solid #e4c89d;
+  border-radius: 18px;
+  background: #fff5e4;
+}
+
+.financialReview > strong {
+  color: #8a5729;
+}
+
+.financialReview dl {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.financialReview dl div {
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .75);
+}
+
+.financialReview dt {
+  color: #7b705f;
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.financialReview dd {
+  margin: 5px 0 0;
+  font-weight: 700;
+}
+
+.financialReview > div:last-child {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.financialReview button {
+  padding: 10px 13px;
+  border: 1px solid #c9b18b;
+  border-radius: 10px;
+  background: #fff;
+  color: #374534;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.financialReview button:first-child {
+  border-color: #557151;
+  background: #557151;
+  color: #fff;
+}
+
+@media (max-width: 700px) {
+  .notifications article { align-items: flex-start; flex-direction: column; }
+  .financialReview dl { grid-template-columns: 1fr; }
+}
+
 .lodgingActions {
   display: flex;
   flex-wrap: wrap;
