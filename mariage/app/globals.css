@@ -81,8 +81,8 @@ body{overflow-x:hidden}
 .v2-journey-copy h2 em{font-weight:400}
 .v2-journey-caption{position:absolute;z-index:2;right:clamp(24px,4vw,58px);bottom:clamp(26px,3.5vw,50px);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.76)}
 
-.v2-intro,.v2-programme,.v2-travel,.v2-practical{padding-block:clamp(150px,16vw,240px)}
-.v2-intro{min-height:78svh;align-content:center}
+.v2-intro,.v2-programme,.v2-travel,.v2-practical{padding-block:clamp(82px,8vw,126px)}
+.v2-intro{align-content:center}
 .v2-intro h2{max-width:920px;font-size:clamp(54px,8.4vw,112px)}
 .v2-intro>p:last-child{margin-top:18px;font-size:15px;max-width:390px}
 .v2-section-number{display:inline-grid;place-items:center;width:23px;height:23px;margin-right:10px;border:1px solid rgba(89,101,77,.28);border-radius:50%;font-family:"Cormorant Garamond",serif;font-size:11px;letter-spacing:0;vertical-align:middle}
@@ -108,12 +108,12 @@ body{overflow-x:hidden}
 .v2-rsvp-copy>p:not(.v2-kicker){font-size:15px}
 
 .v2-travel-cards{gap:24px}
-.v2-travel-cards article{min-height:410px;padding:38px;border-radius:36px;background:linear-gradient(150deg,#fffefa 0%,#f7f1e7 100%);box-shadow:0 18px 55px rgba(42,48,36,.055)}
+.v2-travel-cards article{min-height:0;padding:38px;border-radius:36px;background:linear-gradient(150deg,#fffefa 0%,#f7f1e7 100%);box-shadow:0 18px 55px rgba(42,48,36,.055)}
 .v2-travel-cards article:hover{transform:translateY(-9px) scale(1.006);box-shadow:0 34px 80px rgba(42,48,36,.12)}
 .v2-travel-cards>article>span{font-size:25px;opacity:.66}
 .v2-travel-icon{width:58px;height:58px;display:grid;place-items:center;border:1px solid rgba(89,101,77,.13);border-radius:50%;font-size:32px;background:rgba(255,255,255,.48)}
 
-.v2-carpool{max-width:calc(1240px + 6vw);margin:clamp(65px,8vw,120px) auto;padding-inline:clamp(24px,8vw,130px);border-radius:var(--luxury-radius);box-shadow:var(--luxury-shadow)}
+.v2-carpool{max-width:calc(1240px + 6vw);margin:clamp(14px,2vw,30px) auto clamp(58px,6vw,90px);padding-inline:clamp(24px,8vw,130px);border-radius:var(--luxury-radius);box-shadow:var(--luxury-shadow)}
 .v2-ride-preview{padding:clamp(25px,4vw,52px);border:1px solid rgba(255,255,255,.54);border-radius:30px;background:rgba(255,255,255,.18);box-shadow:inset 0 1px rgba(255,255,255,.42);backdrop-filter:blur(14px)}
 .v2-ride-card{transition:transform .35s ease,box-shadow .35s ease}
 .v2-ride-card:hover{transform:translateY(-4px);box-shadow:0 28px 62px rgba(55,63,49,.13)}
@@ -162,15 +162,15 @@ body{overflow-x:hidden}
   .v2-journey-copy h2{font-size:clamp(43px,13vw,61px);line-height:.92}
   .v2-journey-copy h2 br{display:none}
   .v2-journey-caption{left:22px;right:22px;bottom:29px;font-size:8px;line-height:1.5}
-  .v2-intro,.v2-programme,.v2-travel,.v2-practical{padding-block:135px}
-  .v2-intro{min-height:70svh;padding-top:150px}
+  .v2-intro,.v2-programme,.v2-travel,.v2-practical{padding-block:84px}
+  .v2-intro{padding-top:92px}
   .v2-domaine,.v2-stay,.v2-rsvp{border-radius:28px;margin-inline:12px}
   .v2-domaine-photo,.v2-stay-photo{min-height:61svh}
   .v2-domaine-copy,.v2-stay>div:last-child{padding-block:86px}
   .v2-facts{margin-top:45px}
   .v2-rsvp{min-height:78svh}
   .v2-travel-cards{gap:16px}
-  .v2-travel-cards article{min-height:350px;padding:30px;border-radius:30px}
+  .v2-travel-cards article{min-height:0;padding:30px;border-radius:30px}
   .v2-carpool{margin-inline:12px;border-radius:28px;padding-block:100px}
   .v2-ride-preview{padding:24px 18px;border-radius:24px}
   .v2-practical article{min-height:170px;padding:29px;border-radius:25px}
@@ -208,7 +208,6 @@ body{overflow-x:hidden}
 .v2-hero-discover span{font-size:14px;animation:v2discover 2s ease-in-out infinite}
 .v2-rsvp>img{object-position:center 55%}
 .v2-travel-cards p a{display:inline;margin:0;padding:0;border:0;font-size:inherit;font-weight:600;letter-spacing:0;text-transform:none;text-decoration:underline;text-decoration-color:rgba(89,101,77,.35);text-underline-offset:3px}
-.v2-travel-cards article:nth-child(2){min-height:520px}
 .v2-practical-contact{max-width:620px;margin:32px auto 0!important;text-align:center;font:italic 24px/1.4 "Cormorant Garamond",serif!important;color:var(--olive)!important}
 .v2-footer-links{display:flex!important;align-items:flex-end;gap:22px}
 .v2-footer-links a:first-child{opacity:.58;transition:opacity .25s ease,color .25s ease}
@@ -238,7 +237,6 @@ body{overflow-x:hidden}
   .v2-rsvp h2{font-size:clamp(54px,16vw,66px)}
   .v2-rsvp-copy p:not(.v2-kicker){max-width:320px;margin:18px 0 23px}
   .v2-stay-photo img{object-position:70% center}
-  .v2-travel-cards article:nth-child(2){min-height:0}
   .v2-footer-links{width:100%;justify-content:space-between;margin-top:12px}
 }
 
@@ -312,7 +310,7 @@ body{overflow-x:hidden}
 @media(prefers-reduced-motion:reduce){.honeymoon-copy-actions button,.honeymoon-destination>img{transition:none!important}}
 
 /* Parcours d'inscription unifié */
-.v2-hero-event{display:inline-flex;align-items:center;justify-content:center;margin-bottom:24px;padding:9px 15px;border:1px solid rgba(255,255,255,.28);border-radius:999px;background:rgba(24,31,24,.18);box-shadow:0 12px 35px rgba(0,0,0,.08);backdrop-filter:blur(13px);color:#fff;font-weight:700;text-shadow:0 2px 12px rgba(0,0,0,.25)}
+.v2-hero-event{display:inline-flex;align-items:center;justify-content:center;margin-bottom:24px;padding:10px 18px;border:1px solid rgba(255,255,255,.28);border-radius:999px;background:rgba(24,31,24,.18);box-shadow:0 12px 35px rgba(0,0,0,.08);backdrop-filter:blur(13px);color:#fff;font-size:15px;font-weight:700;text-shadow:0 2px 12px rgba(0,0,0,.25)}
 .registration-manage-page{min-height:100svh;padding:clamp(28px,6vw,75px) 18px 90px;background:radial-gradient(circle at 15% 0,rgba(196,173,122,.16),transparent 28%),linear-gradient(145deg,#f8f5ee,#e8e5da);color:var(--ink)}
 .registration-manage-header,.registration-summary,.registration-editor{width:min(980px,100%);margin:0 auto}
 .registration-manage-header{padding:clamp(20px,5vw,55px) 0 42px}
@@ -339,14 +337,10 @@ body{overflow-x:hidden}
 @keyframes honeymoonPanel{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 
 /* Rythme vertical : préserver les respirations sans hauteurs artificielles */
-.v2-intro,.v2-programme,.v2-travel,.v2-practical{padding-block:clamp(105px,11vw,170px)}
-.v2-intro{min-height:auto}
 .honeymoon-section{margin-top:clamp(70px,8vw,120px);margin-bottom:clamp(70px,8vw,120px)}
 
 @media(max-width:759px){
-  .v2-hero-event{max-width:310px;margin-bottom:20px;padding:8px 12px;line-height:1.5}
-  .v2-intro,.v2-programme,.v2-travel,.v2-practical{padding-block:100px}
-  .v2-intro{min-height:auto;padding-top:110px}
+  .v2-hero-event{max-width:330px;margin-bottom:20px;padding:9px 14px;font-size:13px;line-height:1.45}
   .registration-summary-heading{align-items:flex-start;flex-direction:column}
   .registration-summary>dl{grid-template-columns:1fr}
   .registration-manage-header>a{margin-bottom:50px}
