@@ -14,7 +14,7 @@
 }
 
 .survey-experience{
-  padding:clamp(96px,11vw,165px) 48px;
+  padding:clamp(96px,11vw,165px) 48px 0;
 }
 .survey-intro{max-width:790px;margin-bottom:58px}
 .survey-intro h2,.carpool-intro h2,.lodging-intro h2{
@@ -104,7 +104,11 @@
   background:linear-gradient(145deg,#e5e6dc,#dce1d4);
   box-shadow:0 28px 80px rgba(53,51,39,.06);
 }
-.carpool-section{margin-top:clamp(14px,2vw,30px)}
+.carpool-section{
+  margin-top:clamp(6px,.8vw,10px);
+  padding-top:clamp(44px,4vw,58px);
+  padding-bottom:clamp(64px,6vw,90px);
+}
 .carpool-intro,.lodging-intro{max-width:760px;margin-bottom:45px}
 .carpool-layout,.lodging-layout{display:grid;grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);align-items:start;gap:24px}
 .carpool-form,.carpool-offers,.lodging-form,.lodging-lookup,.lodging-confirmation{border:1px solid rgba(39,49,38,.1);border-radius:27px;background:#fffdf9;box-shadow:0 18px 50px rgba(47,59,47,.07)}
@@ -165,9 +169,9 @@
 @keyframes reminderFade{from{opacity:0}to{opacity:1}}@keyframes reminderRise{from{opacity:0;transform:translateY(16px) scale(.98)}to{opacity:1;transform:none}}
 
 @media(max-width:800px){
-  .survey-experience{padding:92px 16px}.survey-intro{margin-bottom:38px}
+  .survey-experience{padding:92px 16px 0}.survey-intro{margin-bottom:38px}
   .wedding-form{padding:38px 20px;border-radius:22px}.wedding-form legend{font-size:1.3rem}.choice-grid,.lodging-choices,.lodging-answer,.lodging-person-grid,.sleepers-grid{grid-template-columns:1fr}.location-search{grid-template-columns:1fr}.location-search button{padding:14px}
-  .carpool-section,.lodging-section{margin:12px 12px 92px;padding:68px 20px;border-radius:28px}.carpool-layout,.lodging-layout,.carpool-form-row,.lodging-form-row,.lodging-availability,.lodging-payment-choices{grid-template-columns:1fr}.carpool-form,.carpool-offers,.lodging-form,.lodging-lookup{padding:25px 20px}.carpool-offers-heading{flex-direction:column}.lodging-confirmation{padding:28px 18px}.lodging-confirmation>dl,.lodging-payment-details dl{grid-template-columns:1fr}
+  .carpool-section,.lodging-section{margin:12px 12px 92px;padding:68px 20px;border-radius:28px}.carpool-section{margin-top:8px;padding-top:44px;padding-bottom:62px}.carpool-layout,.lodging-layout,.carpool-form-row,.lodging-form-row,.lodging-availability,.lodging-payment-choices{grid-template-columns:1fr}.carpool-form,.carpool-offers,.lodging-form,.lodging-lookup{padding:25px 20px}.carpool-offers-heading{flex-direction:column}.lodging-confirmation{padding:28px 18px}.lodging-confirmation>dl,.lodging-payment-details dl{grid-template-columns:1fr}
   .rsvp-reminder{padding:38px 24px 28px;border-radius:21px}
   .carpool-manager-form{grid-template-columns:1fr}.carpool-manager-form>*{grid-column:1!important}.carpool-seat-list{grid-template-columns:repeat(2,minmax(0,1fr))}.carpool-manager-actions{align-items:stretch;flex-direction:column}.carpool-manager-actions a,.carpool-manager-actions button{text-align:center}
 }

@@ -81,8 +81,8 @@ body{overflow-x:hidden}
 .v2-journey-copy h2 em{font-weight:400}
 .v2-journey-caption{position:absolute;z-index:2;right:clamp(24px,4vw,58px);bottom:clamp(26px,3.5vw,50px);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.76)}
 
-.v2-intro,.v2-programme,.v2-travel,.v2-practical{padding-block:clamp(82px,8vw,126px)}
-.v2-intro{align-content:center}
+.v2-intro,.v2-programme,.v2-travel,.v2-practical{padding-block:clamp(60px,6vw,86px)}
+.v2-intro{padding-top:0;align-content:center}
 .v2-intro h2{max-width:920px;font-size:clamp(54px,8.4vw,112px)}
 .v2-intro>p:last-child{margin-top:18px;font-size:15px;max-width:390px}
 .v2-section-number{display:inline-grid;place-items:center;width:23px;height:23px;margin-right:10px;border:1px solid rgba(89,101,77,.28);border-radius:50%;font-family:"Cormorant Garamond",serif;font-size:11px;letter-spacing:0;vertical-align:middle}
@@ -97,6 +97,7 @@ body{overflow-x:hidden}
 .v2-programme{display:grid;grid-template-columns:1fr;gap:45px}
 .v2-section-head{margin-bottom:50px}
 .v2-timeline-stop{padding-bottom:74px}
+.v2-timeline-stop:last-child{padding-bottom:0}
 .v2-timeline h3{font-size:clamp(34px,4.1vw,48px)}
 .v2-timeline p:last-child{font-size:14px;line-height:1.85}
 .v2-timeline-index{width:25px;height:25px;left:-13px;line-height:23px;background:#f8f5ee;box-shadow:0 0 0 9px #f8f5ee}
@@ -107,13 +108,14 @@ body{overflow-x:hidden}
 .v2-rsvp h2{font-size:clamp(68px,11.5vw,138px)}
 .v2-rsvp-copy>p:not(.v2-kicker){font-size:15px}
 
-.v2-travel-cards{gap:24px}
-.v2-travel-cards article{min-height:0;padding:38px;border-radius:36px;background:linear-gradient(150deg,#fffefa 0%,#f7f1e7 100%);box-shadow:0 18px 55px rgba(42,48,36,.055)}
+.v2-travel{padding-block:clamp(16px,1.5vw,22px)}
+.v2-travel-cards{align-items:start;gap:24px}
+.v2-travel-cards article{min-height:clamp(320px,24vw,340px);padding:38px;border-radius:36px;background:linear-gradient(150deg,#fffefa 0%,#f7f1e7 100%);box-shadow:0 18px 55px rgba(42,48,36,.055)}
 .v2-travel-cards article:hover{transform:translateY(-9px) scale(1.006);box-shadow:0 34px 80px rgba(42,48,36,.12)}
 .v2-travel-cards>article>span{font-size:25px;opacity:.66}
 .v2-travel-icon{width:58px;height:58px;display:grid;place-items:center;border:1px solid rgba(89,101,77,.13);border-radius:50%;font-size:32px;background:rgba(255,255,255,.48)}
 
-.v2-carpool{max-width:calc(1240px + 6vw);margin:clamp(14px,2vw,30px) auto clamp(58px,6vw,90px);padding-inline:clamp(24px,8vw,130px);border-radius:var(--luxury-radius);box-shadow:var(--luxury-shadow)}
+.v2-carpool{max-width:calc(1240px + 6vw);margin:clamp(6px,.8vw,10px) auto clamp(58px,6vw,90px);padding-inline:clamp(24px,8vw,130px);border-radius:var(--luxury-radius);box-shadow:var(--luxury-shadow)}
 .v2-ride-preview{padding:clamp(25px,4vw,52px);border:1px solid rgba(255,255,255,.54);border-radius:30px;background:rgba(255,255,255,.18);box-shadow:inset 0 1px rgba(255,255,255,.42);backdrop-filter:blur(14px)}
 .v2-ride-card{transition:transform .35s ease,box-shadow .35s ease}
 .v2-ride-card:hover{transform:translateY(-4px);box-shadow:0 28px 62px rgba(55,63,49,.13)}
@@ -142,6 +144,7 @@ body{overflow-x:hidden}
   .v2-programme .v2-section-head{position:sticky;top:150px}
   .v2-timeline{margin-left:18px;padding-left:56px}
   .v2-timeline-stop{grid-template-columns:96px 1fr;padding-left:42px}
+  .v2-programme{padding-bottom:clamp(52px,5vw,70px)}
   .v2-carpool{grid-template-columns:.86fr 1.14fr}
 }
 
@@ -162,8 +165,9 @@ body{overflow-x:hidden}
   .v2-journey-copy h2{font-size:clamp(43px,13vw,61px);line-height:.92}
   .v2-journey-copy h2 br{display:none}
   .v2-journey-caption{left:22px;right:22px;bottom:29px;font-size:8px;line-height:1.5}
-  .v2-intro,.v2-programme,.v2-travel,.v2-practical{padding-block:84px}
-  .v2-intro{padding-top:92px}
+  .v2-intro,.v2-programme,.v2-practical{padding-block:60px}
+  .v2-intro{padding-top:0}
+  .v2-travel{padding-block:16px}
   .v2-domaine,.v2-stay,.v2-rsvp{border-radius:28px;margin-inline:12px}
   .v2-domaine-photo,.v2-stay-photo{min-height:61svh}
   .v2-domaine-copy,.v2-stay>div:last-child{padding-block:86px}
@@ -310,7 +314,7 @@ body{overflow-x:hidden}
 @media(prefers-reduced-motion:reduce){.honeymoon-copy-actions button,.honeymoon-destination>img{transition:none!important}}
 
 /* Parcours d'inscription unifié */
-.v2-hero-event{display:inline-flex;align-items:center;justify-content:center;margin-bottom:24px;padding:10px 18px;border:1px solid rgba(255,255,255,.28);border-radius:999px;background:rgba(24,31,24,.18);box-shadow:0 12px 35px rgba(0,0,0,.08);backdrop-filter:blur(13px);color:#fff;font-size:15px;font-weight:700;text-shadow:0 2px 12px rgba(0,0,0,.25)}
+.v2-hero-event{display:inline-flex;align-items:center;justify-content:center;margin-bottom:26px;padding:11px 20px;border:1px solid rgba(255,255,255,.28);border-radius:999px;background:rgba(24,31,24,.18);box-shadow:0 12px 35px rgba(0,0,0,.08);backdrop-filter:blur(13px);color:#fff;font-size:16px;font-weight:700;text-shadow:0 2px 12px rgba(0,0,0,.25)}
 .registration-manage-page{min-height:100svh;padding:clamp(28px,6vw,75px) 18px 90px;background:radial-gradient(circle at 15% 0,rgba(196,173,122,.16),transparent 28%),linear-gradient(145deg,#f8f5ee,#e8e5da);color:var(--ink)}
 .registration-manage-header,.registration-summary,.registration-editor{width:min(980px,100%);margin:0 auto}
 .registration-manage-header{padding:clamp(20px,5vw,55px) 0 42px}
@@ -340,7 +344,7 @@ body{overflow-x:hidden}
 .honeymoon-section{margin-top:clamp(70px,8vw,120px);margin-bottom:clamp(70px,8vw,120px)}
 
 @media(max-width:759px){
-  .v2-hero-event{max-width:330px;margin-bottom:20px;padding:9px 14px;font-size:13px;line-height:1.45}
+  .v2-hero-event{max-width:350px;margin-bottom:22px;padding:10px 16px;font-size:14px;line-height:1.4}
   .registration-summary-heading{align-items:flex-start;flex-direction:column}
   .registration-summary>dl{grid-template-columns:1fr}
   .registration-manage-header>a{margin-bottom:50px}

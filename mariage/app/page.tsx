@@ -57,7 +57,7 @@ export default function Home() {
         <Image className="v2-hero-image" src="/domaine.jpg" alt="Domaine du Massacan" fill priority sizes="100vw" />
         <div className="v2-hero-shade" />
         <div className="v2-hero-content">
-          <p className="v2-kicker v2-hero-event">29 mai 2027 · Domaine du Massacan · Toulon</p>
+          <p className="v2-kicker v2-hero-event">29 mai 2027 · Domaine du Massacan · La Garde</p>
           <p className="v2-hero-signature">Les Dadju&apos;s</p>
           <h1>Notre plus<br /><em>beau voyage</em></h1>
           <p className="v2-names">Damien & Julie</p>
