@@ -88,6 +88,26 @@ export default async function AdminPage({
   const lodgingGuestAssignments = storedGuestAssignments.length
     ? storedGuestAssignments
     : legacyGuestAssignments(lodgingReservations, lodgingAssignments);
+  const lodgingReservationsById = new Map(
+    lodgingReservations.map((reservation) => [reservation.id, reservation]),
+  );
+  const lodgingReservationsByResponseId = new Map(
+    lodgingReservations
+      .filter((reservation) => reservation.wedding_response_id)
+      .map((reservation) => [reservation.wedding_response_id as string, reservation]),
+  );
+  const linkedLodgingReservationIds = new Set(
+    responses
+      .map((response) =>
+        response.lodging_reservation_id
+          ? lodgingReservationsById.get(response.lodging_reservation_id)?.id
+          : lodgingReservationsByResponseId.get(response.id)?.id,
+      )
+      .filter((id): id is string => Boolean(id)),
+  );
+  const standaloneLodgingReservations = lodgingReservations.filter(
+    (reservation) => !linkedLodgingReservationIds.has(reservation.id),
+  );
   const attending = responses.filter((response) => !response.not_attending);
   const declined = responses.length - attending.length;
   const totalGuests = attending.reduce(
@@ -166,7 +186,31 @@ export default async function AdminPage({
               Aucune réponse n’a encore été enregistrée.
             </p>
           ) : (
-            responses.map((response) => (
+            responses.map((response) => {
+              const reservation = response.lodging_reservation_id
+                ? lodgingReservationsById.get(response.lodging_reservation_id)
+                : lodgingReservationsByResponseId.get(response.id);
+              const placed = reservation
+                ? lodgingGuestAssignments.filter(
+                    (assignment) => assignment.reservation_id === reservation.id,
+                  ).length
+                : 0;
+              const placementStatus = reservation?.placement_status ??
+                (placed > 0 ? "in_progress" : "pending");
+              const placementLabel = placementStatus === "finalized"
+                ? "Placement finalisé"
+                : placementStatus === "in_progress"
+                  ? "Placement en cours"
+                  : "À placer";
+              const pendingChange = reservation
+                ? lodgingChanges.find(
+                    (change) =>
+                      change.reservation_id === reservation.id &&
+                      change.status === "pending",
+                  )
+                : undefined;
+
+              return (
               <article className={styles.responseCard} key={response.id}>
                 <div className={styles.responseTop}>
                   <div>
@@ -190,12 +234,54 @@ export default async function AdminPage({
                         ? "Ne sera pas présent"
                         : "Présent"}
                     </span>
+                    {reservation && (
+                      <>
+                        <span className={pendingChange ? styles.status + " " + styles.reviewStatus : reservation.booking_status === "cancelled" ? styles.status + " " + styles.declined : reservation.payment_status === "confirmed" ? styles.status : styles.status + " " + styles.pendingStatus}>
+                          {pendingChange
+                            ? "Modification à valider"
+                            : reservation.booking_status === "cancelled"
+                              ? "Nuitées annulées"
+                              : reservation.payment_status === "confirmed"
+                                ? "Paiement confirmé"
+                                : reservation.payment_status === "declared"
+                                  ? "Paiement à vérifier"
+                                  : "Paiement à venir"}
+                        </span>
+                        <LodgingActions
+                          bookingStatus={reservation.booking_status}
+                          id={reservation.id}
+                          paymentStatus={reservation.payment_status}
+                        />
+                        {reservation.booking_status === "active" && reservation.payment_status === "confirmed" && !pendingChange && (
+                          <div className={styles.placementActionWrap}>
+                            <span className={`${styles.placementBadge} ${
+                              placementStatus === "finalized"
+                                ? styles.placementFinalized
+                                : placementStatus === "in_progress"
+                                  ? styles.placementInProgress
+                                  : styles.placementPending
+                            }`}>
+                              {placementLabel} · {placed}/{reservation.guests_count}
+                            </span>
+                            {placementStatus === "finalized" ? (
+                              <LodgingPlacementAction reservationId={reservation.id} />
+                            ) : (
+                              <a className={styles.placementStatusLink} href="#guest-planner-title">
+                                {placed > 0 ? "Compléter le placement" : "Placer les voyageurs"}
+                              </a>
+                            )}
+                          </div>
+                        )}
+                      </>
+                    )}
                     <DeleteResponseButton
                       id={response.id}
                       name={response.respondent_name}
                     />
                   </div>
                 </div>
+
+                {pendingChange && <LodgingChangeReview change={pendingChange} />}
 
                 {!response.not_attending && (
                   <dl className={styles.details}>
@@ -235,6 +321,16 @@ export default async function AdminPage({
                         {response.saturday_sleepers > 1 ? "s" : ""}
                       </dd>
                     </div>
+                    {reservation && (
+                      <div>
+                        <dt>Réservation du domaine</dt>
+                        <dd>
+                          {reservation.reference} · {new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(reservation.amount_cents / 100)}
+                          <br />
+                          {joinOrDash(reservation.guest_names)}
+                        </dd>
+                      </div>
+                    )}
                     <div>
                       <dt>Souhait de chambre</dt>
                       <dd>{response.roommate_wishes || "—"}</dd>
@@ -246,7 +342,8 @@ export default async function AdminPage({
                   </dl>
                 )}
               </article>
-            ))
+              );
+            })
           )}
         </section>
 
@@ -341,7 +438,7 @@ export default async function AdminPage({
           <div className={styles.sectionHeading}>
             <div>
               <p className={styles.eyebrow}>Hébergement</p>
-              <h2>Réservations au domaine</h2>
+              <h2>Placement au domaine</h2>
             </div>
             <span>
               {lodgingReservations.filter((reservation) => reservation.booking_status === "active").length} réservation
@@ -359,13 +456,16 @@ export default async function AdminPage({
             reservations={lodgingReservations}
           />
 
-          {lodgingReservations.length === 0 ? (
-            <p className={styles.empty}>
-              Aucune réservation de nuitée n’a encore été enregistrée.
-            </p>
-          ) : (
+          {standaloneLodgingReservations.length > 0 && (
+            <>
+            <div className={styles.sectionHeading}>
+              <div>
+                <p className={styles.eyebrow}>Historique</p>
+                <h2>Réservations indépendantes</h2>
+              </div>
+            </div>
             <div className={styles.responses}>
-              {lodgingReservations.map((reservation) => {
+              {standaloneLodgingReservations.map((reservation) => {
                 const placed = lodgingGuestAssignments.filter(
                   (assignment) => assignment.reservation_id === reservation.id,
                 ).length;
@@ -464,6 +564,7 @@ export default async function AdminPage({
                 );
               })}
             </div>
+            </>
           )}
         </section>
       </div>

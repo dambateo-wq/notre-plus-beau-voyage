@@ -24,7 +24,7 @@ export default function HoneymoonContribution() {
         </div>
 
         <div className="honeymoon-copy">
-          <p className="v2-kicker"><span className="v2-section-number">07</span> Le prochain chapitre</p>
+          <p className="v2-kicker"><span className="v2-section-number">04</span> Participer au voyage de noces</p>
           <h2>Prolonger<br /><em>l’aventure</em></h2>
           <div className="honeymoon-copy-text">
             <p>Après le Domaine du Massacan, notre plus beau voyage continuera encore un peu…</p>

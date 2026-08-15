@@ -87,7 +87,7 @@ export default function Home() {
       <section className="v2-domaine v2-reveal" id="domaine">
         <div className="v2-domaine-photo"><Image src="/massacan-paysage.jpg" alt="La Méditerranée au pied du Domaine de Massacan" fill sizes="(max-width: 800px) 100vw, 50vw" /></div>
         <div className="v2-domaine-copy">
-          <p className="v2-kicker v2-kicker-dark"><span className="v2-section-number">01</span> Le domaine</p>
+          <p className="v2-kicker v2-kicker-dark">Domaine</p>
           <h2>Entre pinède<br />et <em>Méditerranée</em></h2>
           <p>Un parc de trois hectares, un accès privé à la plage de Magaud et une grande maison qui sera la nôtre, le temps d’un week-end.</p>
           <div className="v2-facts"><span>3 hectares<br /><b>de nature</b></span><span>à quelques pas<br /><b>de la mer</b></span><span>28 → 30 mai<br /><b>rien que nous</b></span></div>
@@ -95,7 +95,7 @@ export default function Home() {
       </section>
 
       <section className="v2-programme v2-reveal" id="programme">
-        <div className="v2-section-head"><p className="v2-kicker v2-kicker-dark"><span className="v2-section-number">02</span> L’itinéraire</p><h2>Le programme<br />du <em>voyage</em></h2><p>Quelques repères, beaucoup de moments à inventer ensemble.</p></div>
+        <div className="v2-section-head"><p className="v2-kicker v2-kicker-dark">Programme</p><h2>Le programme<br />du <em>voyage</em></h2><p>Quelques repères, beaucoup de moments à inventer ensemble.</p></div>
         <div className="v2-timeline">
           {programme.map((item, index) => <article className="v2-timeline-stop" key={item.title}>
             <div className="v2-timeline-index">{String(index + 1).padStart(2, "0")}</div><div className="v2-timeline-line" />
@@ -107,14 +107,14 @@ export default function Home() {
       <section className="v2-rsvp v2-reveal" id="inscription">
         <Image src="/velo-route.jpg" alt="Damien et Julie à vélo pendant leur voyage" fill sizes="100vw" />
         <div className="v2-rsvp-shade" />
-        <div className="v2-rsvp-copy"><p className="v2-kicker">Votre siège est prêt</p><h2>Prêts à prendre<br /><em>la route ?</em></h2><p>Votre réponse nous aide à préparer chaque détail de cette aventure.</p><a className="v2-button v2-button-light" href="#sondage">Commencer l&apos;inscription <span>↓</span></a></div>
+        <div className="v2-rsvp-copy"><p className="v2-kicker">Inscription</p><h2>Prêts à prendre<br /><em>la route ?</em></h2><p>Votre réponse nous aide à préparer chaque détail de cette aventure.</p><a className="v2-button v2-button-light" href="#sondage">Commencer l&apos;inscription <span>↓</span></a></div>
       </section>
 
       <WeddingSurvey />
       <RsvpReminder />
 
       <section className="v2-travel v2-reveal" id="venir">
-        <div className="v2-section-head"><p className="v2-kicker v2-kicker-dark"><span className="v2-section-number">03</span> Comment venir</p><h2>Choisissez<br /><em>votre chemin</em></h2></div>
+        <div className="v2-section-head"><p className="v2-kicker v2-kicker-dark"><span className="v2-section-number">01</span> Venir</p><h2>Choisissez<br /><em>votre chemin</em></h2></div>
         <div className="v2-travel-cards">
           <article><span>01</span><div className="v2-travel-icon">⌁</div><h3>En voiture</h3><p><strong>Domaine de Massacan</strong><br />1589 avenue du Commandant Houot<br />83130 La Garde</p><p>Pour le stationnement, rendez-vous dans l’onglet <a href="#infos-pratiques">Infos pratiques</a>.</p><a className="v2-card-link" href="#infos-pratiques">Voir les infos pratiques →</a></article>
           <article><span>02</span><div className="v2-travel-icon">✈</div><h3>En avion</h3><p><strong>Depuis la Belgique et le nord de la France</strong></p><p>Toulon–Hyères est l’aéroport le plus proche du domaine, à environ 30 minutes en voiture. Marseille Provence offre davantage de vols et se situe à environ 1 h 15 du domaine.</p><p>Au départ de Charleroi, Bruxelles ou Lille, plusieurs compagnies desservent ces deux aéroports selon la saison.</p><p>Une fois sur place : louez une voiture pour profiter du week-end et de la région, ou utilisez notre espace <a href="#covoiturage">Covoiturage</a> pour partager un trajet avec d’autres invités.</p><a className="v2-card-link" href="#covoiturage">Voir les covoiturages →</a></article>
@@ -125,14 +125,17 @@ export default function Home() {
       <CarpoolBoard />
 
       <section className="v2-practical v2-reveal" id="infos-pratiques">
-        <p className="v2-kicker v2-kicker-dark"><span className="v2-section-number">05</span> Bien préparer le départ</p><h2>Infos <em>pratiques</em></h2>
-        <div><article><b>Enfants</b><p>Nous sommes sincèrement désolés, mais la capacité d’accueil du domaine est limitée. À l’exception de la famille, nous vous demanderons donc de venir sans vos rejetons.</p></article><article><b>Parking</b><p>Le domaine compte 25 places de parking. Un parking extérieur, non privatisé, se trouve également juste devant : si une place y est disponible à votre arrivée, n’hésitez pas à la privilégier.</p></article><article><b>Dress code</b><p>Une seule chose à garder en tête : le cocktail se déroule dans le parc. Attention aux talons hauts !</p></article><article><b>À ne pas oublier</b><p>Maillot de bain, serviette et tenue de sport pour celles et ceux qui le souhaitent.</p></article></div>
+        <div className="v2-practical-intro">
+          <div>
+            <p className="v2-kicker v2-kicker-dark"><span className="v2-section-number">03</span> Infos pratiques</p>
+            <h2>Bien préparer<br /><em>le départ</em></h2>
+          </div>
+          <div className="v2-practical-photo">
+            <Image src="/bivouac-selfie.jpg" alt="Damien et Julie en voyage à vélo" fill sizes="(max-width: 759px) calc(100vw - 44px), 430px" />
+          </div>
+        </div>
+        <div className="v2-practical-grid"><article><b>Enfants</b><p>Nous sommes sincèrement désolés, mais la capacité d’accueil du domaine est limitée. À l’exception de la famille, nous vous demanderons donc de venir sans vos rejetons.</p></article><article><b>Parking</b><p>Le domaine compte 25 places de parking. Un parking extérieur, non privatisé, se trouve également juste devant : si une place y est disponible à votre arrivée, n’hésitez pas à la privilégier.</p></article><article><b>Dress code</b><p>Une seule chose à garder en tête : le cocktail se déroule dans le parc. Attention aux talons hauts !</p></article><article><b>À ne pas oublier</b><p>Maillot de bain, serviette et tenue de sport pour celles et ceux qui le souhaitent.</p></article></div>
         <p className="v2-practical-contact">Évidemment, n’hésitez pas à nous contacter pour toute question.</p>
-      </section>
-
-      <section className="v2-stay v2-reveal">
-        <div className="v2-stay-photo"><Image src="/bivouac-selfie.jpg" alt="Damien et Julie en voyage à vélo" fill sizes="(max-width: 800px) 100vw, 50vw" /></div>
-        <div><p className="v2-kicker v2-kicker-dark"><span className="v2-section-number">06</span> Dormir au domaine</p><h2>Mieux qu&apos;un<br /><em>bivouac</em></h2><p>35 € par personne et par nuit. Les chambres sont composées de lits simples entre 2 et 5 personnes. La demande se fait directement dans votre inscription, sans remplir un second formulaire.</p><div className="v2-availability"><span><b>106</b> places invitées</span><span><b>35 €</b> par nuit</span></div><a className="v2-button v2-button-dark" href="#sondage">Compléter mon inscription <span>↑</span></a></div>
       </section>
 
       <HoneymoonContribution />

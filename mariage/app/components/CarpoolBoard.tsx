@@ -206,7 +206,7 @@ export default function CarpoolBoard() {
     <section className="carpool-section" id="covoiturage">
       <div className="carpool-intro">
         <div>
-          <p className="eyebrow">Voyageons ensemble</p>
+          <p className="eyebrow"><span className="v2-section-number">02</span> Covoiturage</p>
           <h2>Le covoiturage des invités</h2>
           <p>
             Une place libre dans votre voiture ? Publiez votre trajet pour

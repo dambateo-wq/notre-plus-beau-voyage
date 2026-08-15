@@ -11,11 +11,11 @@
 .v2-rsvp{position:relative;min-height:640px;display:grid;place-items:center;overflow:hidden;color:#fff}.v2-rsvp img{object-fit:cover}.v2-rsvp-copy{position:relative}.v2-rsvp-copy p:not(.v2-kicker){max-width:380px;margin:25px auto 35px;line-height:1.7}
 .v2-travel-cards{display:grid;gap:14px}.v2-travel-cards article{position:relative;padding:29px;border:1px solid var(--line);border-radius:28px;background:var(--paper);transition:.35s}.v2-travel-cards article:hover{transform:translateY(-5px);box-shadow:0 18px 45px rgba(45,48,35,.09)}.v2-travel-cards>article>span{position:absolute;right:26px;color:var(--gold);font:21px "Cormorant Garamond",serif}.v2-travel-icon{font:36px "Cormorant Garamond",serif;color:var(--olive)}.v2-travel-cards h3{font:500 35px "Cormorant Garamond",serif;margin:24px 0 12px}.v2-travel-cards p{color:#697064;line-height:1.7}.v2-travel-cards a{display:inline-block;margin-top:14px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--olive)}
 .v2-carpool{display:grid;gap:50px;padding:100px 24px;max-width:1240px;margin:auto;background:#e1e5d9}.v2-carpool>div>p:not(.v2-kicker){max-width:400px;color:#596256;line-height:1.8;margin-bottom:28px}.v2-ride-preview{align-self:center}.v2-ride-route{display:flex;align-items:center;gap:13px;font:22px "Cormorant Garamond",serif}.v2-ride-route i{height:1px;flex:1;background:var(--gold);position:relative}.v2-ride-route i::after{content:"";position:absolute;right:0;top:-3px;border:4px solid transparent;border-left-color:var(--gold)}.v2-ride-card{display:flex;align-items:center;gap:14px;padding:17px;margin-top:23px;border-radius:18px;background:var(--paper);box-shadow:0 15px 30px rgba(50,58,45,.07)}.v2-avatar{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--sand);font:22px "Cormorant Garamond",serif}.v2-ride-card b,.v2-ride-card small{display:block}.v2-ride-card small{margin-top:4px;color:#74786e;font-size:11px}.v2-ride-card>span{margin-left:auto}
-.v2-practical{padding-bottom:135px}.v2-practical>div{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:25px;overflow:hidden}.v2-practical article{padding:25px;background:var(--paper)}.v2-practical b{font:500 27px "Cormorant Garamond",serif}.v2-practical p{margin:10px 0 0;color:#6b7168;line-height:1.6}
+.v2-practical{padding-bottom:135px}.v2-practical-grid{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:25px;overflow:hidden}.v2-practical article{padding:25px;background:var(--paper)}.v2-practical b{font:500 27px "Cormorant Garamond",serif}.v2-practical p{margin:10px 0 0;color:#6b7168;line-height:1.6}
 .v2-stay{display:grid;background:var(--ink);color:var(--paper)}.v2-stay-photo{min-height:430px;position:relative}.v2-stay>div:last-child{padding:75px 24px}.v2-stay .v2-kicker{color:#c8b68a}.v2-stay p:not(.v2-kicker){max-width:390px;color:#d0d6cb;line-height:1.8}.v2-availability{display:flex;gap:28px;margin:30px 0}.v2-availability span{font-size:11px;color:#cfd4cb}.v2-availability b{display:block;color:#fff;font:34px "Cormorant Garamond",serif}
 .v2-footer{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;padding:55px 24px;background:#1f281f;color:#fff}.v2-footer p{margin-bottom:5px;font:500 28px "Cormorant Garamond",serif}.v2-footer div span,.v2-footer a{color:#c0c8ba;font-size:10px;letter-spacing:.08em;text-transform:uppercase}.v2-bike{font-size:27px;color:var(--gold)}
 .v2-reveal{animation:v2fade linear both;animation-timeline:view();animation-range:entry 8% cover 24%}@keyframes v2zoom{from{transform:scale(1.08)}to{transform:scale(1)}}@keyframes v2rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}@keyframes v2fade{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:none}}
-@media(min-width:760px){.v2-nav{inset:25px 48px auto}.v2-nav-links{display:flex}.v2-hero-actions{flex-direction:row}.v2-countdown{left:48px;bottom:42px}.v2-scroll{display:block}.v2-intro,.v2-programme,.v2-travel,.v2-practical{padding-inline:48px}.v2-domaine,.v2-stay{grid-template-columns:1fr 1fr}.v2-domaine-copy,.v2-stay>div:last-child{padding:100px 9vw}.v2-facts{grid-template-columns:repeat(3,1fr)}.v2-timeline{margin-left:22%;padding-left:7vw}.v2-timeline-stop{grid-template-columns:110px 1fr;padding-left:40px}.v2-travel-cards{grid-template-columns:repeat(3,1fr)}.v2-carpool{grid-template-columns:1fr 1fr;padding:130px 9vw}.v2-practical>div{grid-template-columns:1fr 1fr}.v2-practical article{padding:36px}.v2-footer{padding:55px 48px}}
+@media(min-width:760px){.v2-nav{inset:25px 48px auto}.v2-nav-links{display:flex}.v2-hero-actions{flex-direction:row}.v2-countdown{left:48px;bottom:42px}.v2-scroll{display:block}.v2-intro,.v2-programme,.v2-travel,.v2-practical{padding-inline:48px}.v2-domaine,.v2-stay{grid-template-columns:1fr 1fr}.v2-domaine-copy,.v2-stay>div:last-child{padding:100px 9vw}.v2-facts{grid-template-columns:repeat(3,1fr)}.v2-timeline{margin-left:22%;padding-left:7vw}.v2-timeline-stop{grid-template-columns:110px 1fr;padding-left:40px}.v2-travel-cards{grid-template-columns:repeat(3,1fr)}.v2-carpool{grid-template-columns:1fr 1fr;padding:130px 9vw}.v2-practical-grid{grid-template-columns:1fr 1fr}.v2-practical article{padding:36px}.v2-footer{padding:55px 48px}}
 
 /* V2 finishing pass */
 body{letter-spacing:-.01em;-webkit-font-smoothing:antialiased;background:linear-gradient(180deg,#faf7f0 0%,var(--cream) 55%,#f3eee4 100%)}
@@ -26,11 +26,11 @@ body{letter-spacing:-.01em;-webkit-font-smoothing:antialiased;background:linear-
 .v2-rsvp{min-height:min(82svh,820px);margin:0 clamp(0px,2.4vw,38px);border-radius:0;box-shadow:0 30px 90px rgba(30,38,28,.12)}.v2-rsvp img{filter:saturate(.72)}.v2-rsvp-shade{background:linear-gradient(180deg,rgba(24,31,23,.34),rgba(20,28,20,.64))}.v2-rsvp h2{font-size:clamp(64px,13vw,128px);line-height:.8}
 .v2-travel-cards{gap:20px}.v2-travel-cards article{min-height:380px;display:flex;flex-direction:column;padding:35px;border-color:rgba(52,63,48,.1);border-radius:34px;background:linear-gradient(145deg,#fffdf9,#f8f4eb);box-shadow:0 14px 45px rgba(42,48,36,.04);overflow:hidden}.v2-travel-cards article::before{content:"";position:absolute;inset:0;background:linear-gradient(130deg,rgba(180,154,104,.08),transparent 38%);opacity:0;transition:.45s}.v2-travel-cards article:hover{transform:translateY(-8px);box-shadow:0 28px 70px rgba(42,48,36,.1)}.v2-travel-cards article:hover::before{opacity:1}.v2-travel-icon{font-size:44px}.v2-travel-cards h3{font-size:42px}.v2-travel-cards p{font-size:14px;line-height:1.8}.v2-travel-cards a{margin-top:auto;padding-top:25px;border-top:1px solid rgba(39,49,38,.09)}
 .v2-carpool{margin-block:clamp(40px,7vw,100px);padding-block:clamp(105px,12vw,170px);border-radius:0;background:linear-gradient(145deg,#e6e8de,#dce1d4);box-shadow:0 24px 65px rgba(44,55,42,.05)}.v2-ride-card{padding:21px;border:1px solid rgba(255,255,255,.78);border-radius:23px;box-shadow:0 24px 55px rgba(55,63,49,.09)}.v2-avatar{width:48px;height:48px}
-.v2-practical>div{gap:12px;background:transparent;border:0;border-radius:0}.v2-practical article{min-height:180px;padding:31px;border:1px solid rgba(39,49,38,.1);border-radius:24px;box-shadow:0 12px 35px rgba(43,48,38,.03);transition:transform .35s ease,box-shadow .35s ease}.v2-practical article:hover{transform:translateY(-4px);box-shadow:0 20px 50px rgba(43,48,38,.07)}.v2-practical b{font-size:31px}
+.v2-practical-grid{gap:12px;background:transparent;border:0;border-radius:0}.v2-practical article{min-height:180px;padding:31px;border:1px solid rgba(39,49,38,.1);border-radius:24px;box-shadow:0 12px 35px rgba(43,48,38,.03);transition:transform .35s ease,box-shadow .35s ease}.v2-practical article:hover{transform:translateY(-4px);box-shadow:0 20px 50px rgba(43,48,38,.07)}.v2-practical b{font-size:31px}
 .v2-stay{margin-bottom:38px}.v2-stay>div:last-child{display:flex;flex-direction:column;justify-content:center}.v2-availability{padding-block:25px;border-block:1px solid rgba(255,255,255,.12)}.v2-availability b{font-size:41px}.v2-stay .v2-button-dark{background:#f7f2e8;color:var(--ink);align-self:flex-start}
 .v2-footer{padding-top:70px;padding-bottom:70px}.v2-footer p{font-size:34px;font-style:italic}.v2-bike{opacity:.7;animation:v2bike 3.8s ease-in-out infinite}
 .v2-reveal{animation-duration:1s;animation-timing-function:cubic-bezier(.22,.61,.36,1)}@keyframes v2bike{0%,100%{transform:translateX(-5px)}50%{transform:translateX(5px)}}
-@media(min-width:760px){.v2-nav{inset:20px 48px auto;padding:10px 11px 10px 20px}.v2-nav-links{gap:36px}.wedding-countdown{left:48px;bottom:43px}.v2-domaine,.v2-stay,.v2-rsvp{border-radius:32px}.v2-carpool{border-radius:32px}.v2-practical>div{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:760px){.v2-nav{inset:20px 48px auto;padding:10px 11px 10px 20px}.v2-nav-links{gap:36px}.wedding-countdown{left:48px;bottom:43px}.v2-domaine,.v2-stay,.v2-rsvp{border-radius:32px}.v2-carpool{border-radius:32px}.v2-practical-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:759px){.v2-nav{top:10px;left:10px;right:10px}.v2-brand{font-size:21px}.v2-nav-cta{padding:10px 13px}.v2-hero::before{inset:8px;border-radius:22px}.v2-hero-content{padding-top:100px;padding-bottom:120px}.v2-hero h1{font-size:clamp(62px,19vw,88px)}.v2-kicker{font-size:9px;line-height:1.6}.v2-names{font-size:29px}.v2-countdown{display:none}.wedding-countdown{left:18px;bottom:18px;padding:11px 13px}.wedding-countdown strong{font-size:22px}.v2-scroll{display:none}.v2-intro,.v2-programme,.v2-travel,.v2-practical{padding-inline:22px;padding-block:120px}.v2-intro{padding-top:130px}.v2-domaine-photo,.v2-stay-photo{min-height:58svh}.v2-domaine-copy,.v2-stay>div:last-child{padding:78px 22px}.v2-facts{grid-template-columns:1fr 1fr;gap:28px 18px}.v2-programme .v2-section-head{margin-bottom:60px}.v2-timeline-stop{grid-template-columns:1fr;padding-left:25px;padding-bottom:54px}.v2-rsvp{min-height:74svh}.v2-rsvp-copy{padding-inline:20px}.v2-travel-cards article{min-height:330px;padding:29px}.v2-carpool{margin-inline:12px;padding:90px 22px}.v2-ride-route{font-size:19px}.v2-practical{padding-bottom:120px}.v2-practical article{min-height:155px}.v2-stay{margin-bottom:12px}.v2-footer{align-items:flex-start;flex-wrap:wrap;padding:48px 22px}.v2-footer>a{width:100%;margin-top:14px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.v2-hero-image,.v2-reveal,.v2-bike{animation:none!important}.v2-domaine-photo img,.v2-stay-photo img,.v2-button,.v2-travel-cards article{transition:none!important}}
 
@@ -121,11 +121,16 @@ body{overflow-x:hidden}
 .v2-ride-card:hover{transform:translateY(-4px);box-shadow:0 28px 62px rgba(55,63,49,.13)}
 
 
-.v2-practical>div{gap:16px}
+.v2-practical-grid{gap:16px}
 .carpool-section + .v2-practical{padding-top:clamp(66px,5.7vw,80px)}
 .v2-practical article{min-height:205px;padding:36px;border-radius:29px;background:linear-gradient(145deg,#fffdf9,#f8f3e9);box-shadow:0 14px 42px rgba(43,48,38,.035)}
 .v2-practical article:hover{transform:translateY(-6px);box-shadow:0 28px 62px rgba(43,48,38,.09)}
 .v2-practical b{font-size:34px}
+.v2-practical-intro{display:grid;gap:clamp(30px,5vw,68px);align-items:center;margin-bottom:clamp(36px,5vw,70px)}
+.v2-practical .v2-kicker{margin:0 0 18px;color:var(--olive)}
+.v2-practical-photo{position:relative;justify-self:end;width:min(100%,430px);aspect-ratio:1;overflow:hidden;border-radius:clamp(28px,4vw,44px);box-shadow:0 28px 75px rgba(42,48,36,.1)}
+.v2-practical-photo img{object-fit:cover;object-position:center}
+.v2-practical + .honeymoon-section{margin-top:clamp(18px,3vw,42px)}
 
 .v2-stay{margin-bottom:clamp(12px,2.5vw,40px)}
 .v2-stay-photo{min-height:70svh}
@@ -147,6 +152,10 @@ body{overflow-x:hidden}
   .v2-timeline-stop{grid-template-columns:96px 1fr;padding-left:42px}
   .v2-programme{padding-bottom:clamp(52px,5vw,70px)}
   .v2-carpool{grid-template-columns:.86fr 1.14fr}
+}
+
+@media(min-width:760px){
+  .v2-practical-intro{grid-template-columns:minmax(0,1fr) minmax(300px,.72fr)}
 }
 
 @media(max-width:759px){
@@ -179,6 +188,8 @@ body{overflow-x:hidden}
   .v2-carpool{margin-inline:12px;border-radius:28px;padding-block:100px}
   .v2-ride-preview{padding:24px 18px;border-radius:24px}
   .v2-practical article{min-height:170px;padding:29px;border-radius:25px}
+  .v2-practical-intro{margin-bottom:40px}
+  .v2-practical-photo{justify-self:start;width:100%;max-width:430px}
   .carpool-section + .v2-practical{padding-top:56px}
   .v2-footer{margin:0 12px 12px;border-radius:26px;padding-block:58px}
 }
