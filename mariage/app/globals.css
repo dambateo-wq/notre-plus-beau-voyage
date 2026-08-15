@@ -374,11 +374,11 @@ body{overflow-x:hidden}
 
 /* Préparer le départ : même respiration moyenne entre chaque sous-chapitre. */
 .v2-travel .v2-section-head{margin-bottom:var(--v2-space-content)}
-.carpool-section{padding-top:var(--v2-space-subchapter);padding-bottom:var(--v2-space-subchapter)}
+.carpool-section{padding-top:32px;padding-bottom:32px}
 .carpool-intro{margin-bottom:var(--v2-space-content)}
-.carpool-section + .v2-practical{padding-top:var(--v2-space-subchapter)}
+.carpool-section + .v2-practical{padding-top:32px}
 .v2-practical{padding-bottom:var(--v2-space-subchapter)}
-.v2-practical-intro{margin-bottom:var(--v2-space-content)}
+.v2-practical-intro{align-items:start;margin-bottom:var(--v2-space-content)}
 .v2-practical + .honeymoon-section{margin-top:0}
 .honeymoon-section{margin-bottom:var(--v2-space-chapter)}
 .honeymoon-story{gap:var(--v2-space-content)}
