@@ -360,6 +360,9 @@ body{overflow-x:hidden}
   --v2-space-content:clamp(28px,3vw,42px);
 }
 
+/* La section carte gère elle-même sa respiration : éviter de la doubler avec la marge de la photo. */
+.v2-journey-photo{margin-bottom:0}
+
 /* Cette transition n'est pas un chapitre : elle mène directement au Domaine. */
 .v2-intro{padding-bottom:clamp(48px,4vw,56px)}
 .v2-intro h2{margin-bottom:0;font-size:clamp(50px,7.2vw,96px)}
