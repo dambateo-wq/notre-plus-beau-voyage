@@ -353,14 +353,52 @@ body{overflow-x:hidden}
 .honeymoon-bank-panel{animation:honeymoonPanel .45s cubic-bezier(.2,.75,.25,1) both}.honeymoon-close-button{display:flex;margin:20px 0 0 auto;padding:9px 0;border:0;background:transparent;color:var(--olive);cursor:pointer;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
 @keyframes honeymoonPanel{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 
-/* Rythme vertical : préserver les respirations sans hauteurs artificielles */
-.honeymoon-section{margin-top:clamp(70px,8vw,120px);margin-bottom:clamp(70px,8vw,120px)}
+/* Rythme vertical : chapitre, sous-chapitre, contenu */
+:root{
+  --v2-space-chapter:clamp(84px,7vw,112px);
+  --v2-space-subchapter:clamp(54px,4.8vw,72px);
+  --v2-space-content:clamp(28px,3vw,42px);
+}
+
+/* Les transitions éditoriales restent plus légères que les vrais chapitres. */
+.v2-intro{padding-bottom:var(--v2-space-chapter)}
+.v2-intro h2{margin-bottom:0;font-size:clamp(52px,7.8vw,104px)}
+.v2-intro>p:last-child{margin:var(--v2-space-content) 0 0}
+
+/* Domaine, Programme et Inscription : grand souffle. */
+.v2-programme{gap:var(--v2-space-content);padding-top:var(--v2-space-chapter);padding-bottom:var(--v2-space-chapter)}
+.v2-programme .v2-section-head{margin-bottom:0}
+.survey-experience{padding-top:clamp(52px,4.5vw,68px)}
+.survey-intro{margin-bottom:var(--v2-space-content)}
+.v2-travel{padding-top:var(--v2-space-chapter);padding-bottom:var(--v2-space-content)}
+
+/* Préparer le départ : même respiration moyenne entre chaque sous-chapitre. */
+.v2-travel .v2-section-head{margin-bottom:var(--v2-space-content)}
+.carpool-section{padding-top:var(--v2-space-subchapter);padding-bottom:var(--v2-space-subchapter)}
+.carpool-intro{margin-bottom:var(--v2-space-content)}
+.carpool-section + .v2-practical{padding-top:var(--v2-space-subchapter)}
+.v2-practical{padding-bottom:var(--v2-space-subchapter)}
+.v2-practical-intro{margin-bottom:var(--v2-space-content)}
+.v2-practical + .honeymoon-section{margin-top:0}
+.honeymoon-section{margin-bottom:var(--v2-space-chapter)}
+.honeymoon-story{gap:var(--v2-space-content)}
+
+@media(min-width:1100px){
+  .honeymoon-destination{margin-bottom:var(--v2-space-content)}
+}
 
 @media(max-width:759px){
+  :root{
+    --v2-space-chapter:72px;
+    --v2-space-subchapter:54px;
+    --v2-space-content:32px;
+  }
   .v2-hero-event{max-width:350px;margin-bottom:22px;padding:10px 16px;font-size:14px;line-height:1.4}
   .registration-summary-heading{align-items:flex-start;flex-direction:column}
   .registration-summary>dl{grid-template-columns:1fr}
   .registration-manage-header>a{margin-bottom:50px}
+  .survey-experience{padding-top:48px}
+  .honeymoon-story{gap:38px}
 }
 
 @media(prefers-reduced-motion:reduce){.honeymoon-bank-panel{animation:none!important}}
