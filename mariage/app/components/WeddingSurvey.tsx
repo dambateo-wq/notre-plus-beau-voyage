@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useMemo, useRef, useState } from "react";
 
 type Place = {
   label: string;
@@ -80,6 +80,10 @@ function matchingGuestIndexes(guestNames: string[], participants: string[]) {
   });
 }
 
+function placeInputValue(place: Place) {
+  return `${place.city}, ${place.country}`;
+}
+
 export default function WeddingSurvey({
   initialData,
   manageToken,
@@ -103,6 +107,7 @@ export default function WeddingSurvey({
       : null,
   );
   const [searching, setSearching] = useState(false);
+  const locationSearchVersion = useRef(0);
   const [lodgingChoice, setLodgingChoice] = useState<"" | "yes" | "no">(
     source.lodgingNights.length ? "yes" : initialData ? "no" : "",
   );
@@ -151,32 +156,44 @@ export default function WeddingSurvey({
   }
 
   async function searchLocation() {
+    const searchVersion = ++locationSearchVersion.current;
+    const query = locationQuery.trim();
     setError("");
     setSelectedPlace(null);
     setPlaces([]);
-    if (locationQuery.trim().length < 3) {
+    if (query.length < 3) {
       setError("Indique une ville et un pays.");
       return;
     }
     setSearching(true);
     try {
-      const response = await fetch(`/api/geocode?q=${encodeURIComponent(locationQuery.trim())}`);
+      const response = await fetch(`/api/geocode?q=${encodeURIComponent(query)}`);
       const data = await response.json();
       if (!response.ok) throw new Error(data.error);
+      if (searchVersion !== locationSearchVersion.current) return;
       setPlaces(data.places ?? []);
       if (!data.places?.length) setError("Aucun lieu trouvé. Ajoute le pays à ta recherche.");
     } catch (searchError) {
+      if (searchVersion !== locationSearchVersion.current) return;
       setError(searchError instanceof Error ? searchError.message : "La recherche n’a pas fonctionné.");
     } finally {
-      setSearching(false);
+      if (searchVersion === locationSearchVersion.current) setSearching(false);
     }
   }
 
   function choosePlace(place: Place) {
     setSelectedPlace(place);
-    setLocationQuery(`${place.city}, ${place.country}`);
+    setLocationQuery(placeInputValue(place));
     setPlaces([]);
     setError("");
+  }
+
+  function changeLocationQuery(value: string) {
+    locationSearchVersion.current += 1;
+    setLocationQuery(value);
+    setSelectedPlace(null);
+    setPlaces([]);
+    setSearching(false);
   }
 
   function toggleNight(night: string) {
@@ -188,7 +205,9 @@ export default function WeddingSurvey({
     setError("");
     if (!respondentName.trim()) return setError("Indique ton nom et ton prénom.");
     if (!notAttending && attendanceDays.length === 0) return setError("Sélectionne au moins une journée.");
-    if (!notAttending && !selectedPlace) return setError("Recherche puis sélectionne ta ville de départ.");
+    if (!notAttending && (!selectedPlace || locationQuery !== placeInputValue(selectedPlace))) {
+      return setError("Recherche puis sélectionne ta ville de départ.");
+    }
     if (!notAttending && !lodgingChoice) return setError("Indique si tu souhaites dormir sur place.");
     if (lodgingChoice === "yes" && (!selectedNights.length || !selectedGuestNames.length)) {
       return setError("Choisis au moins une personne et une nuit pour l’hébergement.");
@@ -291,7 +310,7 @@ export default function WeddingSurvey({
               <legend><span>5</span> Je partirai de…</legend>
               <p className="field-help">Indiquez une ville et un pays, puis sélectionnez le bon résultat. Exemples : Toulon, Charleroi, Faro, Cayenne ou Stavanger.</p>
               <div className="location-search">
-                <input value={locationQuery} onChange={(event) => { setLocationQuery(event.target.value); setSelectedPlace(null); }} placeholder="Ville, pays" aria-label="Ville et pays de départ" />
+                <input value={locationQuery} onChange={(event) => changeLocationQuery(event.target.value)} placeholder="Ville, pays" aria-label="Ville et pays de départ" />
                 <button type="button" onClick={searchLocation} disabled={searching}>{searching ? "Recherche…" : "Rechercher"}</button>
               </div>
               {places.length > 0 && <div className="place-results">{places.map((place) => <button type="button" key={`${place.latitude}-${place.longitude}`} onClick={() => choosePlace(place)}><strong>{place.city}, {place.country}</strong><small>{place.label}</small></button>)}</div>}

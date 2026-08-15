@@ -1,19 +1,5 @@
 import type { NextRequest } from "next/server";
-
-type NominatimResult = {
-  display_name: string;
-  lat: string;
-  lon: string;
-  address?: {
-    city?: string;
-    town?: string;
-    village?: string;
-    municipality?: string;
-    county?: string;
-    state?: string;
-    country?: string;
-  };
-};
+import { rankNominatimPlaces, type NominatimResult } from "@/lib/geocode";
 
 export async function GET(request: NextRequest) {
   const query = request.nextUrl.searchParams.get("q")?.trim() ?? "";
@@ -28,7 +14,8 @@ export async function GET(request: NextRequest) {
   const search = new URL("https://nominatim.openstreetmap.org/search");
   search.searchParams.set("format", "jsonv2");
   search.searchParams.set("addressdetails", "1");
-  search.searchParams.set("limit", "5");
+  search.searchParams.set("limit", "15");
+  search.searchParams.set("dedupe", "1");
   search.searchParams.set("accept-language", "fr");
   search.searchParams.set("q", query);
 
@@ -46,25 +33,7 @@ export async function GET(request: NextRequest) {
     }
 
     const data = (await response.json()) as NominatimResult[];
-    const places = data.map((place) => {
-      const address = place.address ?? {};
-      const city =
-        address.city ??
-        address.town ??
-        address.village ??
-        address.municipality ??
-        address.county ??
-        address.state ??
-        place.display_name.split(",")[0];
-
-      return {
-        label: place.display_name,
-        city,
-        country: address.country ?? "",
-        latitude: Number(place.lat),
-        longitude: Number(place.lon),
-      };
-    });
+    const places = rankNominatimPlaces(data, query);
 
     return Response.json({ places });
   } catch {
