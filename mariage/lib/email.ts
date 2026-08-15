@@ -2,6 +2,9 @@ import "server-only";
 
 import nodemailer from "nodemailer";
 
+let weddingTransport: ReturnType<typeof nodemailer.createTransport> | null = null;
+let weddingTransportCredentials = "";
+
 type MailMessage = {
   to: string;
   subject: string;
@@ -13,6 +16,18 @@ export function isEmailConfigured() {
   return Boolean(process.env.SMTP_USER && process.env.SMTP_PASS);
 }
 
+function getWeddingTransport(user: string, pass: string) {
+  const credentials = `${user}\u0000${pass}`;
+  if (!weddingTransport || weddingTransportCredentials !== credentials) {
+    weddingTransport = nodemailer.createTransport({
+      service: "gmail",
+      auth: { user, pass },
+    });
+    weddingTransportCredentials = credentials;
+  }
+  return weddingTransport;
+}
+
 export async function sendWeddingEmail(message: MailMessage) {
   const user = process.env.SMTP_USER;
   const pass = process.env.SMTP_PASS;
@@ -21,12 +36,7 @@ export async function sendWeddingEmail(message: MailMessage) {
     return { sent: false as const, reason: "not_configured" as const };
   }
 
-  const transport = nodemailer.createTransport({
-    service: "gmail",
-    auth: { user, pass },
-  });
-
-  await transport.sendMail({
+  await getWeddingTransport(user, pass).sendMail({
     from: `Damien & Julie <${user}>`,
     ...message,
   });

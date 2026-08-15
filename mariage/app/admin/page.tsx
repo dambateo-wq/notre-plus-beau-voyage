@@ -6,6 +6,13 @@ import {
   getWeddingResponses,
 } from "@/lib/admin-data";
 import { getAdminNotifications, getLodgingAssignments, getLodgingChangeRequests, getLodgingGuestAssignments, getLodgingReservations, legacyGuestAssignments } from "@/lib/lodging";
+import {
+  getAttendingEmailRecipients,
+  getLastGuestCampaign,
+  getPaymentReminderCandidates,
+  getWeddingEmailHistory,
+  isValidWeddingEmail,
+} from "@/lib/admin-email";
 import { formatCarpoolDate, legacyUtcClockToLocal } from "@/lib/carpool-time";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { login, logout } from "./actions";
@@ -16,6 +23,9 @@ import LodgingFloorPlans from "./LodgingFloorPlans";
 import LodgingGuestPlanner from "./LodgingGuestPlanner";
 import LodgingPlacementAction from "./LodgingPlacementAction";
 import LodgingChangeReview from "./LodgingChangeReview";
+import GuestMessageManager from "./GuestMessageManager";
+import PaymentReminderAction from "./PaymentReminderAction";
+import PaymentReminderManager from "./PaymentReminderManager";
 import styles from "./admin.module.css";
 
 export const metadata: Metadata = {
@@ -75,7 +85,7 @@ export default async function AdminPage({
     );
   }
 
-  const [responses, carpoolOffers, carpoolRequests, lodgingReservations, lodgingAssignments, storedGuestAssignments, lodgingChanges, notifications] = await Promise.all([
+  const [responses, carpoolOffers, carpoolRequests, lodgingReservations, lodgingAssignments, storedGuestAssignments, lodgingChanges, notifications, emailHistory] = await Promise.all([
     getWeddingResponses(),
     getCarpoolOffers(),
     getCarpoolRequests(),
@@ -84,6 +94,7 @@ export default async function AdminPage({
     getLodgingGuestAssignments(),
     getLodgingChangeRequests(),
     getAdminNotifications(),
+    getWeddingEmailHistory(),
   ]);
   const lodgingGuestAssignments = storedGuestAssignments.length
     ? storedGuestAssignments
@@ -119,6 +130,32 @@ export default async function AdminPage({
       sum + response.friday_sleepers + response.saturday_sleepers,
     0,
   );
+  const reminderCandidates = getPaymentReminderCandidates(
+    lodgingReservations,
+    responses,
+    emailHistory.entries,
+  );
+  const reminderCandidatesByReservationId = new Map(
+    reminderCandidates.map((candidate) => [candidate.reservationId, candidate]),
+  );
+  const paidLodgingReservations = lodgingReservations.filter(
+    (reservation) =>
+      reservation.booking_status === "active" &&
+      reservation.amount_cents > 0 &&
+      reservation.payment_status === "confirmed",
+  );
+  const pendingAmountCents = reminderCandidates.reduce(
+    (sum, candidate) => sum + candidate.amountCents,
+    0,
+  );
+  const attendingEmailRecipients = getAttendingEmailRecipients(responses);
+  const attendingRegistrationsWithEmail = responses.filter(
+    (response) =>
+      !response.not_attending &&
+      response.attendance_days.length > 0 &&
+      isValidWeddingEmail(response.respondent_email),
+  ).length;
+  const lastGuestCampaign = getLastGuestCampaign(emailHistory.entries);
 
   return (
     <main className={styles.page}>
@@ -179,6 +216,22 @@ export default async function AdminPage({
             ))}
           </section>
         )}
+
+        <div className={styles.emailToolsGrid}>
+          <PaymentReminderManager
+            paidCount={paidLodgingReservations.length}
+            pendingCount={reminderCandidates.length}
+            pendingAmountCents={pendingAmountCents}
+            candidates={reminderCandidates}
+            historyAvailable={emailHistory.available}
+          />
+          <GuestMessageManager
+            registrationsCount={attendingRegistrationsWithEmail}
+            recipients={attendingEmailRecipients}
+            lastCampaign={lastGuestCampaign}
+            historyAvailable={emailHistory.available}
+          />
+        </div>
 
         <section className={styles.responses}>
           {responses.length === 0 ? (
@@ -252,6 +305,12 @@ export default async function AdminPage({
                           id={reservation.id}
                           paymentStatus={reservation.payment_status}
                         />
+                        {reminderCandidatesByReservationId.has(reservation.id) && (
+                          <PaymentReminderAction
+                            candidate={reminderCandidatesByReservationId.get(reservation.id)!}
+                            historyAvailable={emailHistory.available}
+                          />
+                        )}
                         {reservation.booking_status === "active" && reservation.payment_status === "confirmed" && !pendingChange && (
                           <div className={styles.placementActionWrap}>
                             <span className={`${styles.placementBadge} ${
@@ -511,6 +570,12 @@ export default async function AdminPage({
                         id={reservation.id}
                         paymentStatus={reservation.payment_status}
                       />
+                      {reminderCandidatesByReservationId.has(reservation.id) && (
+                        <PaymentReminderAction
+                          candidate={reminderCandidatesByReservationId.get(reservation.id)!}
+                          historyAvailable={emailHistory.available}
+                        />
+                      )}
                       {reservation.booking_status === "active" && reservation.payment_status === "confirmed" && !pendingChange && (
                         <div className={styles.placementActionWrap}>
                           <span className={`${styles.placementBadge} ${

@@ -158,6 +158,10 @@ export function isManagementToken(value: string) {
   return /^[A-Za-z0-9_-]{43}$/.test(value);
 }
 
+function isLodgingAccessToken(value: string) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+}
+
 export function lodgingAmount(input: Pick<RegistrationInput, "lodgingGuestNames" | "lodgingNights">) {
   return input.lodgingGuestNames.length * input.lodgingNights.length * LODGING_PRICE_CENTS;
 }
@@ -313,16 +317,9 @@ export async function createLinkedLodging(responseId: string, input: Registratio
 }
 
 export async function getRegistrationByToken(token: string): Promise<ManagedRegistration | null> {
-  if (!isManagementToken(token)) return null;
-  const { url, headers } = getPrivateSupabaseConfig();
-  const hash = hashManagementToken(token);
-  const response = await fetch(
-    `${url}/rest/v1/wedding_responses?management_token_hash=eq.${hash}&select=*`,
-    { headers, cache: "no-store" },
-  );
-  if (!response.ok) throw new Error("L’inscription ne peut pas être chargée.");
-  const [record] = (await response.json()) as RegistrationRecord[];
+  const record = await getRegistrationRecordByToken(token);
   if (!record) return null;
+  const { url, headers } = getPrivateSupabaseConfig();
 
   let reservation: LodgingReservation | null = null;
   let pendingChange: LodgingChangeRequest | null = null;
@@ -475,10 +472,30 @@ export async function createFinancialChange(
 }
 
 export async function getRegistrationRecordByToken(token: string) {
-  if (!isManagementToken(token)) return null;
   const { url, headers } = getPrivateSupabaseConfig();
+  if (isManagementToken(token)) {
+    const response = await fetch(
+      `${url}/rest/v1/wedding_responses?management_token_hash=eq.${hashManagementToken(token)}&select=*`,
+      { headers, cache: "no-store" },
+    );
+    if (!response.ok) throw new Error("L’inscription ne peut pas être chargée.");
+    const [record] = (await response.json()) as RegistrationRecord[];
+    return record ?? null;
+  }
+
+  if (!isLodgingAccessToken(token)) return null;
+  const reservationResponse = await fetch(
+    `${url}/rest/v1/lodging_reservations?access_token=eq.${encodeURIComponent(token)}&select=wedding_response_id&limit=1`,
+    { headers, cache: "no-store" },
+  );
+  if (!reservationResponse.ok) throw new Error("L’inscription ne peut pas être chargée.");
+  const [reservation] = (await reservationResponse.json()) as Array<{
+    wedding_response_id: string | null;
+  }>;
+  if (!reservation?.wedding_response_id) return null;
+
   const response = await fetch(
-    `${url}/rest/v1/wedding_responses?management_token_hash=eq.${hashManagementToken(token)}&select=*`,
+    `${url}/rest/v1/wedding_responses?id=eq.${encodeURIComponent(reservation.wedding_response_id)}&select=*`,
     { headers, cache: "no-store" },
   );
   if (!response.ok) throw new Error("L’inscription ne peut pas être chargée.");

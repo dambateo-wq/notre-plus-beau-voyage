@@ -4,8 +4,9 @@ import HoneymoonPaymentCard from "./HoneymoonPaymentCard";
 
 export default function HoneymoonContribution() {
   const paymentDetails = getPaymentDetails();
-  const bankDetailsAreConfigured = Boolean(
-    paymentDetails.accountHolder && paymentDetails.iban && paymentDetails.bic,
+  const contributionDetailsAreConfigured = Boolean(
+    paymentDetails.weroPhone ||
+      (paymentDetails.accountHolder && paymentDetails.iban && paymentDetails.bic),
   );
 
   return (
@@ -36,11 +37,12 @@ export default function HoneymoonContribution() {
         </div>
       </div>
 
-      {bankDetailsAreConfigured ? (
+      {contributionDetailsAreConfigured ? (
         <HoneymoonPaymentCard
           accountHolder={paymentDetails.accountHolder}
           iban={paymentDetails.iban}
           bic={paymentDetails.bic}
+          weroPhone={paymentDetails.weroPhone}
         />
       ) : (
         <div className="honeymoon-payment-card honeymoon-payment-unavailable">

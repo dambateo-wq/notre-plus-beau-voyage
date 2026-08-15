@@ -322,6 +322,7 @@ body{overflow-x:hidden}
   .honeymoon-bank-details>div{padding:21px 16px}
   .honeymoon-copy-actions{display:grid}
   .honeymoon-copy-actions button{width:100%}
+  .honeymoon-payment-choices{grid-template-columns:1fr}
 }
 
 @media(prefers-reduced-motion:reduce){.honeymoon-copy-actions button,.honeymoon-destination>img{transition:none!important}}
@@ -351,6 +352,7 @@ body{overflow-x:hidden}
 /* RIB du voyage de noces replié par défaut */
 .honeymoon-reveal-button{display:flex;width:100%;align-items:center;justify-content:space-between;gap:20px;margin-top:28px;padding:17px 20px;border:0;border-radius:999px;background:var(--ink);color:#fff;cursor:pointer;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;transition:transform .3s ease,background .3s ease}.honeymoon-reveal-button:hover{transform:translateY(-2px);background:var(--olive)}
 .honeymoon-bank-panel{animation:honeymoonPanel .45s cubic-bezier(.2,.75,.25,1) both}.honeymoon-close-button{display:flex;margin:20px 0 0 auto;padding:9px 0;border:0;background:transparent;color:var(--olive);cursor:pointer;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.honeymoon-payment-choice-heading{padding-top:28px}.honeymoon-payment-choice-heading>p{margin:0 0 14px;font:500 clamp(24px,3vw,32px)/1.1 "Cormorant Garamond",serif}.honeymoon-payment-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.honeymoon-payment-choices button{min-height:54px;padding:14px 18px;border:1px solid rgba(39,49,38,.17);border-radius:18px;background:rgba(255,255,255,.52);color:var(--ink);cursor:pointer;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;transition:transform .3s ease,background .3s ease,color .3s ease,border-color .3s ease}.honeymoon-payment-choices button:hover,.honeymoon-payment-choices button[aria-pressed="true"]{transform:translateY(-2px);border-color:var(--olive);background:var(--olive);color:#fff}.honeymoon-mode-panel{margin-top:18px;animation:honeymoonPanel .4s cubic-bezier(.2,.75,.25,1) both}.honeymoon-mode-label{margin:0;padding:13px 16px;border-radius:14px 14px 0 0;background:#e6dece;color:#596255;font-size:11px;letter-spacing:.04em}.honeymoon-wero-details{grid-template-columns:1fr}.honeymoon-wero-details .honeymoon-reference{grid-column:auto}
 @keyframes honeymoonPanel{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 
 /* Rythme vertical : chapitre, sous-chapitre, contenu */
