@@ -3,6 +3,11 @@ import "server-only";
 import { createHash, randomBytes, randomUUID } from "node:crypto";
 import { getPrivateSupabaseConfig } from "@/lib/admin-data";
 import {
+  normalizeDietaryRequirements,
+  type DietaryRequirement,
+  type DietaryOption,
+} from "@/lib/dietary";
+import {
   LODGING_CAPACITY,
   LODGING_NIGHTS,
   LODGING_PRICE_CENTS,
@@ -30,6 +35,7 @@ export type RegistrationInput = {
   lodgingNights: string[];
   roommateWishes: string;
   paymentMethod: "wero" | "bank_transfer" | "later";
+  dietaryRequirements: DietaryRequirement[] | null;
   songs: string[];
 };
 
@@ -52,6 +58,7 @@ export type RegistrationRecord = {
   lodging_guest_names: string[];
   lodging_nights: string[];
   lodging_payment_method: "wero" | "bank_transfer" | "later";
+  dietary_requirements?: unknown;
   lodging_reservation_id: string | null;
   management_token_hash: string | null;
   created_at: string;
@@ -81,6 +88,35 @@ function cleanString(value: unknown, maxLength: number) {
 function cleanStringArray(value: unknown, maxItems: number, maxLength: number) {
   if (!Array.isArray(value)) return [];
   return value.map((item) => cleanString(item, maxLength)).filter(Boolean).slice(0, maxItems);
+}
+
+function cleanDietaryRequirements(
+  value: unknown,
+  participants: string[],
+  notAttending: boolean,
+): DietaryRequirement[] | null {
+  if (notAttending || value === null || value === undefined) return null;
+  if (!Array.isArray(value) || value.length !== participants.length) {
+    throw new RegistrationValidationError("Renseignez les informations alimentaires de chaque participant.");
+  }
+
+  return participants.map((participantName, participantIndex) => {
+    const raw = value[participantIndex];
+    if (!raw || typeof raw !== "object") {
+      throw new RegistrationValidationError("Renseignez les informations alimentaires de chaque participant.");
+    }
+    const entry = raw as Record<string, unknown>;
+    const diet = cleanString(entry.diet, 20) as DietaryOption;
+    if (Number(entry.participantIndex) !== participantIndex || (diet !== "none" && diet !== "vegetarian")) {
+      throw new RegistrationValidationError("Renseignez les informations alimentaires de chaque participant.");
+    }
+    return {
+      participantIndex,
+      participantName,
+      diet,
+      allergies: cleanString(entry.allergies, 300),
+    };
+  });
 }
 
 export function validateRegistrationInput(value: unknown): RegistrationInput {
@@ -114,8 +150,16 @@ export function validateRegistrationInput(value: unknown): RegistrationInput {
   if (!notAttending && (!attendanceDays.length || !departureCity || !departureCountry || latitude === null || longitude === null)) {
     throw new RegistrationValidationError("Choisissez vos dates et votre ville de départ.");
   }
+  const dietaryRequirements = cleanDietaryRequirements(
+    body.dietaryRequirements,
+    [respondentName, ...companions],
+    notAttending,
+  );
   if (lodgingNights.length > 0 && (lodgingGuestNames.length < 1 || phone.replace(/\D/g, "").length < 8)) {
     throw new RegistrationValidationError("Choisissez les personnes hébergées et indiquez un numéro de téléphone valide.");
+  }
+  if (lodgingNights.length > 0 && paymentMethod === "later") {
+    throw new RegistrationValidationError("Choisissez Wero ou le virement bancaire pour régler l’hébergement.");
   }
   if ((lodgingGuestNames.length > 0) !== (lodgingNights.length > 0)) {
     throw new RegistrationValidationError("Choisissez au moins une personne et une nuit pour l’hébergement.");
@@ -141,6 +185,7 @@ export function validateRegistrationInput(value: unknown): RegistrationInput {
     lodgingNights,
     roommateWishes: lodgingNights.length ? roommateWishes : "",
     paymentMethod,
+    dietaryRequirements,
     songs,
   };
 }
@@ -186,6 +231,7 @@ export function registrationRow(input: RegistrationInput, tokenHash?: string) {
     lodging_guest_names: input.lodgingGuestNames,
     lodging_nights: input.lodgingNights,
     lodging_payment_method: input.paymentMethod,
+    dietary_requirements: input.dietaryRequirements,
     ...(tokenHash ? { management_token_hash: tokenHash } : {}),
     updated_at: new Date().toISOString(),
   };
@@ -207,6 +253,7 @@ export function recordToInput(record: RegistrationRecord): RegistrationInput {
     lodgingNights: record.lodging_nights ?? [],
     roommateWishes: record.roommate_wishes ?? "",
     paymentMethod: record.lodging_payment_method ?? "later",
+    dietaryRequirements: normalizeDietaryRequirements(record.dietary_requirements),
     songs: record.songs ?? [],
   };
 }

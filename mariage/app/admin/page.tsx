@@ -14,6 +14,7 @@ import {
   isValidWeddingEmail,
 } from "@/lib/admin-email";
 import { formatCarpoolDate, legacyUtcClockToLocal } from "@/lib/carpool-time";
+import { hasDietaryRequirement } from "@/lib/dietary";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { login, logout } from "./actions";
 import DeleteResponseButton from "./DeleteResponseButton";
@@ -156,6 +157,11 @@ export default async function AdminPage({
       isValidWeddingEmail(response.respondent_email),
   ).length;
   const lastGuestCampaign = getLastGuestCampaign(emailHistory.entries);
+  const dietaryEntries = attending.flatMap((response) => response.dietary_requirements ?? []);
+  const dietaryAlerts = dietaryEntries.filter(hasDietaryRequirement);
+  const vegetarianCount = dietaryEntries.filter((entry) => entry.diet === "vegetarian").length;
+  const allergyCount = dietaryEntries.filter((entry) => Boolean(entry.allergies.trim())).length;
+  const dietaryPendingRegistrations = attending.filter((response) => response.dietary_requirements === null).length;
 
   return (
     <main className={styles.page}>
@@ -200,6 +206,38 @@ export default async function AdminPage({
             <strong>{lodgingNights}</strong>
             <span>nuitées réservées</span>
           </div>
+        </section>
+
+        <section className={styles.dietarySummary} aria-labelledby="dietary-summary-title">
+          <div className={styles.dietarySummaryHeading}>
+            <div>
+              <p className={styles.eyebrow}>Traiteur</p>
+              <h2 id="dietary-summary-title">Régimes alimentaires</h2>
+            </div>
+            <div className={styles.dietarySummaryStats}>
+              <span><strong>{vegetarianCount}</strong> végétarien{vegetarianCount > 1 ? "s" : ""}</span>
+              <span><strong>{allergyCount}</strong> personne{allergyCount > 1 ? "s" : ""} avec allergies/intolérances</span>
+            </div>
+          </div>
+          <details className={styles.dietaryDetailList}>
+            <summary>Voir le détail</summary>
+            {dietaryAlerts.length ? (
+              <div>
+                {dietaryAlerts.map((entry, index) => (
+                  <article key={`${entry.participantName}-${entry.participantIndex}-${index}`}>
+                    <strong>{entry.participantName}</strong>
+                    {entry.diet === "vegetarian" && <span>Végétarien</span>}
+                    {entry.allergies && <span className={styles.dietaryWarning}>⚠ Allergie / intolérance : {entry.allergies}</span>}
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <p>Personne n’a encore signalé de régime ou d’allergie.</p>
+            )}
+            {dietaryPendingRegistrations > 0 && (
+              <p className={styles.dietaryPending}>{dietaryPendingRegistrations} inscription{dietaryPendingRegistrations > 1 ? "s n’ont" : " n’a"} pas encore renseigné cette question.</p>
+            )}
+          </details>
         </section>
 
         {notifications.some((notification) => !notification.read_at) && (
@@ -262,6 +300,7 @@ export default async function AdminPage({
                       change.status === "pending",
                   )
                 : undefined;
+              const responseDietaryAlerts = (response.dietary_requirements ?? []).filter(hasDietaryRequirement);
 
               return (
               <article className={styles.responseCard} key={response.id}>
@@ -347,6 +386,24 @@ export default async function AdminPage({
                     <div>
                       <dt>Accompagnants</dt>
                       <dd>{joinOrDash(response.companions)}</dd>
+                    </div>
+                    <div>
+                      <dt>Régimes et allergies</dt>
+                      <dd>
+                        {response.dietary_requirements === null ? (
+                          <span className={styles.dietaryPendingInline}>Informations non renseignées</span>
+                        ) : responseDietaryAlerts.length ? (
+                          <span className={styles.responseDietaryAlerts}>
+                            {responseDietaryAlerts.map((entry) => (
+                              <span key={`${entry.participantIndex}-${entry.participantName}`}>
+                                <strong>{entry.participantName}</strong>
+                                {entry.diet === "vegetarian" ? " · Végétarien" : ""}
+                                {entry.allergies ? ` · ⚠ ${entry.allergies}` : ""}
+                              </span>
+                            ))}
+                          </span>
+                        ) : "Rien à signaler"}
+                      </dd>
                     </div>
                     <div>
                       <dt>Jours de présence</dt>

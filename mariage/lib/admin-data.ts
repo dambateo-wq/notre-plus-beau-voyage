@@ -1,5 +1,7 @@
 import "server-only";
 
+import { normalizeDietaryRequirements, type DietaryRequirement } from "@/lib/dietary";
+
 export type WeddingResponse = {
   id: string;
   respondent_name: string;
@@ -17,6 +19,7 @@ export type WeddingResponse = {
   lodging_guest_names: string[];
   lodging_nights: string[];
   lodging_payment_method: "wero" | "bank_transfer" | "later";
+  dietary_requirements: DietaryRequirement[] | null;
   lodging_reservation_id: string | null;
   created_at: string;
   updated_at: string;
@@ -81,8 +84,9 @@ export type CarpoolSeat = {
 
 export async function getWeddingResponses() {
   const { url, headers } = getPrivateSupabaseConfig();
-  const response = await fetch(
-    `${url}/rest/v1/wedding_responses?select=id,respondent_name,respondent_email,companions,attendance_days,not_attending,departure_city,departure_country,friday_sleepers,saturday_sleepers,roommate_wishes,songs,phone,lodging_guest_names,lodging_nights,lodging_payment_method,lodging_reservation_id,created_at,updated_at&order=created_at.desc`,
+  const fields = "id,respondent_name,respondent_email,companions,attendance_days,not_attending,departure_city,departure_country,friday_sleepers,saturday_sleepers,roommate_wishes,songs,phone,lodging_guest_names,lodging_nights,lodging_payment_method,lodging_reservation_id,created_at,updated_at";
+  let response = await fetch(
+    `${url}/rest/v1/wedding_responses?select=${fields},dietary_requirements&order=created_at.desc`,
     {
       headers,
       cache: "no-store",
@@ -90,10 +94,24 @@ export async function getWeddingResponses() {
   );
 
   if (!response.ok) {
+    const error = await response.text();
+    if (error.includes("dietary_requirements") || error.includes("PGRST204")) {
+      response = await fetch(
+        `${url}/rest/v1/wedding_responses?select=${fields}&order=created_at.desc`,
+        { headers, cache: "no-store" },
+      );
+    }
+  }
+
+  if (!response.ok) {
     throw new Error("Les réponses ne peuvent pas être chargées actuellement.");
   }
 
-  return (await response.json()) as WeddingResponse[];
+  const records = (await response.json()) as Array<Omit<WeddingResponse, "dietary_requirements"> & { dietary_requirements?: unknown }>;
+  return records.map((record) => ({
+    ...record,
+    dietary_requirements: normalizeDietaryRequirements(record.dietary_requirements),
+  }));
 }
 
 export async function deleteWeddingResponse(id: string) {

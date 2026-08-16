@@ -92,8 +92,7 @@ function createZip(files: Array<{ name: string; content: string }>) {
   return Buffer.concat([...localParts, centralDirectory, end]);
 }
 
-function createWorkbook(rows: Array<Array<string | number>>) {
-  const widths = [22, 28, 38, 18, 22, 42, 32, 22, 22, 27, 42, 45];
+function createWorksheet(rows: Array<Array<string | number>>, widths: number[]) {
   const sheetRows = rows
     .map((row, rowIndex) => {
       const cells = row
@@ -117,10 +116,24 @@ function createWorkbook(rows: Array<Array<string | number>>) {
     )
     .join("");
 
+  const lastColumn = columnName((rows[0]?.length ?? 1) - 1);
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols>${columns}</cols><sheetData>${sheetRows}</sheetData><autoFilter ref="A1:${lastColumn}${rows.length}"/></worksheet>`;
+}
+
+function createWorkbook(
+  responseRows: Array<Array<string | number>>,
+  dietaryRows: Array<Array<string | number>>,
+) {
+  const responsesSheet = createWorksheet(
+    responseRows,
+    [22, 28, 38, 18, 22, 42, 32, 22, 22, 27, 42, 45],
+  );
+  const dietarySheet = createWorksheet(dietaryRows, [34, 22, 58]);
+
   const files = [
     {
       name: "[Content_Types].xml",
-      content: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>`,
+      content: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/worksheets/sheet2.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>`,
     },
     {
       name: "_rels/.rels",
@@ -128,11 +141,11 @@ function createWorkbook(rows: Array<Array<string | number>>) {
     },
     {
       name: "xl/workbook.xml",
-      content: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Réponses" sheetId="1" r:id="rId1"/></sheets></workbook>`,
+      content: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Réponses" sheetId="1" r:id="rId1"/><sheet name="Régimes alimentaires" sheetId="2" r:id="rId2"/></sheets></workbook>`,
     },
     {
       name: "xl/_rels/workbook.xml.rels",
-      content: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`,
+      content: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet2.xml"/><Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`,
     },
     {
       name: "xl/styles.xml",
@@ -140,7 +153,11 @@ function createWorkbook(rows: Array<Array<string | number>>) {
     },
     {
       name: "xl/worksheets/sheet1.xml",
-      content: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols>${columns}</cols><sheetData>${sheetRows}</sheetData><autoFilter ref="A1:L${rows.length}"/></worksheet>`,
+      content: responsesSheet,
+    },
+    {
+      name: "xl/worksheets/sheet2.xml",
+      content: dietarySheet,
     },
   ];
 
@@ -169,6 +186,9 @@ export async function GET(request: Request) {
       "Musiques souhaitées",
     ],
   ];
+  const dietaryRows: Array<Array<string | number>> = [
+    ["Nom et prénom", "Végétarien", "Allergies / intolérances"],
+  ];
 
   for (const response of responses) {
     const attending = !response.not_attending;
@@ -194,9 +214,23 @@ export async function GET(request: Request) {
       response.roommate_wishes ?? "",
       response.songs.join(", "),
     ]);
+
+    if (attending) {
+      const participants = [response.respondent_name, ...response.companions];
+      participants.forEach((participantName, participantIndex) => {
+        const dietary = response.dietary_requirements?.find(
+          (entry) => entry.participantIndex === participantIndex,
+        );
+        dietaryRows.push([
+          participantName,
+          dietary ? (dietary.diet === "vegetarian" ? "Oui" : "Non") : "Non renseigné",
+          dietary ? dietary.allergies : "Non renseigné",
+        ]);
+      });
+    }
   }
 
-  const workbook = createWorkbook(rows);
+  const workbook = createWorkbook(rows, dietaryRows);
   const date = new Intl.DateTimeFormat("fr-CA", {
     timeZone: "Europe/Paris",
   }).format(new Date());

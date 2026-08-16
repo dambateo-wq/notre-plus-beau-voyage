@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useMemo, useRef, useState } from "react";
+import type { DietaryOption, DietaryRequirement } from "@/lib/dietary";
 
 type Place = {
   label: string;
@@ -25,7 +26,13 @@ export type SurveyData = {
   lodgingNights: string[];
   roommateWishes: string;
   paymentMethod: "wero" | "bank_transfer" | "later";
+  dietaryRequirements: DietaryRequirement[] | null;
   songs: string[];
+};
+
+type DietaryAnswer = {
+  diet: DietaryOption;
+  allergies: string;
 };
 
 type SubmitResult = {
@@ -63,6 +70,7 @@ const emptyData: SurveyData = {
   lodgingNights: [],
   roommateWishes: "",
   paymentMethod: "later",
+  dietaryRequirements: null,
   songs: [""],
 };
 
@@ -82,6 +90,13 @@ function matchingGuestIndexes(guestNames: string[], participants: string[]) {
 
 function placeInputValue(place: Place) {
   return `${place.city}, ${place.country}`;
+}
+
+function initialDietaryAnswers(source: SurveyData, participants: string[]): DietaryAnswer[] {
+  return participants.map((_, participantIndex) => {
+    const saved = source.dietaryRequirements?.find((entry) => entry.participantIndex === participantIndex);
+    return { diet: saved?.diet ?? "none", allergies: saved?.allergies ?? "" };
+  });
 }
 
 export default function WeddingSurvey({
@@ -118,7 +133,12 @@ export default function WeddingSurvey({
   );
   const [phone, setPhone] = useState(source.phone);
   const [roommateWishes, setRoommateWishes] = useState(source.roommateWishes);
-  const [paymentMethod, setPaymentMethod] = useState<SurveyData["paymentMethod"]>(source.paymentMethod);
+  const [paymentMethod, setPaymentMethod] = useState<"wero" | "bank_transfer" | "">(
+    source.paymentMethod === "wero" || source.paymentMethod === "bank_transfer" ? source.paymentMethod : "",
+  );
+  const [dietaryAnswers, setDietaryAnswers] = useState<DietaryAnswer[]>(
+    initialDietaryAnswers(source, initialParticipants),
+  );
   const [songs, setSongs] = useState<string[]>(source.songs.length ? source.songs : [""]);
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "declined">("idle");
   const [result, setResult] = useState<SubmitResult | null>(null);
@@ -128,6 +148,9 @@ export default function WeddingSurvey({
     () => [respondentName, ...companions].map((name, index) => ({ index, name: name.trim() })),
     [respondentName, companions],
   );
+  const namedParticipants = participants
+    .filter((participant) => participant.name)
+    .map((participant, participantIndex) => ({ ...participant, participantIndex }));
   const selectedGuestNames = participants
     .filter((participant) => participant.name && lodgingGuestIndexes.includes(participant.index))
     .map((participant) => participant.name);
@@ -150,9 +173,21 @@ export default function WeddingSurvey({
   function removeCompanion(index: number) {
     const participantIndex = index + 1;
     setCompanions((current) => current.filter((_, itemIndex) => itemIndex !== index));
+    setDietaryAnswers((current) => current.filter((_, itemIndex) => itemIndex !== participantIndex));
     setLodgingGuestIndexes((current) =>
       current.filter((item) => item !== participantIndex).map((item) => item > participantIndex ? item - 1 : item),
     );
+  }
+
+  function addCompanion() {
+    setCompanions((current) => [...current, ""]);
+    setDietaryAnswers((current) => [...current, { diet: "none", allergies: "" }]);
+  }
+
+  function updateDietaryAnswer(participantIndex: number, update: Partial<DietaryAnswer>) {
+    setDietaryAnswers((current) => current.map((answer, index) =>
+      index === participantIndex ? { ...answer, ...update } : answer,
+    ));
   }
 
   async function searchLocation() {
@@ -215,6 +250,19 @@ export default function WeddingSurvey({
     if (lodgingChoice === "yes" && phone.replace(/\D/g, "").length < 8) {
       return setError("Indique un numéro de téléphone valide pour la réservation.");
     }
+    if (lodgingChoice === "yes" && !paymentMethod) {
+      return setError("Choisis Wero ou le virement bancaire pour régler l’hébergement.");
+    }
+
+    const submittedPaymentMethod = lodgingChoice === "yes" && paymentMethod ? paymentMethod : "later";
+    const submittedDietaryRequirements: DietaryRequirement[] | null = notAttending
+      ? null
+      : namedParticipants.map((participant) => ({
+          participantIndex: participant.participantIndex,
+          participantName: participant.name,
+          diet: dietaryAnswers[participant.index]?.diet ?? "none",
+          allergies: dietaryAnswers[participant.index]?.allergies.trim() ?? "",
+        }));
 
     setStatus("submitting");
     try {
@@ -235,7 +283,8 @@ export default function WeddingSurvey({
           lodgingGuestNames: lodgingChoice === "yes" ? selectedGuestNames : [],
           lodgingNights: lodgingChoice === "yes" ? selectedNights : [],
           roommateWishes: lodgingChoice === "yes" ? roommateWishes : "",
-          paymentMethod,
+          paymentMethod: submittedPaymentMethod,
+          dietaryRequirements: submittedDietaryRequirements,
           songs: cleanSongs,
         }),
       });
@@ -291,7 +340,7 @@ export default function WeddingSurvey({
               <button type="button" className="remove-button" onClick={() => removeCompanion(index)} aria-label={`Retirer l’accompagnant ${index + 1}`}>×</button>
             </div>
           ))}
-          <button type="button" className="add-line-button" onClick={() => setCompanions((current) => [...current, ""])}>+ Ajouter une personne</button>
+          <button type="button" className="add-line-button" onClick={addCompanion}>+ Ajouter une personne</button>
         </fieldset>
 
         <fieldset>
@@ -351,7 +400,6 @@ export default function WeddingSurvey({
                     <div className="lodging-payment-choices">
                       <label><input type="radio" name="payment" checked={paymentMethod === "wero"} onChange={() => setPaymentMethod("wero")} /><span>Wero</span></label>
                       <label><input type="radio" name="payment" checked={paymentMethod === "bank_transfer"} onChange={() => setPaymentMethod("bank_transfer")} /><span>Virement bancaire</span></label>
-                      <label><input type="radio" name="payment" checked={paymentMethod === "later"} onChange={() => setPaymentMethod("later")} /><span>Je paierai plus tard</span></label>
                     </div>
                   </fieldset>
                   {lodgingTotal > 0 && <p className="lodging-total">{selectedGuestNames.length} personne{selectedGuestNames.length > 1 ? "s" : ""} × {selectedNights.length} nuit{selectedNights.length > 1 ? "s" : ""} × 35 €<br />Participation hébergement : <strong>{lodgingTotal} €</strong></p>}
@@ -360,7 +408,32 @@ export default function WeddingSurvey({
             </fieldset>
 
             <fieldset>
-              <legend><span>7</span> Pour être certain de me déhancher sur le dancefloor, je souhaiterais écouter…</legend>
+              <legend><span>7</span> Des régimes alimentaires ou allergies à nous signaler ?</legend>
+              <p className="field-help">Pour que tout le monde profite du repas, indiquez-nous les éventuels régimes alimentaires, allergies ou intolérances.</p>
+              <div className="dietary-participants">
+                {namedParticipants.map((participant) => {
+                  const answer = dietaryAnswers[participant.index] ?? { diet: "none", allergies: "" };
+                  return (
+                    <article className="dietary-person" key={participant.index}>
+                      <h3>{participant.name}</h3>
+                      <div className="dietary-person-fields">
+                        <fieldset className="dietary-choice-fieldset">
+                          <legend>Régime alimentaire</legend>
+                          <div className="dietary-choice-grid">
+                            <label><input type="radio" name={`diet-${participant.index}`} checked={answer.diet === "none"} onChange={() => updateDietaryAnswer(participant.index, { diet: "none" })} /><span>Aucun régime particulier</span></label>
+                            <label><input type="radio" name={`diet-${participant.index}`} checked={answer.diet === "vegetarian"} onChange={() => updateDietaryAnswer(participant.index, { diet: "vegetarian" })} /><span>Végétarien</span></label>
+                          </div>
+                        </fieldset>
+                        <label className="dietary-allergies"><span>Allergies ou intolérances <small>(facultatif)</small></span><input value={answer.allergies} onChange={(event) => updateDietaryAnswer(participant.index, { allergies: event.target.value })} placeholder="Ex. fruits à coque, gluten, lactose..." /></label>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend><span>8</span> Pour être certain de me déhancher sur le dancefloor, je souhaiterais écouter…</legend>
               <p className="field-help">Cette question est facultative.</p>
               {songs.map((song, index) => (
                 <div className="repeatable-row" key={`song-${index}`}><input value={song} onChange={(event) => setSongs((current) => current.map((item, itemIndex) => itemIndex === index ? event.target.value : item))} placeholder="Titre – Artiste" aria-label={`Musique ${index + 1}`} />{songs.length > 1 && <button type="button" className="remove-button" onClick={() => setSongs((current) => current.filter((_, itemIndex) => itemIndex !== index))} aria-label={`Retirer la musique ${index + 1}`}>×</button>}</div>

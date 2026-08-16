@@ -87,6 +87,19 @@
 .choice-disabled{cursor:not-allowed;opacity:.5}
 .lodging-payment-fieldset{margin:0!important;padding:0!important;border:0!important}
 .lodging-payment-fieldset legend{margin-bottom:11px!important;font:600 .86rem Inter,sans-serif!important}
+.unified-lodging .lodging-payment-choices{grid-template-columns:repeat(2,minmax(0,1fr))}
+.dietary-participants{display:grid;gap:14px}
+.dietary-person{padding:clamp(18px,3vw,26px);border:1px solid rgba(89,101,77,.13);border-radius:18px;background:#f6f1e8}
+.dietary-person h3{margin:0 0 18px;font:600 25px/1.15 "Cormorant Garamond",serif}
+.dietary-person-fields{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:end}
+.dietary-choice-fieldset{margin:0!important;padding:0!important;border:0!important}
+.dietary-choice-fieldset legend{margin:0 0 9px!important;font:600 .8rem/1.4 Inter,sans-serif!important}
+.dietary-choice-grid{display:grid;gap:8px}
+.dietary-choice-grid label{display:flex;align-items:center;gap:9px;min-height:47px;padding:10px 12px;border:1px solid #d8d0c3;border-radius:11px;background:#fff;cursor:pointer}
+.dietary-choice-grid label:has(input:checked){border-color:var(--olive);background:#e6ecdf;box-shadow:inset 0 0 0 1px var(--olive)}
+.dietary-choice-grid input{width:18px;height:18px;accent-color:var(--olive)}
+.dietary-allergies{display:grid;gap:9px;color:#384537;font-size:.8rem;font-weight:600}
+.dietary-allergies small{color:#747a70;font-weight:400}
 .manage-registration-link{display:inline-flex;margin-top:10px;padding:13px 20px;border-radius:999px;background:var(--ink);color:#fff;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
 .form-error{margin-bottom:18px;padding:14px 16px;border-radius:12px;background:#f6e2dc;color:#8a3f32;font-weight:700}
 .submit-rsvp{display:block;width:100%;padding:18px 24px;font-size:.9rem;letter-spacing:.04em}
@@ -171,7 +184,7 @@
 
 @media(max-width:800px){
   .survey-experience{padding:92px 16px 0}.survey-intro{margin-bottom:38px}
-  .wedding-form{padding:38px 20px;border-radius:22px}.wedding-form legend{font-size:1.3rem}.choice-grid,.lodging-choices,.lodging-answer,.lodging-person-grid,.sleepers-grid{grid-template-columns:1fr}.location-search{grid-template-columns:1fr}.location-search button{padding:14px}
+  .wedding-form{padding:38px 20px;border-radius:22px}.wedding-form legend{font-size:1.3rem}.choice-grid,.lodging-choices,.lodging-answer,.lodging-person-grid,.sleepers-grid,.dietary-person-fields{grid-template-columns:1fr}.location-search{grid-template-columns:1fr}.location-search button{padding:14px}
   .carpool-section,.lodging-section{margin:12px 12px 92px;padding:68px 20px;border-radius:28px}.carpool-section{margin-top:8px;margin-bottom:0;padding-top:44px;padding-bottom:62px}.carpool-layout,.lodging-layout,.carpool-form-row,.lodging-form-row,.lodging-availability,.lodging-payment-choices{grid-template-columns:1fr}.carpool-form,.carpool-offers,.lodging-form,.lodging-lookup{padding:25px 20px}.carpool-offers-heading{flex-direction:column}.lodging-confirmation{padding:28px 18px}.lodging-confirmation>dl,.lodging-payment-details dl{grid-template-columns:1fr}
   .rsvp-reminder{padding:38px 24px 28px;border-radius:21px}
   .carpool-manager-form{grid-template-columns:1fr}.carpool-manager-form>*{grid-column:1!important}.carpool-seat-list{grid-template-columns:repeat(2,minmax(0,1fr))}.carpool-manager-actions{align-items:stretch;flex-direction:column}.carpool-manager-actions a,.carpool-manager-actions button{text-align:center}

@@ -167,6 +167,104 @@
   font-size: 0.9rem;
 }
 
+.dietarySummary {
+  margin-bottom: 28px;
+  padding: 24px;
+  border: 1px solid #ded5c3;
+  border-radius: 22px;
+  background: #fffdf8;
+  box-shadow: 0 18px 50px rgba(58, 67, 48, 0.08);
+}
+
+.dietarySummaryHeading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.dietarySummaryHeading h2 {
+  margin: 5px 0 0;
+  font: 500 clamp(1.8rem, 4vw, 2.5rem)/1 Georgia, "Times New Roman", serif;
+}
+
+.dietarySummaryStats {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 9px;
+}
+
+.dietarySummaryStats span {
+  padding: 9px 12px;
+  border-radius: 999px;
+  background: #e7eadf;
+  color: #455642;
+  font-size: 0.78rem;
+}
+
+.dietarySummaryStats strong {
+  font-size: 1rem;
+}
+
+.dietaryDetailList {
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid #e8e0d1;
+}
+
+.dietaryDetailList summary {
+  width: fit-content;
+  color: #53654d;
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.dietaryDetailList > div {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.dietaryDetailList article {
+  display: grid;
+  gap: 5px;
+  padding: 13px 14px;
+  border-radius: 13px;
+  background: #f5efe4;
+  font-size: 0.82rem;
+}
+
+.dietaryWarning {
+  color: #8b4e37;
+  font-weight: 750;
+}
+
+.dietaryPending {
+  margin: 15px 0 0;
+  color: #7a6d5d;
+  font-size: 0.76rem;
+}
+
+.dietaryPendingInline {
+  color: #866b45;
+  font-weight: 750;
+}
+
+.responseDietaryAlerts {
+  display: grid;
+  gap: 6px;
+}
+
+.responseDietaryAlerts > span {
+  padding: 7px 9px;
+  border-radius: 9px;
+  background: #f6e9df;
+  color: #7b4937;
+}
+
 .responses {
   display: grid;
   gap: 16px;
@@ -341,6 +439,9 @@
 @media (max-width: 700px) {
   .notifications article { align-items: flex-start; flex-direction: column; }
   .financialReview dl { grid-template-columns: 1fr; }
+  .dietarySummaryHeading { align-items: flex-start; flex-direction: column; }
+  .dietarySummaryStats { justify-content: flex-start; }
+  .dietaryDetailList > div { grid-template-columns: 1fr; }
 }
 
 .lodgingActions {

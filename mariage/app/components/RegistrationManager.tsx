@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { hasDietaryRequirement } from "@/lib/dietary";
 import WeddingSurvey, { type SurveyData } from "./WeddingSurvey";
 
 type ManagedSummary = {
@@ -31,6 +32,7 @@ export default function RegistrationManager({ data, token }: { data: ManagedSumm
   const [editing, setEditing] = useState(false);
   const input = data.registration;
   const reservation = data.reservation;
+  const dietaryAlerts = (input.dietaryRequirements ?? []).filter(hasDietaryRequirement);
 
   return (
     <main className="registration-manage-page">
@@ -54,6 +56,7 @@ export default function RegistrationManager({ data, token }: { data: ManagedSumm
             <div><dt>Contact</dt><dd>{input.respondentEmail}{input.phone ? ` · ${input.phone}` : ""}</dd></div>
             <div><dt>Hébergement</dt><dd>{input.lodgingGuestNames.length ? `${input.lodgingGuestNames.join(", ")} · ${input.lodgingNights.map((night) => dayLabels[night] ?? night).join(" · ")}` : "Sans hébergement au domaine"}</dd></div>
             <div><dt>Souhait de chambre</dt><dd>{input.roommateWishes || "—"}</dd></div>
+            <div><dt>Régimes et allergies</dt><dd>{input.dietaryRequirements === null ? "Informations non renseignées" : dietaryAlerts.length ? dietaryAlerts.map((entry) => `${entry.participantName} : ${entry.diet === "vegetarian" ? "végétarien" : "aucun régime"}${entry.allergies ? ` · ${entry.allergies}` : ""}`).join(" ; ") : "Rien à signaler"}</dd></div>
             <div><dt>Musique</dt><dd>{input.songs.length ? input.songs.join(", ") : "—"}</dd></div>
             <div><dt>Montant</dt><dd>{reservation ? money(reservation.financialReviewStatus === "pending" ? reservation.proposedAmountCents ?? reservation.amountCents : reservation.amountCents) : "—"}</dd></div>
           </dl>
