@@ -14,6 +14,7 @@ import {
   isValidWeddingEmail,
 } from "@/lib/admin-email";
 import { formatCarpoolDate, legacyUtcClockToLocal } from "@/lib/carpool-time";
+import { formatAttendanceDay } from "@/lib/attendance";
 import { hasDietaryRequirement } from "@/lib/dietary";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { login, logout } from "./actions";
@@ -32,12 +33,6 @@ import styles from "./admin.module.css";
 export const metadata: Metadata = {
   title: "Réponses du mariage | Damien & Julie",
   robots: { index: false, follow: false },
-};
-
-const dayLabels: Record<string, string> = {
-  "2027-05-28": "Vendredi 28 mai",
-  "2027-05-29": "Samedi 29 mai",
-  "2027-05-30": "Dimanche 30 mai",
 };
 
 function joinOrDash(items: string[]) {
@@ -139,12 +134,22 @@ export default async function AdminPage({
   const reminderCandidatesByReservationId = new Map(
     reminderCandidates.map((candidate) => [candidate.reservationId, candidate]),
   );
-  const paidLodgingReservations = lodgingReservations.filter(
+  const activeLodgingReservations = lodgingReservations.filter(
+    (reservation) => reservation.booking_status === "active",
+  );
+  const paidLodgingReservations = activeLodgingReservations.filter(
     (reservation) =>
-      reservation.booking_status === "active" &&
       reservation.amount_cents > 0 &&
       reservation.payment_status === "confirmed",
   );
+  const finalizedPlacementCount = activeLodgingReservations.filter(
+    (reservation) => reservation.placement_status === "finalized",
+  ).length;
+  const placementQueueCount = activeLodgingReservations.filter(
+    (reservation) =>
+      reservation.financial_review_status !== "pending" &&
+      reservation.placement_status !== "finalized",
+  ).length;
   const pendingAmountCents = reminderCandidates.reduce(
     (sum, candidate) => sum + candidate.amountCents,
     0,
@@ -350,7 +355,7 @@ export default async function AdminPage({
                             historyAvailable={emailHistory.available}
                           />
                         )}
-                        {reservation.booking_status === "active" && reservation.payment_status === "confirmed" && !pendingChange && (
+                        {reservation.booking_status === "active" && !pendingChange && (
                           <div className={styles.placementActionWrap}>
                             <span className={`${styles.placementBadge} ${
                               placementStatus === "finalized"
@@ -410,7 +415,7 @@ export default async function AdminPage({
                       <dd>
                         {joinOrDash(
                           response.attendance_days.map(
-                            (day) => dayLabels[day] ?? day,
+                            (day) => formatAttendanceDay(day),
                           ),
                         )}
                       </dd>
@@ -557,8 +562,9 @@ export default async function AdminPage({
               <h2>Placement au domaine</h2>
             </div>
             <span>
-              {lodgingReservations.filter((reservation) => reservation.booking_status === "active").length} réservation
-              {lodgingReservations.filter((reservation) => reservation.booking_status === "active").length > 1 ? "s" : ""}
+              {activeLodgingReservations.length} réservation
+              {activeLodgingReservations.length > 1 ? "s" : ""} · {placementQueueCount} à placer · {finalizedPlacementCount} finalisée
+              {finalizedPlacementCount > 1 ? "s" : ""}
             </span>
           </div>
 
@@ -633,7 +639,7 @@ export default async function AdminPage({
                           historyAvailable={emailHistory.available}
                         />
                       )}
-                      {reservation.booking_status === "active" && reservation.payment_status === "confirmed" && !pendingChange && (
+                      {reservation.booking_status === "active" && !pendingChange && (
                         <div className={styles.placementActionWrap}>
                           <span className={`${styles.placementBadge} ${
                             placementStatus === "finalized"
@@ -659,7 +665,7 @@ export default async function AdminPage({
                   <dl className={styles.details}>
                     <div>
                       <dt>Nuitées</dt>
-                      <dd>{joinOrDash(reservation.nights.map((night) => dayLabels[night] ?? night))}</dd>
+                      <dd>{joinOrDash(reservation.nights.map((night) => formatAttendanceDay(night)))}</dd>
                     </div>
                     <div>
                       <dt>Personnes</dt>

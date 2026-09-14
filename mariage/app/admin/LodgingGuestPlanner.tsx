@@ -42,7 +42,6 @@ export default function LodgingGuestPlanner({
   const eligibleReservations = reservations.filter(
     (reservation) =>
       reservation.booking_status === "active" &&
-      reservation.payment_status === "confirmed" &&
       reservation.financial_review_status !== "pending",
   );
   const [assignments, setAssignments] = useState(initialAssignments);
@@ -146,7 +145,7 @@ export default function LodgingGuestPlanner({
           <p className={styles.eyebrow}>File de travail</p>
           <h3 id="guest-planner-title">Placements à traiter</h3>
         </div>
-        <p>Traitez chaque réservation payée, puis confirmez-la lorsque tous ses voyageurs ont une chambre.</p>
+        <p>Placez chaque réservation active, indépendamment du paiement, puis confirmez-la lorsque tous ses voyageurs ont une chambre.</p>
       </div>
 
       {error && <p className={styles.plannerError} role="alert">{error}</p>}
@@ -212,8 +211,8 @@ export default function LodgingGuestPlanner({
       {workQueue.length === 0 && (
         <p className={styles.empty}>
           {eligibleReservations.length === 0
-            ? "Confirmez un paiement pour alimenter la file de travail."
-            : "Tous les placements payés sont finalisés."}
+            ? "Aucune réservation active n’est prête à être placée."
+            : "Tous les placements sont finalisés."}
         </p>
       )}
 

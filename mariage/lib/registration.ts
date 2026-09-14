@@ -2,22 +2,29 @@ import "server-only";
 
 import { createHash, randomBytes, randomUUID } from "node:crypto";
 import { getPrivateSupabaseConfig } from "@/lib/admin-data";
+import { ALLOWED_ATTENDANCE_DAYS } from "@/lib/attendance";
 import {
   normalizeDietaryRequirements,
   type DietaryRequirement,
   type DietaryOption,
 } from "@/lib/dietary";
 import {
+  getLodgingGuestAssignments,
   LODGING_CAPACITY,
   LODGING_NIGHTS,
   LODGING_PRICE_CENTS,
+  placeLodgingGuest,
   type LodgingChangeRequest,
   type LodgingReservation,
   type LodgingSnapshot,
+  unplaceLodgingGuest,
+  updateLodgingReservation,
 } from "@/lib/lodging";
-import { updateLodgingReservation } from "@/lib/lodging";
+import {
+  placementStatusAfterReconciliation,
+  planLodgingPlacementReconciliation,
+} from "@/lib/lodging-placement";
 
-const ALLOWED_DAYS = new Set(["2027-05-28", "2027-05-29", "2027-05-30"]);
 const PAYMENT_METHODS = new Set(["wero", "bank_transfer", "later"]);
 
 export type RegistrationInput = {
@@ -125,7 +132,9 @@ export function validateRegistrationInput(value: unknown): RegistrationInput {
   const respondentEmail = cleanString(body.respondentEmail, 120).toLowerCase();
   const companions = cleanStringArray(body.companions, 15, 80);
   const notAttending = body.notAttending === true;
-  const attendanceDays = cleanStringArray(body.attendanceDays, 3, 10).filter((day) => ALLOWED_DAYS.has(day));
+  const attendanceDays = cleanStringArray(body.attendanceDays, 4, 24).filter((day) =>
+    ALLOWED_ATTENDANCE_DAYS.has(day),
+  );
   const departureCity = cleanString(body.departureCity, 120);
   const departureCountry = cleanString(body.departureCountry, 80);
   const latitudeValue = Number(body.latitude);
@@ -457,6 +466,49 @@ export async function clearLodgingPlacements(reservationId: string) {
   if (responses.some((response) => !response.ok)) throw new Error("Les anciens placements n’ont pas pu être réinitialisés.");
 }
 
+export async function reconcileLodgingPlacements(
+  reservation: LodgingReservation,
+  input: RegistrationInput,
+) {
+  const currentAssignments = (await getLodgingGuestAssignments()).filter(
+    (assignment) => assignment.reservation_id === reservation.id,
+  );
+  if (!currentAssignments.length) {
+    if (reservation.placement_status !== "pending") {
+      await updateLodgingReservation(reservation.id, { placement_status: "pending" });
+    }
+    return;
+  }
+
+  const plan = planLodgingPlacementReconciliation(
+    currentAssignments,
+    input.lodgingGuestNames,
+  );
+
+  await Promise.all(
+    [...new Set(plan.removeGuestIndexes)].map((guestIndex) =>
+      unplaceLodgingGuest(reservation.id, guestIndex),
+    ),
+  );
+
+  for (const placement of plan.upserts) {
+    await placeLodgingGuest(
+      reservation.id,
+      placement.toGuestIndex,
+      placement.roomName,
+    );
+  }
+
+  const placementStatus = placementStatusAfterReconciliation(
+    reservation.placement_status,
+    input.lodgingGuestNames.length,
+    plan.upserts.length,
+  );
+  await updateLodgingReservation(reservation.id, {
+    placement_status: placementStatus,
+  });
+}
+
 export async function createFinancialChange(
   record: RegistrationRecord,
   reservation: LodgingReservation,
@@ -602,11 +654,12 @@ export async function reviewLodgingChange(changeId: string, decision: "approved"
   if (decision === "approved") {
     if (details.amountCents > 0) {
       await replaceLodgingDetails(reservation.id, restoredInput);
-      await updateLodgingReservation(reservation.id, { booking_status: "active", placement_status: "pending" });
+      await updateLodgingReservation(reservation.id, { booking_status: "active" });
+      await reconcileLodgingPlacements(reservation, restoredInput);
     } else {
       await updateLodgingReservation(reservation.id, { booking_status: "cancelled", placement_status: "pending" });
+      await clearLodgingPlacements(reservation.id);
     }
-    await clearLodgingPlacements(reservation.id);
   } else {
     await patchRegistration(record.id, restoredInput);
   }

@@ -1,14 +1,9 @@
 import { getWeddingResponses } from "@/lib/admin-data";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
+import { formatAttendanceDay } from "@/lib/attendance";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-
-const dayLabels: Record<string, string> = {
-  "2027-05-28": "Vendredi 28 mai",
-  "2027-05-29": "Samedi 29 mai",
-  "2027-05-30": "Dimanche 30 mai",
-};
 
 function escapeXml(value: string) {
   return value
@@ -203,7 +198,7 @@ export async function GET(request: Request) {
       attending ? 1 + response.companions.length : 0,
       attending ? "Présent" : "Ne sera pas présent",
       response.attendance_days
-        .map((day) => dayLabels[day] ?? day)
+        .map(formatAttendanceDay)
         .join(", "),
       response.departure_city && response.departure_country
         ? `${response.departure_city}, ${response.departure_country}`

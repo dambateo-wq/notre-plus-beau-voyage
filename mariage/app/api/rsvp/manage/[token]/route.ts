@@ -10,6 +10,7 @@ import {
   lodgingAmount,
   lodgingSnapshot,
   patchRegistration,
+  reconcileLodgingPlacements,
   RegistrationValidationError,
   replaceLodgingDetails,
   reservationSnapshot,
@@ -77,8 +78,12 @@ export async function PATCH(request: Request, context: RouteContext<"/api/rsvp/m
         }
         await patchRegistration(record.id, input);
         if (lodgingChanged && placementChanged) {
-          await clearLodgingPlacements(reservation.id);
-          await updateLodgingReservation(reservation.id, { placement_status: "pending" });
+          if (newAmount > 0) {
+            await reconcileLodgingPlacements(reservation, input);
+          } else {
+            await clearLodgingPlacements(reservation.id);
+            await updateLodgingReservation(reservation.id, { placement_status: "pending" });
+          }
         }
       }
     }

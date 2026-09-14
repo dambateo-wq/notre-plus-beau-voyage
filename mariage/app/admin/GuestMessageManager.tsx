@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
+import { formatAttendanceDay } from "@/lib/attendance";
 import { sendManualGuestMessage, type ManualEmailActionResult } from "./actions";
 import { EmailResult } from "./PaymentReminderManager";
 import styles from "./admin.module.css";
@@ -19,12 +20,6 @@ type CampaignSummary = {
   sentCount: number;
   failedCount: number;
 } | null;
-
-const DAY_LABELS: Record<string, string> = {
-  "2027-05-28": "Vendredi",
-  "2027-05-29": "Samedi",
-  "2027-05-30": "Dimanche",
-};
 
 const DEFAULT_MESSAGE = `Bonjour {{prenom}},
 
@@ -207,7 +202,7 @@ export default function GuestMessageManager({
                         <span>
                           <strong>{recipient.name}</strong>
                           <small>{recipient.email}</small>
-                          <small>{recipient.days.map((day) => DAY_LABELS[day] ?? day).join(" / ")}</small>
+                          <small>{recipient.days.map(formatAttendanceDay).join(" / ")}</small>
                         </span>
                       </label>
                     ))}

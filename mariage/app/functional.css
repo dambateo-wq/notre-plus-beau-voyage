@@ -66,7 +66,7 @@
 .place-results button:hover{background:#f1ece2}
 .place-results small{color:#747a70;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .selected-place{margin-top:12px;color:var(--olive);font-weight:700}
-.lodging-note{margin:-5px 0 20px;padding:16px;border-left:3px solid var(--gold);border-radius:0 12px 12px 0;background:#f4ece1;line-height:1.6}
+.lodging-note{margin:-5px 0 20px;padding:16px;border-left:3px solid var(--gold);border-radius:0 12px 12px 0;background:#f4ece1;line-height:1.6}.lodging-note p{margin:0}.lodging-note p+p{margin-top:8px}
 .lodging-choices{grid-template-columns:repeat(3,minmax(0,1fr))}
 .sleepers-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:20px}
 .sleepers-grid label,.sleeper-field,.roommate-field{display:grid;gap:8px;font-weight:600}

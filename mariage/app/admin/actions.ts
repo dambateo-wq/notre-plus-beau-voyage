@@ -331,7 +331,6 @@ export async function updateLodging(formData: FormData) {
   if (action === "confirm") {
     await updateLodgingReservation(id, {
       payment_status: "confirmed",
-      placement_status: "pending",
     });
   } else if (action === "cancel") {
     await updateLodgingReservation(id, { booking_status: "cancelled" });
@@ -377,8 +376,12 @@ export async function saveLodgingPlacement(formData: FormData) {
   };
   const reservations = await getLodgingReservations();
   const reservation = reservations.find((item) => item.id === id);
-  if (!reservation || reservation.booking_status !== "active" || reservation.payment_status !== "confirmed") {
-    throw new Error("Seules les réservations actives dont le paiement est confirmé peuvent être placées.");
+  if (
+    !reservation ||
+    reservation.booking_status !== "active" ||
+    reservation.financial_review_status === "pending"
+  ) {
+    throw new Error("Seules les réservations actives sans modification financière en attente peuvent être placées.");
   }
   const fridayTotal = values.friday_adults + values.friday_children + values.friday_babies;
   const saturdayTotal = values.saturday_adults + values.saturday_children + values.saturday_babies;
@@ -408,6 +411,16 @@ export async function saveGuestLodgingPlacement(formData: FormData) {
     !Number.isInteger(guestIndex) || guestIndex < 1 || guestIndex > 20 ||
     !LODGING_ROOM_NAMES.includes(roomName as never)
   ) throw new Error("Le placement individuel est invalide.");
+
+  const reservations = await getLodgingReservations();
+  const reservation = reservations.find((item) => item.id === reservationId);
+  if (
+    !reservation ||
+    reservation.booking_status !== "active" ||
+    reservation.financial_review_status === "pending"
+  ) {
+    throw new Error("Cette réservation ne peut pas être placée.");
+  }
 
   await updateLodgingReservation(reservationId, { placement_status: "in_progress" });
   const assignment = await persistLodgingGuest(reservationId, guestIndex, roomName);
@@ -442,7 +455,7 @@ export async function finalizeLodgingPlacement(formData: FormData) {
   if (
     !reservation ||
     reservation.booking_status !== "active" ||
-    reservation.payment_status !== "confirmed"
+    reservation.financial_review_status === "pending"
   ) {
     throw new Error("Cette réservation ne peut pas être finalisée.");
   }
@@ -476,7 +489,7 @@ export async function reopenLodgingPlacement(formData: FormData) {
   if (
     !reservation ||
     reservation.booking_status !== "active" ||
-    reservation.payment_status !== "confirmed"
+    reservation.financial_review_status === "pending"
   ) {
     throw new Error("Cette réservation ne peut pas être modifiée.");
   }

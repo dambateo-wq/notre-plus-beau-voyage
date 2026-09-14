@@ -108,7 +108,7 @@ export default function LodgingFloorPlans({
           <p className={styles.eyebrow}>Plan de placement</p>
           <h3 id="floor-plans-title">Qui dort où ?</h3>
         </div>
-        <p>Les noms apparaissent automatiquement sur le plan dès qu’une réservation payée est placée.</p>
+        <p>Les noms apparaissent automatiquement sur le plan dès qu’une réservation active est placée.</p>
       </div>
 
       <div className={styles.planGrid}>

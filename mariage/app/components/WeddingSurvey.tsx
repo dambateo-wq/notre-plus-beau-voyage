@@ -2,6 +2,7 @@
 
 import { FormEvent, useMemo, useRef, useState } from "react";
 import type { DietaryOption, DietaryRequirement } from "@/lib/dietary";
+import { ATTENDANCE_OPTIONS, normalizeAttendanceDays } from "@/lib/attendance";
 
 type Place = {
   label: string;
@@ -43,12 +44,6 @@ type SubmitResult = {
   previousAmountCents?: number | null;
   newAmountCents?: number;
 };
-
-const attendanceOptions = [
-  { value: "2027-05-28", label: "Vendredi 28 mai 2027" },
-  { value: "2027-05-29", label: "Samedi 29 mai 2027" },
-  { value: "2027-05-30", label: "Dimanche 30 mai 2027" },
-];
 
 const lodgingNights = [
   { value: "2027-05-28", label: "Vendredi 28 mai" },
@@ -110,7 +105,9 @@ export default function WeddingSurvey({
   const [respondentName, setRespondentName] = useState(source.respondentName);
   const [respondentEmail, setRespondentEmail] = useState(source.respondentEmail);
   const [companions, setCompanions] = useState<string[]>(source.companions);
-  const [attendanceDays, setAttendanceDays] = useState<string[]>(source.attendanceDays);
+  const [attendanceDays, setAttendanceDays] = useState<string[]>(
+    normalizeAttendanceDays(source.attendanceDays),
+  );
   const [notAttending, setNotAttending] = useState(source.notAttending);
   const [locationQuery, setLocationQuery] = useState(
     source.departureCity && source.departureCountry ? `${source.departureCity}, ${source.departureCountry}` : "",
@@ -344,9 +341,10 @@ export default function WeddingSurvey({
         </fieldset>
 
         <fieldset>
-          <legend><span>4</span> Je viendrai faire la fête avec vous…</legend>
+          <legend><span>4</span> Je serai parmi vous…</legend>
+          <p className="field-help">Sélectionnez tous les moments auxquels vous serez présent.</p>
           <div className="choice-grid">
-            {attendanceOptions.map((option) => (
+            {ATTENDANCE_OPTIONS.map((option) => (
               <label className="choice-card" key={option.value}><input type="checkbox" checked={attendanceDays.includes(option.value)} onChange={() => toggleAttendance(option.value)} /><span>{option.label}</span></label>
             ))}
             <label className="choice-card choice-decline"><input type="checkbox" checked={notAttending} onChange={declineInvitation} /><span>Malheureusement, je ne pourrai pas être présent</span></label>
@@ -368,7 +366,11 @@ export default function WeddingSurvey({
 
             <fieldset>
               <legend><span>6</span> Pour en profiter au maximum, je souhaite dormir sur place</legend>
-              <div className="lodging-note">Les chambres sont composées de lits simples entre 2 et 5 personnes. On vous connaît tous, on fera au mieux pour les répartitions. La participation est de <strong>35 € par personne et par nuit</strong>.</div>
+              <div className="lodging-note">
+                <p>Les chambres sont composées de lits simples entre 2 et 5 personnes.</p>
+                <p>On vous connaît tous, on fera au mieux pour les répartitions.</p>
+                <p>La participation est de <strong>35 € par personne et par nuit</strong>.</p>
+              </div>
               <div className="choice-grid lodging-answer">
                 <label className="choice-card"><input type="radio" name="lodging-choice" checked={lodgingChoice === "yes"} onChange={() => setLodgingChoice("yes")} /><span>Oui, je souhaite dormir au domaine</span></label>
                 <label className="choice-card"><input type="radio" name="lodging-choice" checked={lodgingChoice === "no"} onChange={() => { setLodgingChoice("no"); setSelectedNights([]); setLodgingGuestIndexes([]); }} /><span>Non merci</span></label>

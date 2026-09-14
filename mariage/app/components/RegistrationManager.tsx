@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { formatAttendanceDay } from "@/lib/attendance";
 import { hasDietaryRequirement } from "@/lib/dietary";
 import WeddingSurvey, { type SurveyData } from "./WeddingSurvey";
 
@@ -16,12 +17,6 @@ type ManagedSummary = {
     previousAmountCents: number | null;
     proposedAmountCents: number | null;
   };
-};
-
-const dayLabels: Record<string, string> = {
-  "2027-05-28": "Vendredi 28 mai",
-  "2027-05-29": "Samedi 29 mai",
-  "2027-05-30": "Dimanche 30 mai",
 };
 
 function money(cents: number) {
@@ -51,10 +46,10 @@ export default function RegistrationManager({ data, token }: { data: ManagedSumm
           </div>
           <dl>
             <div><dt>Participants</dt><dd>{[input.respondentName, ...input.companions].join(", ")}</dd></div>
-            <div><dt>Jours de présence</dt><dd>{input.notAttending ? "—" : input.attendanceDays.map((day) => dayLabels[day] ?? day).join(" · ")}</dd></div>
+            <div><dt>Jours de présence</dt><dd>{input.notAttending ? "—" : input.attendanceDays.map((day) => formatAttendanceDay(day)).join(" · ")}</dd></div>
             <div><dt>Ville de départ</dt><dd>{input.departureCity ? `${input.departureCity}, ${input.departureCountry}` : "—"}</dd></div>
             <div><dt>Contact</dt><dd>{input.respondentEmail}{input.phone ? ` · ${input.phone}` : ""}</dd></div>
-            <div><dt>Hébergement</dt><dd>{input.lodgingGuestNames.length ? `${input.lodgingGuestNames.join(", ")} · ${input.lodgingNights.map((night) => dayLabels[night] ?? night).join(" · ")}` : "Sans hébergement au domaine"}</dd></div>
+            <div><dt>Hébergement</dt><dd>{input.lodgingGuestNames.length ? `${input.lodgingGuestNames.join(", ")} · ${input.lodgingNights.map((night) => formatAttendanceDay(night)).join(" · ")}` : "Sans hébergement au domaine"}</dd></div>
             <div><dt>Souhait de chambre</dt><dd>{input.roommateWishes || "—"}</dd></div>
             <div><dt>Régimes et allergies</dt><dd>{input.dietaryRequirements === null ? "Informations non renseignées" : dietaryAlerts.length ? dietaryAlerts.map((entry) => `${entry.participantName} : ${entry.diet === "vegetarian" ? "végétarien" : "aucun régime"}${entry.allergies ? ` · ${entry.allergies}` : ""}`).join(" ; ") : "Rien à signaler"}</dd></div>
             <div><dt>Musique</dt><dd>{input.songs.length ? input.songs.join(", ") : "—"}</dd></div>

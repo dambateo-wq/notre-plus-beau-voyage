@@ -1,14 +1,9 @@
 import "server-only";
 
+import { formatAttendanceDay } from "@/lib/attendance";
 import { emailFrame, escapeHtml, sendWeddingEmail } from "@/lib/email";
 import { getPaymentDetails } from "@/lib/lodging";
 import { lodgingAmount, type RegistrationInput } from "@/lib/registration";
-
-const dayLabels: Record<string, string> = {
-  "2027-05-28": "vendredi 28 mai",
-  "2027-05-29": "samedi 29 mai",
-  "2027-05-30": "dimanche 30 mai",
-};
 
 function money(cents: number) {
   return new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(cents / 100);
@@ -16,13 +11,13 @@ function money(cents: number) {
 
 function detailsHtml(input: RegistrationInput) {
   const participants = [input.respondentName, ...input.companions].join(", ");
-  const days = input.notAttending ? "Ne pourra pas être présent" : input.attendanceDays.map((day) => dayLabels[day] ?? day).join(", ");
+  const days = input.notAttending ? "Ne pourra pas être présent" : input.attendanceDays.map((day) => formatAttendanceDay(day)).join(", ");
   const amount = lodgingAmount(input);
   return `
     <div style="margin:24px 0;padding:20px;border-radius:16px;background:#f4efe5">
       <p style="margin:0 0 10px"><strong>Participants :</strong> ${escapeHtml(participants)}</p>
       <p style="margin:0 0 10px"><strong>Présence :</strong> ${escapeHtml(days)}</p>
-      ${amount > 0 ? `<p style="margin:0 0 10px"><strong>Hébergement :</strong> ${escapeHtml(input.lodgingGuestNames.join(", "))} · ${escapeHtml(input.lodgingNights.map((night) => dayLabels[night] ?? night).join(", "))}</p><p style="margin:0"><strong>Participation :</strong> ${money(amount)}</p>` : "<p style=\"margin:0\"><strong>Hébergement :</strong> sans hébergement au domaine</p>"}
+      ${amount > 0 ? `<p style="margin:0 0 10px"><strong>Hébergement :</strong> ${escapeHtml(input.lodgingGuestNames.join(", "))} · ${escapeHtml(input.lodgingNights.map((night) => formatAttendanceDay(night)).join(", "))}</p><p style="margin:0"><strong>Participation :</strong> ${money(amount)}</p>` : "<p style=\"margin:0\"><strong>Hébergement :</strong> sans hébergement au domaine</p>"}
     </div>`;
 }
 
@@ -59,7 +54,7 @@ export async function sendRegistrationConfirmation(
   const text = [
     heading,
     `Participants : ${[input.respondentName, ...input.companions].join(", ")}`,
-    `Présence : ${input.notAttending ? "absent" : input.attendanceDays.map((day) => dayLabels[day] ?? day).join(", ")}`,
+    `Présence : ${input.notAttending ? "absent" : input.attendanceDays.map((day) => formatAttendanceDay(day)).join(", ")}`,
     input.lodgingNights.length ? `Hébergement : ${input.lodgingGuestNames.join(", ")} · ${money(newAmount)}` : "Sans hébergement au domaine",
     difference === null ? "" : `Ancien montant : ${money(options!.previousAmountCents!)} · Nouveau montant : ${money(newAmount)} · Écart : ${difference >= 0 ? "+" : ""}${money(difference)}`,
     `Voir ou modifier mon inscription : ${manageUrl}`,
