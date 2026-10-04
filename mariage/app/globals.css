@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600&display=swap');
 @import './functional.css';
+@import './photos-home.css';
 
 :root{--ink:#273126;--olive:#59654d;--sand:#d9cbb6;--cream:#f8f5ee;--paper:#fffdf9;--gold:#b49a68;--line:rgba(39,49,38,.14)}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--cream);color:var(--ink);font-family:Inter,Arial,sans-serif;font-size:15px}a{color:inherit;text-decoration:none}button{font:inherit}

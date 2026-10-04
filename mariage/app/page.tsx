@@ -37,6 +37,7 @@ export default function Home() {
               <a href="#voyage-de-noces"><span>04</span> Participer au voyage de noces</a>
             </div>
           </div>
+          <a href="#photos">Photos</a>
         </div>
         <details className="v2-mobile-nav">
           <summary>Menu</summary>
@@ -49,6 +50,7 @@ export default function Home() {
             <a href="#covoiturage">Covoiturage</a>
             <a href="#infos-pratiques">Infos pratiques</a>
             <a href="#voyage-de-noces">Participer au voyage de noces</a>
+            <a className="v2-mobile-photos-link" href="#photos">Photos</a>
           </div>
         </details>
       </nav>
@@ -139,6 +141,11 @@ export default function Home() {
       </section>
 
       <HoneymoonContribution />
+
+      <section className="v2-photos-entry" id="photos">
+        <div className="v2-photos-entry-image"><Image src="/voyage.jpg" alt="Damien et Julie au bord d’un lac, un souvenir de leur voyage" fill sizes="(max-width: 759px) 100vw, 50vw" /></div>
+        <div className="v2-photos-entry-copy"><p className="v2-kicker v2-kicker-dark">Photos</p><h2>Nos <em>souvenirs</em></h2><p>Pendant le week-end et après le mariage, retrouvez ici les images de notre plus beau voyage.</p><a className="v2-button v2-button-dark" href="/photos">Découvrir les photos <span>→</span></a></div>
+      </section>
 
       <footer className="v2-footer"><div><p>Damien & Julie</p><span>29 & 30 mai 2027 · Domaine du Massacan</span></div><span className="v2-bike">⌁</span><div className="v2-footer-links"><a href="/admin" aria-label="Accès administrateur">🔒 Admin</a><a href="#top">Retour en haut ↑</a></div></footer>
     </main>
