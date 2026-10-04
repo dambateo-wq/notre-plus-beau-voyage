@@ -23,7 +23,7 @@ import jsQR from 'jsqr';
       assert.equal((await context.cookies()).filter(c => c.name === 'wedding_photos_session').length, 0);
       await page.locator('input[name=password]').fill('local-photos-test');
       await page.getByRole('button', { name: 'Entrer dans l’album' }).click();
-      await page.getByRole('heading', { name: 'Les photos des mariés' }).waitFor();
+      await page.getByRole('heading', { name: 'Les photos de notre photographe' }).waitFor();
       await page.reload();
       assert.equal(await page.locator('input[name=password]').count(), 0);
       const cookie = (await context.cookies()).find(c => c.name === 'wedding_photos_session');

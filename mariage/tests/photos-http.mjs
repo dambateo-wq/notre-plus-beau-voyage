@@ -39,7 +39,7 @@ for (const mode of ['configured', 'missing', 'disabled']) {
     assert(cookieHeader.includes('HttpOnly') && cookieHeader.includes('Secure') && cookieHeader.includes('SameSite=strict') && cookieHeader.includes('Path=/photos'));
     const headers = { Cookie: cookieHeader.split(';')[0] };
     const albumHtml = await (await fetch(base + '/photos', { headers })).text();
-    assert(albumHtml.includes('des mariés') && albumHtml.includes('du week-end'));
+    assert(albumHtml.includes('de notre photographe') && albumHtml.includes('du week-end'));
     assert(!albumHtml.includes('name="password"'));
     assert((await (await fetch(base + '/photos', { headers })).text()).includes('Fermer ma session Photos'));
     const qr = await fetch(base + '/photos/qr?download', { headers });

@@ -41,7 +41,7 @@ export default async function Photos({ searchParams }: { searchParams: Promise<{
       </div>
     </section> : <>
       <div className={styles.albums}>
-        <article className={styles.album}><AlbumImages /><div className={styles.albumCopy}><p className="v2-kicker v2-kicker-dark">La sélection de Damien & Julie</p><h2>Les photos<br /><em>des mariés</em></h2><p>Après le grand jour, nous partagerons ici notre sélection de photos du mariage.</p>
+        <article className={styles.album}><AlbumImages /><div className={styles.albumCopy}><p className="v2-kicker v2-kicker-dark">Le mariage à travers son regard</p><h2>Les photos<br /><em>de notre photographe</em></h2><p>Après le grand jour, retrouvez ici les photos du mariage prises par notre photographe.</p>
           {albums?.official ? <AlbumLink url={albums.official}>Découvrir l’album</AlbumLink> : <p className={styles.unavailable}>L’album sera disponible après le mariage.</p>}
         </div></article>
         <article className={styles.album}><AlbumImages guest /><div className={styles.albumCopy}><p className="v2-kicker v2-kicker-dark">À travers vos yeux</p><h2>Vos photos<br /><em>du week-end</em></h2><p>Vous avez capturé un beau moment, une photo improbable ou simplement votre vision du week-end ? Partagez vos souvenirs avec nous.</p>
