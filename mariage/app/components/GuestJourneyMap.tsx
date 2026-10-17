@@ -12,6 +12,7 @@ type GuestRoute = {
   latitude: number;
   longitude: number;
   created_at: string;
+  traveler_names?: string[];
 };
 
 type CityGroup = GuestRoute & {
@@ -130,14 +131,13 @@ function popupContent(group: CityGroup) {
   card.append(country);
 
   const count = document.createElement("b");
-  count.textContent = `${group.members.length} voyageur${
-    group.members.length > 1 ? "s" : ""
+  const names = group.traveler_names ?? group.members
+    .map((member) => member.display_name).filter(Boolean);
+  count.textContent = `${names.length} voyageur${
+    names.length > 1 ? "s" : ""
   }`;
   card.append(count);
 
-  const names = [...new Set(group.members.map((member) => member.display_name))]
-    .filter(Boolean)
-    .slice(0, 5);
   if (names.length) {
     const people = document.createElement("small");
     people.textContent = names.join(" · ");
