@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { PNG } from 'pngjs';
 import jsQR from 'jsqr';
 
@@ -11,13 +12,15 @@ async function login(base, html, value) {
   const body = new FormData(); body.set(action[1], ''); body.set('password', value);
   return fetch(base + '/photos', { method: 'POST', body, redirect: 'manual', headers: { Origin: base } });
 }
-for (const mode of ['configured', 'missing', 'disabled']) {
-  const port = mode === 'configured' ? 3201 : mode === 'missing' ? 3202 : 3203;
+for (const mode of ['configured', 'draft', 'missing', 'disabled']) {
+  const port = mode === 'configured' ? 3201 : mode === 'missing' ? 3202 : mode === 'draft' ? 3204 : 3203;
+  const hasAlbums = mode === 'configured' || mode === 'draft';
   const base = `http://127.0.0.1:${port}`;
   const server = spawn(process.execPath, ['node_modules/next/dist/bin/next', 'start', '--hostname', '127.0.0.1', '--port', String(port)], {
     env: { ...process.env, WEDDING_PHOTOS_PASSWORD: mode === 'disabled' ? '' : password,
-      WEDDING_GUEST_GOOGLE_PHOTOS_URL: mode === 'configured' ? guest : '',
-      WEDDING_OFFICIAL_GOOGLE_PHOTOS_URL: mode === 'configured' ? 'https://photos.app.goo.gl/officialTest' : '' }, stdio: ['ignore', 'pipe', 'pipe'],
+      WEDDING_GUEST_GOOGLE_PHOTOS_URL: hasAlbums ? guest : '',
+      WEDDING_OFFICIAL_GOOGLE_PHOTOS_URL: hasAlbums ? 'https://photos.app.goo.gl/officialTest' : '',
+      WEDDING_OFFICIAL_GOOGLE_PHOTOS_PUBLISHED: mode === 'configured' ? 'true' : '' }, stdio: ['ignore', 'pipe', 'pipe'],
   });
   try {
     await new Promise((resolve, reject) => {
@@ -43,16 +46,22 @@ for (const mode of ['configured', 'missing', 'disabled']) {
     assert(!albumHtml.includes('name="password"'));
     assert((await (await fetch(base + '/photos', { headers })).text()).includes('Fermer ma session Photos'));
     const qr = await fetch(base + '/photos/qr?download', { headers });
-    if (mode === 'configured') {
-      assert(albumHtml.includes(guest) && albumHtml.includes('officialTest'));
+    if (hasAlbums) {
+      assert(albumHtml.includes(guest));
+      assert.equal(albumHtml.includes('officialTest'), mode === 'configured', 'an unpublished official album is not exposed as a link');
+      if (mode === 'draft') assert(albumHtml.includes('Album à venir') && albumHtml.includes('Nous le partagerons après le mariage.'));
       assert.equal(qr.status, 200);
       assert(qr.headers.get('content-disposition').startsWith('attachment'));
       assert.equal(qr.headers.get('cache-control'), 'private, no-store');
-      const png = PNG.sync.read(Buffer.from(await qr.arrayBuffer()));
+      const bytes = Buffer.from(await qr.arrayBuffer());
+      // Captured from the unchanged production-mode route BEFORE the redesign,
+      // using this exact guestTest URL: preserve the PNG byte-for-byte.
+      assert.equal(createHash('sha256').update(bytes).digest('hex'), 'e10d89bac5952ff4a9ec24628f6a36d5f7f1f91a1dc6aeba24247cea57c35332');
+      const png = PNG.sync.read(bytes);
       assert.equal(png.width, 1600);
       assert.equal(jsQR(new Uint8ClampedArray(png.data), png.width, png.height).data, guest);
     } else {
-      assert(albumHtml.includes('disponible après le mariage') && albumHtml.includes('bientôt disponible'));
+      assert(albumHtml.includes('Album à venir') && albumHtml.includes('bientôt disponible'));
       assert.equal(qr.status, 404);
     }
     const tampered = headers.Cookie.slice(0, -1) + (headers.Cookie.endsWith('a') ? 'b' : 'a');

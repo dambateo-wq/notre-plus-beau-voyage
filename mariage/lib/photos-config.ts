@@ -1,5 +1,10 @@
 import "server-only";
 
+// Show the official album link only after its owner marks it ready.
+export function officialPhotosPublished() {
+  return process.env.WEDDING_OFFICIAL_GOOGLE_PHOTOS_PUBLISHED === "true";
+}
+
 // Only public Google Photos sharing links; never fetch or synchronise albums.
 export function googlePhotosUrl(value: string | undefined) {
   if (!value) return null;
