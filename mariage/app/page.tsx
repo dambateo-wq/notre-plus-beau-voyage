@@ -7,7 +7,7 @@ import CarpoolBoard from "./components/CarpoolBoard";
 import HoneymoonContribution from "./components/HoneymoonContribution";
 
 const programme = [
-  { day: "Vendredi 28 mai", time: "Matin", title: "Mariage à la mairie", text: "Pour les personnes informées, suivi d’un restaurant au Revest." },
+  { day: "Vendredi 28 mai", time: "Matin", title: "Mariage à la mairie", text: "Pour la famille proche et les témoins, suivi d’un restaurant au Revest." },
   { day: "Vendredi 28 mai", time: "17h", title: "Arrivée au Domaine de Massacan", text: "Installation, soirée libre, pizzas, mise en place et première baignade." },
   { day: "Samedi 29 mai", time: "Matin", title: "Petit déjeuner & activités", text: "Volley, course à pied, pétanque et baignade." },
   { day: "Samedi 29 mai", time: "14h · à confirmer", title: "Rendez-vous à l’église du Revest", text: "Un transport dédié sera mis à disposition depuis le domaine." },
