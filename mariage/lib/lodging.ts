@@ -17,6 +17,7 @@ export type LodgingReservation = {
   guests_count: number;
   nights: string[];
   amount_cents: number;
+  received_amount_cents?: number | null;
   roommate_wishes: string | null;
   payment_method: "wero" | "bank_transfer" | "later";
   payment_status: "unpaid" | "declared" | "confirmed";
@@ -82,6 +83,7 @@ export type LodgingGuestAssignment = {
   guest_index: number;
   guest_name: string;
   room_name: string;
+  assigned_nights?: string[] | null;
   updated_at: string;
 };
 
@@ -284,6 +286,15 @@ export async function unplaceLodgingGuest(reservationId: string, guestIndex: num
     cache: "no-store",
   });
   if (!response.ok) throw new Error("Ce placement n’a pas pu être retiré.");
+}
+
+export async function updateLodgingGuestAssignmentNights(reservationId: string, guestIndex: number, nights: string[] | null) {
+  const { url, headers } = getPrivateSupabaseConfig();
+  const response = await fetch(`${url}/rest/v1/lodging_guest_assignments?reservation_id=eq.${encodeURIComponent(reservationId)}&guest_index=eq.${guestIndex}`, {
+    method: "PATCH", headers: { ...headers, "Content-Type": "application/json", Prefer: "return=minimal" },
+    body: JSON.stringify({ assigned_nights: nights, updated_at: new Date().toISOString() }), cache: "no-store",
+  });
+  if (!response.ok) throw new Error("Les nuits couvertes par l’affectation n’ont pas pu être conservées.");
 }
 
 export function legacyGuestAssignments(
