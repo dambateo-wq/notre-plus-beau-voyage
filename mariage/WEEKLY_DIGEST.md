@@ -1,6 +1,6 @@
 # Bilan hebdomadaire autonome — proposition à valider
 
-Branche : `feat/weekly-wedding-digest`. Aucun déploiement, envoi réel, planification distante ou migration de production n'a été effectué.
+Branche : `feat/weekly-wedding-digest`. Accord de migration et de déploiement reçu le 29 octobre 2026, avec les envois désactivés. Le compte rendu de mise en service doit distinguer les migrations réellement appliquées, le déploiement et l'activation de la planification. Aucun envoi réel ni planification distante n'est activé par cet accord.
 
 `vercel.json` désactive les déploiements automatiques pour cette branche seulement. Le maintien Supabase et le comportement de `main` ne changent pas. Pour une Preview, obtenir l'accord avant de retirer cette protection sur la branche.
 
@@ -17,7 +17,7 @@ Branche : `feat/weekly-wedding-digest`. Aucun déploiement, envoi réel, planifi
 
 Les réservations n'avaient aucun champ de montant encaissé ; les affectations individuelles ne comportaient pas de nuit. Les états `unpaid`, `declared` et `confirmed` ne permettent pas de reconstruire des paiements partiels ni un historique financier après modification. L'ancien historique d'e-mails ne fournit pas de verrou ni d'état SMTP incertain.
 
-La migration **proposée, non appliquée** ajoute :
+La migration **appliquée le 29 octobre 2026 après accord** ajoute :
 
 1. `lodging_reservations.received_amount_cents` : `NULL` pour les réservations historiques (inconnu, jamais déduit d'un moyen de paiement), défaut 0 seulement pour les nouvelles réservations. L'initialisation des réservations historiques reste une opération distincte, après accord de mise en service ; une absence d'encaissement confirmée par l'organisateur permet de saisir 0, sans le déduire des statuts.
 2. `lodging_guest_assignments.assigned_nights` : `NULL` conserve l'affectation historique pour toutes les nuits de la réservation ; un tableau explicite permet une affectation limitée au vendredi ou au samedi.
@@ -88,7 +88,7 @@ Les deux adresses privées ne sont pas publiées en clair dans le dépôt GitHub
 1. Relire la branche, la migration et les formulaires ajoutés ; obtenir l'accord avant migration, fusion et production.
 2. Appliquer **seulement** la nouvelle migration sur la base existante après sauvegarde approuvée. Ne pas lancer tout le dossier historique : il ne contient pas un historique CLI complet.
 3. Déployer les fichiers de la même branche avec les deux flags d'envoi à `false`. L'action de confirmation de paiement utilise le nouveau champ : migration et code doivent être activés dans cet ordre.
-4. Initialiser les encaissements historiques à partir des informations confirmées par l'organisateur. Une confirmation explicite d'absence de paiement autorise une valeur de 0 pour les réservations concernées, une fois les modifications de production approuvées. Vérifier qu'aucun paiement n'est intervenu entre cette confirmation et l'initialisation ; ne jamais déduire 0 du statut ou du moyen de paiement, ni écraser un montant déjà renseigné. Pour les autres réservations, vérifier le montant réellement reçu.
+4. Initialiser les encaissements historiques à partir des informations confirmées par l'organisateur, avec un accord explicite pour écrire ces montants en production ou par saisie directe de l'administrateur. Une déclaration d'absence de paiement fournit la valeur attendue, mais ne remplace pas l'autorisation de mutation financière. Vérifier qu'aucun paiement n'est intervenu entre cette confirmation et l'initialisation ; ne jamais déduire 0 du statut ou du moyen de paiement, ni écraser un montant déjà renseigné.
 5. Ouvrir `/admin/bilan-hebdomadaire`, contrôler l'aperçu et les listes nominatives avec les données réelles. Valider sur ordinateur et téléphone. Aucun envoi pendant cet aperçu.
 6. Autoriser temporairement `WEEKLY_DIGEST_TEST_ENABLED=true`, envoyer un test aux deux adresses et vérifier personnellement le rendu dans Gmail. Rejouer **la même référence de test** : aucun deuxième envoi. Modifier la référence seulement pour un nouveau test volontaire.
 7. Consulter le journal pour les deux statuts `sent`. Désactiver les tests si désiré, activer le flag de production, puis créer la planification avec accord.
@@ -98,6 +98,7 @@ Commandes (depuis `mariage/`, secrets déjà présents dans l'environnement) :
 ```bash
 node tests/weekly-digest.mjs
 node tests/weekly-digest-sql.mjs
+node tests/admin-reservation-edit.mjs
 npm run build
 node tests/weekly-digest-http.mjs
 node scripts/weekly-digest.mjs schedule-plan
@@ -146,7 +147,7 @@ Chemins ci-dessous relatifs à `mariage/`.
 | `app/api/cron/weekly-digest/route.ts` | Déclenchement autonome authentifié |
 | `app/api/admin/weekly-digest/route.ts` | Aperçu privé et test manuel |
 | `app/admin/bilan-hebdomadaire/page.tsx`, `actions.ts` | Aperçu, test et vérification explicite des informations manquantes |
-| `supabase/migrations/20261028215411_weekly_wedding_digest.sql` | Proposition de champs et journal privé ; non appliquée |
+| `supabase/migrations/20261028215411_weekly_wedding_digest.sql` | Champs et journal privé ; appliquée après accord |
 | `scripts/weekly-digest.mjs` | Plan de configuration, aperçu et test depuis le terminal |
 | `tests/weekly-digest-loader.mjs`, `weekly-digest.mjs`, `weekly-digest-sql.mjs`, `weekly-digest-http.mjs` | Vérifications isolées et routes compilées |
 | `WEEKLY_DIGEST.md` | Audit, variables, limites et procédure de mise en service |
@@ -159,5 +160,9 @@ Chemins ci-dessous relatifs à `mariage/`.
 | `package.json`, `package-lock.json` | PostgreSQL local de test uniquement (`@electric-sql/pglite`, dépendance de développement) |
 | `vercel.json` | Aucun déploiement automatique sur cette branche ; maintien existant conservé |
 | `.gitignore` | Cache CLI Supabase ignoré |
+
+L'édition des réservations demandée ensuite réutilise cette même branche. Le bouton privé est ajouté dans `app/admin/LodgingActions.tsx` ; le formulaire existant `RegistrationManager.tsx` / `WeddingSurvey.tsx` est réutilisé pour les inscriptions liées. Les nouveaux fichiers de page/API, de validation, d'édition indépendante, de migration et de test sont décrits dans `ADMIN_RESERVATION_EDIT.md`. Aucun champ d'encaissement ne peut être écrasé par ce formulaire.
+
+Contrôles en base du 29 octobre : les fonctions privées de lecture et d'édition sont présentes, leur exécution publique est interdite, l'historique et le journal sont privés. Aucun bilan ni changement administrateur n'a été enregistré pendant la mise en place. L'initialisation des encaissements historiques à 0 a été refusée par le contrôle automatique faute d'accord portant explicitement sur cette mutation financière ; les valeurs restent donc inconnues. Les envois et la planification demeurent désactivés.
 
 Après validation des données, déploiement approuvé, configuration des secrets et activation de la planification, l'exécution normale dépend uniquement de QStash, Vercel, Supabase et du Gmail déjà configuré. Aucune session utilisateur, visite du site, IA ou ouverture de ChatGPT n'est nécessaire. Les comptes, quotas et secrets doivent rester valides ; les pannes SMTP ambiguës conservent la limite décrite ci-dessus.

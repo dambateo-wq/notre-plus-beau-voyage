@@ -57,6 +57,7 @@ alter table public.wedding_digest_runs enable row level security;
 alter table public.wedding_digest_deliveries enable row level security;
 alter table public.wedding_digest_events enable row level security;
 revoke all on public.wedding_digest_runs, public.wedding_digest_deliveries, public.wedding_digest_events from public, anon, authenticated;
+revoke all on public.wedding_digest_runs, public.wedding_digest_deliveries, public.wedding_digest_events from service_role;
 grant select, insert, update on public.wedding_digest_runs, public.wedding_digest_deliveries to service_role;
 grant select, insert on public.wedding_digest_events to service_role;
 

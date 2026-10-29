@@ -3,6 +3,7 @@
 import { FormEvent, useMemo, useRef, useState } from "react";
 import type { DietaryOption, DietaryRequirement } from "@/lib/dietary";
 import { ATTENDANCE_OPTIONS, normalizeAttendanceDays } from "@/lib/attendance";
+import type { AdminReservationVersion } from "@/lib/admin-reservation-edit";
 
 type Place = {
   label: string;
@@ -97,9 +98,11 @@ function initialDietaryAnswers(source: SurveyData, participants: string[]): Diet
 export default function WeddingSurvey({
   initialData,
   manageToken,
+  adminReservation,
 }: {
   initialData?: SurveyData;
   manageToken?: string;
+  adminReservation?: AdminReservationVersion;
 }) {
   const source = initialData ?? emptyData;
   const [respondentName, setRespondentName] = useState(source.respondentName);
@@ -136,6 +139,7 @@ export default function WeddingSurvey({
   const [dietaryAnswers, setDietaryAnswers] = useState<DietaryAnswer[]>(
     initialDietaryAnswers(source, initialParticipants),
   );
+  const [dietaryTouched, setDietaryTouched] = useState(false);
   const [songs, setSongs] = useState<string[]>(source.songs.length ? source.songs : [""]);
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "declined">("idle");
   const [result, setResult] = useState<SubmitResult | null>(null);
@@ -182,6 +186,7 @@ export default function WeddingSurvey({
   }
 
   function updateDietaryAnswer(participantIndex: number, update: Partial<DietaryAnswer>) {
+    setDietaryTouched(true);
     setDietaryAnswers((current) => current.map((answer, index) =>
       index === participantIndex ? { ...answer, ...update } : answer,
     ));
@@ -252,7 +257,7 @@ export default function WeddingSurvey({
     }
 
     const submittedPaymentMethod = lodgingChoice === "yes" && paymentMethod ? paymentMethod : "later";
-    const submittedDietaryRequirements: DietaryRequirement[] | null = notAttending
+    const submittedDietaryRequirements: DietaryRequirement[] | null = notAttending || adminReservation && source.dietaryRequirements === null && !dietaryTouched
       ? null
       : namedParticipants.map((participant) => ({
           participantIndex: participant.participantIndex,
@@ -263,10 +268,11 @@ export default function WeddingSurvey({
 
     setStatus("submitting");
     try {
-      const response = await fetch(manageToken ? `/api/rsvp/manage/${manageToken}` : "/api/rsvp", {
-        method: manageToken ? "PATCH" : "POST",
+      const response = await fetch(adminReservation ? `/api/admin/reservations/${adminReservation.id}` : manageToken ? `/api/rsvp/manage/${manageToken}` : "/api/rsvp", {
+        method: manageToken || adminReservation ? "PATCH" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          ...(adminReservation ? { expectedReservationUpdatedAt: adminReservation.reservationUpdatedAt, expectedRegistrationUpdatedAt: adminReservation.registrationUpdatedAt } : {}),
           respondentName,
           respondentEmail,
           companions,
@@ -288,7 +294,7 @@ export default function WeddingSurvey({
       const data = (await response.json().catch(() => null)) as SubmitResult | null;
       if (!response.ok) throw new Error(data?.error ?? "Le serveur n’a pas pu enregistrer la réponse. Réessayez.");
       setResult(data);
-      if (!manageToken) {
+      if (!manageToken && !adminReservation) {
         window.localStorage.setItem("wedding-rsvp-completed", "true");
         window.dispatchEvent(new Event("wedding-rsvp-completed"));
       }
@@ -304,8 +310,8 @@ export default function WeddingSurvey({
   const manageUrl = result?.manageUrl ?? (manageToken ? `/inscription/manage/${manageToken}` : "");
 
   return (
-    <section className={`survey-experience${manageToken ? " survey-manage" : ""}`} id={manageToken ? undefined : "sondage"}>
-      {!manageToken && (
+    <section className={`survey-experience${manageToken || adminReservation ? " survey-manage" : ""}`} id={manageToken || adminReservation ? undefined : "sondage"}>
+      {!manageToken && !adminReservation && (
         <div className="survey-intro">
           <p className="eyebrow">Votre réponse compte</p>
           <h2>Prêts à prendre la route avec nous ?</h2>
@@ -450,7 +456,7 @@ export default function WeddingSurvey({
         {status === "success" || status === "declined" ? (
           <div className={`form-success${status === "declined" ? " form-declined" : ""}`}>
             <span aria-hidden="true">{status === "declined" ? "💌" : "🚲"}</span>
-            <h3>{manageToken ? "Ta modification est bien enregistrée" : status === "declined" ? "Merci de nous avoir répondu" : "Ton inscription est bien enregistrée"}</h3>
+            <h3>{adminReservation ? "Les modifications sont enregistrées" : manageToken ? "Ta modification est bien enregistrée" : status === "declined" ? "Merci de nous avoir répondu" : "Ton inscription est bien enregistrée"}</h3>
             {result?.pendingValidation ? (
               <p>La modification de l’hébergement doit maintenant être validée. Ancien montant : <strong>{money(result.previousAmountCents ?? 0)}</strong> · nouveau montant : <strong>{money(result.newAmountCents ?? 0)}</strong>.</p>
             ) : status === "declined" ? (
@@ -458,11 +464,12 @@ export default function WeddingSurvey({
             ) : (
               <p>Ton vélo est désormais visible sur la carte collective.</p>
             )}
-            <p>{result?.emailSent ? "Nous venons de t’envoyer un e-mail récapitulatif. Garde-le précieusement : il contient ton lien personnel." : "Conserve ce lien personnel : il te permettra de consulter ou modifier ton inscription."}</p>
+            <p>{adminReservation ? "L’inscription et la réservation sont à jour. Les encaissements sont conservés." : result?.emailSent ? "Nous venons de t’envoyer un e-mail récapitulatif. Garde-le précieusement : il contient ton lien personnel." : "Conserve ce lien personnel : il te permettra de consulter ou modifier ton inscription."}</p>
+            {adminReservation && <p><a href="/admin">Retourner à l’administration</a></p>}
             {manageUrl && <a className="manage-registration-link" href={manageUrl}>Voir mon inscription</a>}
           </div>
         ) : (
-          <button type="submit" className="submit-rsvp" disabled={status === "submitting"}>{status === "submitting" ? "Enregistrement…" : manageToken ? "Enregistrer mes modifications" : notAttending ? "Envoyer ma réponse" : "Envoyer mon vélo vers Massacan"}</button>
+          <button type="submit" className="submit-rsvp" disabled={status === "submitting"}>{status === "submitting" ? "Enregistrement…" : adminReservation ? "Enregistrer les modifications sans envoyer d’e-mail" : manageToken ? "Enregistrer mes modifications" : notAttending ? "Envoyer ma réponse" : "Envoyer mon vélo vers Massacan"}</button>
         )}
       </form>
     </section>
