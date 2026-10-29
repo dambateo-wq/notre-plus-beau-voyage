@@ -17,10 +17,18 @@ const editUrl=await moduleUrl('lib/admin-reservation-edit.ts',[
   ['"@/lib/admin-data"',config],['"@/lib/lodging"',lodging],['"@/lib/lodging-placement"',placement],['"@/lib/registration"',registration],
 ]);
 const {readAdminReservation,saveAdminReservation,prepareAdminReservationEdit,adminRegistrationData}=await import(editUrl);
+const registrationEditUrl=await moduleUrl('lib/admin-registration-edit.ts',[
+  ['"@/lib/admin-reservation-edit"',editUrl],['"@/lib/registration"',registration],
+]);
+const {readAdminRegistration,saveAdminRegistration,adminRegistrationForm}=await import(registrationEditUrl);
 const auth=dataModule('export async function isAdminAuthenticated(){return Boolean(globalThis.__adminEditAuthenticated);}');
 const cache=dataModule('export function revalidatePath(){}');
 const route=await import(await moduleUrl('app/api/admin/reservations/[id]/route.ts',[
   ['"@/lib/admin-auth"',auth],['"@/lib/admin-reservation-edit"',editUrl],['"@/lib/registration"',registration],['"next/cache"',cache],
+]));
+const registrationRoute=await import(await moduleUrl('app/api/admin/inscriptions/[id]/route.ts',[
+  ['"@/lib/admin-auth"',auth],['"@/lib/admin-registration-edit"',registrationEditUrl],['"@/lib/admin-reservation-edit"',editUrl],
+  ['"@/lib/registration"',registration],['"next/cache"',cache],
 ]));
 const id=source.reservations[0].id;
 const migrationNames=await readdir('supabase/migrations');
@@ -55,6 +63,11 @@ try{
   `);
   await db.exec(await readFile('supabase/migrations/'+journal,'utf8'));
   await db.exec(await readFile('supabase/migrations/'+editing,'utf8'));
+  // La fonction réelle à 106 couchages est déjà installée en production.
+  const creationSource=await readFile('supabase/lodging_assignments_migration.sql','utf8');
+  await db.exec(creationSource.match(/create or replace function public\.create_lodging_reservation[\s\S]*?\$\$;/i)[0]);
+  await db.exec('revoke all on function public.create_lodging_reservation(text,uuid,text,text,text,text[],smallint,date[],text,text) from public,anon,authenticated; grant execute on function public.create_lodging_reservation(text,uuid,text,text,text,text[],smallint,date[],text,text) to service_role;');
+  await db.exec(await readFile('supabase/migrations/'+migrationNames.find(n=>n.endsWith('_admin_registration_edit.sql')),'utf8'));
   const respondent={...source.registrations[0],respondent_email:'fixture@example.invalid',phone:'0600000000',
     departure_city:'Ville fictive',departure_country:'France',latitude:43,longitude:6,friday_sleepers:3,saturday_sleepers:3,
     songs:[],lodging_payment_method:'wero',dietary_requirements:null,management_token_hash:'SECRET-MUST-STAY-SERVER',
@@ -69,6 +82,9 @@ try{
   await db.exec('set role anon;');
   await assert.rejects(db.query('select admin_reservation_snapshot($1)',[id]),e=>e.code==='42501');
   await assert.rejects(db.query('select * from lodging_admin_edit_history'),e=>e.code==='42501');
+  await assert.rejects(db.query('select admin_registration_snapshot($1)',[respondent.id]),e=>e.code==='42501');
+  await assert.rejects(db.query('select admin_update_registration($1,now(),\'{}\'::jsonb)',[respondent.id]),e=>e.code==='42501');
+  await assert.rejects(db.query('select * from registration_admin_edit_history'),e=>e.code==='42501');
   await db.exec('reset role;set role service_role;');
   globalThis.fetch=async(input,init)=>{
     calls++;
@@ -77,6 +93,10 @@ try{
     const body=JSON.parse(init.body),name=new URL(input).pathname.split('/').at(-1);
     try{
       if(name==='admin_reservation_snapshot') return Response.json((await db.query('select admin_reservation_snapshot($1) as data',[body.p_id])).rows[0].data);
+      if(name==='admin_registration_snapshot') return Response.json((await db.query('select admin_registration_snapshot($1) as data',[body.p_id])).rows[0].data);
+      if(name==='admin_update_registration') return Response.json((await db.query('select admin_update_registration($1,$2,$3::jsonb) as data',[
+        body.p_id,body.p_expected_updated_at,JSON.stringify(body.p_response),
+      ])).rows[0].data);
       assert.equal(name,'admin_update_reservation');
       const {p_id,p_expected_reservation_updated_at,p_expected_response_updated_at,p_expected_assignments,p_expected_legacy,p_reservation,p_response,p_assignments,p_placement_changed}=body;
       const result=await db.query('select admin_update_reservation($1,$2,$3,$4::jsonb,$5::jsonb,$6::jsonb,$7::jsonb,$8::jsonb,$9) as data',[
@@ -92,7 +112,8 @@ try{
     'r',(select jsonb_agg(to_jsonb(r) order by id) from lodging_reservations r),
     'w',(select jsonb_agg(to_jsonb(w) order by id) from wedding_responses w),
     'a',(select jsonb_agg(to_jsonb(a) order by id) from lodging_guest_assignments a),
-    'h',(select jsonb_agg(to_jsonb(h) order by id) from lodging_admin_edit_history h)) as data`)).rows);
+    'h',(select jsonb_agg(to_jsonb(h) order by id) from lodging_admin_edit_history h),
+    'j',(select jsonb_agg(to_jsonb(j) order by id) from registration_admin_edit_history j)) as data`)).rows);
   let s=await current();
   const assignmentId=s.assignments[0].id;
   assert(!JSON.stringify(s).includes('SECRET-MUST-STAY-SERVER')&&!JSON.stringify(s).includes('access_token'));
@@ -155,10 +176,64 @@ try{
   assert.equal(independentSaved.reservation.amount_cents,7000);assert.equal(independentSaved.reservation.received_amount_cents,0);
   assert.equal((await db.query('select count(*)::int as n from wedding_responses')).rows[0].n,1,'an independent booking never creates a wedding registration');
 
+  // Régression : une réponse sans aucune réservation doit être modifiable.
+  const noLodgingId='55555555-5555-4555-8555-555555555555';
+  const noLodging={...respondent,id:noLodgingId,respondent_name:'Sans hébergement',companions:['Accompagnant'],
+    lodging_reservation_id:null,lodging_guest_names:[],lodging_nights:[],lodging_payment_method:'later',friday_sleepers:0,saturday_sleepers:0};
+  await db.query('insert into wedding_responses select * from jsonb_populate_record(null::wedding_responses,$1::jsonb)',[JSON.stringify(noLodging)]);
+  const identities=(await db.query('select id,created_at,management_token_hash from wedding_responses where id=$1',[noLodgingId])).rows;
+  const noLodgingForm=snapshot=>({...adminRegistrationForm(snapshot).registration,expectedRegistrationUpdatedAt:snapshot.registration.updated_at});
+  let standaloneRegistration=await readAdminRegistration(noLodgingId);
+  assert.equal(standaloneRegistration.reservationId,null);
+  assert(!JSON.stringify(standaloneRegistration).includes('SECRET-MUST-STAY-SERVER'));
+  let registrationBody=noLodgingForm(standaloneRegistration);
+  registrationBody.companions.push('Nouvel accompagnant');registrationBody.songs=['Titre corrigé'];
+  registrationBody.management_token_hash='MUST-NOT-OVERWRITE';registrationBody.created_at='2099-01-01';registrationBody.received_amount_cents=999999;
+  await saveAdminRegistration(noLodgingId,registrationBody);
+  const registrationSaved=await readAdminRegistration(noLodgingId);
+  assert.equal(registrationSaved.registration.companions.length,2);assert.deepEqual(registrationSaved.registration.songs,['Titre corrigé']);
+  assert.equal(registrationSaved.registration.dietary_requirements,null,'unknown dietary answers stay unknown');
+  assert.deepEqual((await db.query('select id,created_at,management_token_hash from wedding_responses where id=$1',[noLodgingId])).rows,identities);
+  assert.equal((await db.query('select count(*)::int as n from lodging_reservations')).rows[0].n,2,'no lodging is invented');
+  await assert.rejects(saveAdminRegistration(noLodgingId,registrationBody),e=>e.code==='EDIT_CONFLICT');
+
+  registrationBody=noLodgingForm(registrationSaved);registrationBody.notAttending=true;
+  await saveAdminRegistration(noLodgingId,registrationBody);
+  standaloneRegistration=await readAdminRegistration(noLodgingId);
+  assert(standaloneRegistration.registration.not_attending);assert.deepEqual(standaloneRegistration.registration.attendance_days,[]);
+  registrationBody={...noLodgingForm(standaloneRegistration),notAttending:false,attendanceDays:['2027-05-29-afternoon'],
+    departureCity:'Ville fictive',departureCountry:'France',latitude:43,longitude:6,phone:'0600000000',
+    lodgingGuestNames:['Sans hébergement','Accompagnant'],lodgingNights:['2027-05-28','2027-05-29'],paymentMethod:'bank_transfer'};
+  const beforeNewLodging=await fingerprint();
+  await assert.rejects(saveAdminRegistration(noLodgingId,{...registrationBody,respondentName:'ROLLBACK',lodgingGuestNames:['ROLLBACK','Accompagnant']}),e=>e.status===503);
+  assert.equal(await fingerprint(),beforeNewLodging,'failed response update rolls back the newly created lodging and links');
+  for(let i=0;i<5;i++) await db.query("insert into lodging_reservations(reference,booker_name,guests_count,guest_names,nights,amount_cents) values($1,'Capacité fictive',20,array['Fixture'],array[date '2027-05-28',date '2027-05-29'],140000)",['new-capacity-'+i]);
+  registrationBody.companions.push('Supplément 1','Supplément 2','Supplément 3','Supplément 4');
+  registrationBody.lodgingGuestNames=[registrationBody.respondentName,...registrationBody.companions];
+  await assert.rejects(saveAdminRegistration(noLodgingId,registrationBody),e=>e.code==='NIGHT_FULL');
+  assert.equal((await readAdminRegistration(noLodgingId)).reservationId,null);
+  await db.exec("delete from lodging_reservations where reference like 'new-capacity-%'");
+  registrationBody.lodgingGuestNames=['Sans hébergement','Accompagnant'];
+  await saveAdminRegistration(noLodgingId,registrationBody);
+  const withLodging=await readAdminRegistration(noLodgingId), newReservation=await readAdminReservation(withLodging.reservationId);
+  assert.equal(newReservation.reservation.amount_cents,14000);assert.equal(newReservation.reservation.received_amount_cents,0);
+  assert.equal(newReservation.reservation.payment_status,'unpaid');assert.equal(newReservation.registration.id,noLodgingId);
+  assert.deepEqual(newReservation.assignments,[]);
+  assert.deepEqual((await db.query('select id,created_at,management_token_hash from wedding_responses where id=$1',[noLodgingId])).rows,identities);
+  await assert.rejects(saveAdminRegistration(noLodgingId,registrationBody),e=>e.code==='EDIT_CONFLICT','a retry cannot duplicate lodging');
+  await assert.rejects(saveAdminRegistration(noLodgingId,noLodgingForm(withLodging)),e=>e.code==='EDIT_CONFLICT','even a current version must use the linked booking editor');
+  assert.equal((await readAdminRegistration(respondent.id)).reservationId,id,'existing linked bookings use the original editor');
+
   const ctx={params:Promise.resolve({id})};const beforeAccess=calls;
   assert.equal((await route.PATCH(new Request('https://wedding.example/api/admin/reservations/'+id,{method:'PATCH'}),ctx)).status,401);
   globalThis.__adminEditAuthenticated=true;
   assert.equal((await route.PATCH(new Request('https://wedding.example/api/admin/reservations/'+id,{method:'PATCH',headers:{Origin:'https://evil.example'}}),ctx)).status,403);
   assert.equal(calls,beforeAccess,'unauthorized and cross-site writes never reach Supabase');
-  console.log('PASS admin-only edits: coherent snapshot without tokens, real validation, atomic rollback, stale-form conflicts, preserved receipts/creation dates, companions, partial night coverage, capacity, cancellation and CSRF; no SMTP used');
+  globalThis.__adminEditAuthenticated=false;
+  const registrationCtx={params:Promise.resolve({id:noLodgingId})};
+  assert.equal((await registrationRoute.PATCH(new Request('https://wedding.example/api/admin/inscriptions/'+noLodgingId,{method:'PATCH'}),registrationCtx)).status,401);
+  globalThis.__adminEditAuthenticated=true;
+  assert.equal((await registrationRoute.PATCH(new Request('https://wedding.example/api/admin/inscriptions/'+noLodgingId,{method:'PATCH',headers:{Origin:'https://evil.example'}}),registrationCtx)).status,403);
+  assert.equal(calls,beforeAccess,'the no-lodging editor also rejects unauthenticated and cross-site requests without database access');
+  console.log('PASS admin edits with and without lodging: names/companions, absences, actual lodging creation and price, capacity, atomic rollback, retry conflicts, preserved tokens/creation dates/receipts, partial night coverage, authorization and CSRF; no SMTP used');
 }finally{globalThis.fetch=originalFetch;delete globalThis.__adminEditAuthenticated;await db.close();}
