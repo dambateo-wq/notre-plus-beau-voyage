@@ -19,7 +19,7 @@ Les réservations n'avaient aucun champ de montant encaissé ; les affectations 
 
 La migration **proposée, non appliquée** ajoute :
 
-1. `lodging_reservations.received_amount_cents` : `NULL` pour les réservations historiques (inconnu, jamais déduit d'un moyen de paiement), défaut 0 seulement pour les nouvelles réservations. Les cinq réservations historiques doivent être vérifiées humainement avant activation.
+1. `lodging_reservations.received_amount_cents` : `NULL` pour les réservations historiques (inconnu, jamais déduit d'un moyen de paiement), défaut 0 seulement pour les nouvelles réservations. L'initialisation des réservations historiques reste une opération distincte, après accord de mise en service ; une absence d'encaissement confirmée par l'organisateur permet de saisir 0, sans le déduire des statuts.
 2. `lodging_guest_assignments.assigned_nights` : `NULL` conserve l'affectation historique pour toutes les nuits de la réservation ; un tableau explicite permet une affectation limitée au vendredi ou au samedi.
 3. Un journal privé des campagnes, des deux destinataires et des événements. RLS activée, aucun accès `anon` ou `authenticated`, fonctions `SECURITY INVOKER` et droits explicites `service_role`.
 
@@ -88,7 +88,7 @@ Les deux adresses privées ne sont pas publiées en clair dans le dépôt GitHub
 1. Relire la branche, la migration et les formulaires ajoutés ; obtenir l'accord avant migration, fusion et production.
 2. Appliquer **seulement** la nouvelle migration sur la base existante après sauvegarde approuvée. Ne pas lancer tout le dossier historique : il ne contient pas un historique CLI complet.
 3. Déployer les fichiers de la même branche avec les deux flags d'envoi à `false`. L'action de confirmation de paiement utilise le nouveau champ : migration et code doivent être activés dans cet ordre.
-4. Dans l'administration, vérifier les montants réellement reçus des réservations historiques ; ne jamais remplir automatiquement à partir du statut ou du moyen de paiement.
+4. Initialiser les encaissements historiques à partir des informations confirmées par l'organisateur. Une confirmation explicite d'absence de paiement autorise une valeur de 0 pour les réservations concernées, une fois les modifications de production approuvées. Vérifier qu'aucun paiement n'est intervenu entre cette confirmation et l'initialisation ; ne jamais déduire 0 du statut ou du moyen de paiement, ni écraser un montant déjà renseigné. Pour les autres réservations, vérifier le montant réellement reçu.
 5. Ouvrir `/admin/bilan-hebdomadaire`, contrôler l'aperçu et les listes nominatives avec les données réelles. Valider sur ordinateur et téléphone. Aucun envoi pendant cet aperçu.
 6. Autoriser temporairement `WEEKLY_DIGEST_TEST_ENABLED=true`, envoyer un test aux deux adresses et vérifier personnellement le rendu dans Gmail. Rejouer **la même référence de test** : aucun deuxième envoi. Modifier la référence seulement pour un nouveau test volontaire.
 7. Consulter le journal pour les deux statuts `sent`. Désactiver les tests si désiré, activer le flag de production, puis créer la planification avec accord.
