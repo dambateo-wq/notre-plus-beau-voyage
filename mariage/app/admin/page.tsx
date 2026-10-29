@@ -171,6 +171,7 @@ export default async function AdminPage({
   return (
     <main className={styles.page}>
       <div className={styles.shell}>
+        <p><Link href="/admin/bilan-hebdomadaire">Bilan hebdomadaire : aperçu, tests et données à vérifier →</Link></p>
         <header className={styles.heading}>
           <div>
             <p className={styles.eyebrow}>Tableau de bord privé</p>

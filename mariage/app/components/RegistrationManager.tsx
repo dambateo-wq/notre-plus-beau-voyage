@@ -5,6 +5,7 @@ import Link from "next/link";
 import { formatAttendanceDay } from "@/lib/attendance";
 import { hasDietaryRequirement } from "@/lib/dietary";
 import WeddingSurvey, { type SurveyData } from "./WeddingSurvey";
+import type { AdminReservationVersion } from "@/lib/admin-reservation-edit";
 
 type ManagedSummary = {
   registration: SurveyData & { id: string };
@@ -23,19 +24,20 @@ function money(cents: number) {
   return new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(cents / 100);
 }
 
-export default function RegistrationManager({ data, token }: { data: ManagedSummary; token: string }) {
-  const [editing, setEditing] = useState(false);
+export default function RegistrationManager({ data, token, adminReservation }: { data: ManagedSummary; token?: string; adminReservation?: AdminReservationVersion }) {
+  const [editing, setEditing] = useState(Boolean(adminReservation));
   const input = data.registration;
   const reservation = data.reservation;
+  const Root = adminReservation ? "section" : "main";
   const dietaryAlerts = (input.dietaryRequirements ?? []).filter(hasDietaryRequirement);
 
   return (
-    <main className="registration-manage-page">
+    <Root className="registration-manage-page">
       <header className="registration-manage-header">
-        <Link href="/">D&amp;J · Retour au voyage</Link>
-        <p className="eyebrow">Lien personnel</p>
-        <h1>Mon inscription</h1>
-        <p>Consultez votre réponse et modifiez-la librement si vos plans changent.</p>
+        <Link href={adminReservation ? "/admin" : "/"}>{adminReservation ? "Retour à l’administration" : "D&J · Retour au voyage"}</Link>
+        <p className="eyebrow">{adminReservation ? "Modification administrateur" : "Lien personnel"}</p>
+        <h1>{adminReservation ? "Inscription et hébergement" : "Mon inscription"}</h1>
+        <p>{adminReservation ? "Les changements ci-dessous mettent aussi à jour l’inscription associée. L’enregistrement n’envoie pas d’e-mail aux invités." : "Consultez votre réponse et modifiez-la librement si vos plans changent."}</p>
       </header>
 
       {!editing ? (
@@ -61,14 +63,14 @@ export default function RegistrationManager({ data, token }: { data: ManagedSumm
               <span>Ancien montant : {money(reservation.previousAmountCents ?? reservation.amountCents)} · nouveau montant : {money(reservation.proposedAmountCents ?? reservation.amountCents)}</span>
             </div>
           )}
-          <button className="manage-registration-button" type="button" onClick={() => setEditing(true)}>Modifier mon inscription</button>
+          <button className="manage-registration-button" type="button" onClick={() => setEditing(true)}>{adminReservation ? "Modifier l’inscription et la réservation" : "Modifier mon inscription"}</button>
         </section>
       ) : (
         <section className="registration-editor">
           <button className="registration-editor-back" type="button" onClick={() => setEditing(false)}>← Revenir au récapitulatif</button>
-          <WeddingSurvey initialData={input} manageToken={token} />
+          <WeddingSurvey initialData={input} manageToken={token} adminReservation={adminReservation} />
         </section>
       )}
-    </main>
+    </Root>
   );
 }

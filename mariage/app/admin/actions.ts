@@ -329,8 +329,13 @@ export async function updateLodging(formData: FormData) {
   }
 
   if (action === "confirm") {
+    const reservation = (await getLodgingReservations()).find(item => item.id === id);
+    if (!reservation || reservation.booking_status !== "active") {
+      throw new Error("Cette réservation n’est plus active.");
+    }
     await updateLodgingReservation(id, {
       payment_status: "confirmed",
+      received_amount_cents: Math.max(reservation.received_amount_cents ?? 0, reservation.amount_cents),
     });
   } else if (action === "cancel") {
     await updateLodgingReservation(id, { booking_status: "cancelled" });

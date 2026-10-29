@@ -2,12 +2,14 @@ export type PlacementAssignment = {
   guest_index: number;
   guest_name: string;
   room_name: string;
+  assigned_nights?: string[] | null;
 };
 
 export type PlacementUpsert = {
   fromGuestIndex: number;
   toGuestIndex: number;
   roomName: string;
+  assignedNights?: string[] | null;
 };
 
 function comparableName(value: string) {
@@ -44,6 +46,7 @@ export function planLodgingPlacementReconciliation(
         fromGuestIndex: assignment.guest_index,
         toGuestIndex: match.index,
         roomName: assignment.room_name,
+        ...(assignment.assigned_nights !== undefined ? { assignedNights: assignment.assigned_nights } : {}),
       });
     });
 

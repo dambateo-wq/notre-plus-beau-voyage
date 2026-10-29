@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { deleteLodging, updateLodging } from "./actions";
 import styles from "./admin.module.css";
+import Link from "next/link";
 
 export default function LodgingActions({
   id,
@@ -52,6 +53,7 @@ export default function LodgingActions({
 
   return (
     <div className={styles.lodgingActions}>
+      <Link className={styles.confirmButton} href={`/admin/reservations/${id}`}>Modifier la réservation</Link>
       {bookingStatus === "active" && paymentStatus !== "confirmed" && (
         <button
           className={styles.confirmButton}

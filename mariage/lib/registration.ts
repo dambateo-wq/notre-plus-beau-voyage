@@ -19,6 +19,7 @@ import {
   type LodgingSnapshot,
   unplaceLodgingGuest,
   updateLodgingReservation,
+  updateLodgingGuestAssignmentNights,
 } from "@/lib/lodging";
 import {
   placementStatusAfterReconciliation,
@@ -497,6 +498,12 @@ export async function reconcileLodgingPlacements(
       placement.toGuestIndex,
       placement.roomName,
     );
+    if (placement.assignedNights !== undefined) {
+      await updateLodgingGuestAssignmentNights(
+        reservation.id, placement.toGuestIndex,
+        placement.assignedNights === null ? null : placement.assignedNights.filter(night => input.lodgingNights.includes(night)),
+      );
+    }
   }
 
   const placementStatus = placementStatusAfterReconciliation(
