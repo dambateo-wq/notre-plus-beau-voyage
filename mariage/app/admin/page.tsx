@@ -332,6 +332,7 @@ export default async function AdminPage({
                         ? "Ne sera pas présent"
                         : "Présent"}
                     </span>
+                    {!reservation && <Link className={styles.confirmButton} href={`/admin/inscriptions/${response.id}`}>Modifier l’inscription</Link>}
                     {reservation && (
                       <>
                         <span className={pendingChange ? styles.status + " " + styles.reviewStatus : reservation.booking_status === "cancelled" ? styles.status + " " + styles.declined : reservation.payment_status === "confirmed" ? styles.status : styles.status + " " + styles.pendingStatus}>

@@ -6,17 +6,31 @@ import { fixture } from './weekly-digest-loader.mjs';
 import { createHmac } from 'node:crypto';
 
 let failing = false, calls = 0;
-const database = createServer((request, response) => {
+const noLodgingId='55555555-5555-4555-8555-555555555555';
+const database = createServer(async (request, response) => {
   calls++;
-  assert.equal(request.method,'POST');
-  assert(['/rest/v1/rpc/weekly_digest_snapshot','/rest/v1/rpc/admin_reservation_snapshot'].includes(request.url),'only read-only snapshots are called');
   assert.equal(request.headers.apikey,'test-private-service-key');
-  response.writeHead(failing?503:200,{'Content-Type':'application/json'});
   const source=fixture();
   const admin={reservation:{...source.reservations[0],updated_at:'2026-10-28T10:00:00Z'},registration:{...source.registrations[0],
     respondent_email:'fixture@example.invalid',phone:'0600000000',departure_city:'Ville fictive',departure_country:'France',latitude:43,longitude:6,
     lodging_payment_method:'wero',songs:[],dietary_requirements:null,updated_at:'2026-10-28T10:00:00Z'},assignments:source.assignments,legacy:[]};
-  response.end(failing?'private fixture error':JSON.stringify(request.url.endsWith('/admin_reservation_snapshot')?admin:source));
+  const noLodging={...admin.registration,id:noLodgingId,respondent_name:'Sans hébergement',lodging_reservation_id:null,
+    lodging_guest_names:[],lodging_nights:[],friday_sleepers:0,saturday_sleepers:0};
+  response.writeHead(failing?503:200,{'Content-Type':'application/json'});
+  if(request.method==='GET'){
+    const table=new URL(request.url,'http://fixture').pathname.split('/').at(-1);
+    assert(['wedding_responses','carpool_offers','carpool_requests','lodging_reservations','lodging_assignments',
+      'lodging_guest_assignments','lodging_change_requests','admin_notifications','wedding_email_history'].includes(table));
+    response.end(JSON.stringify(table==='wedding_responses'?[noLodging,{...noLodging,id:'66666666-6666-4666-8666-666666666666',not_attending:true}]:[]));
+    return;
+  }
+  assert.equal(request.method,'POST');
+  assert(['/rest/v1/rpc/weekly_digest_snapshot','/rest/v1/rpc/admin_reservation_snapshot','/rest/v1/rpc/admin_registration_snapshot'].includes(request.url),'only read-only snapshots are called');
+  let requestBody='';for await(const chunk of request) requestBody+=chunk;
+  const body=JSON.parse(requestBody);
+  const data=request.url.endsWith('/admin_reservation_snapshot')?admin:request.url.endsWith('/admin_registration_snapshot')
+    ? {registration:body.p_id===noLodgingId?noLodging:admin.registration,reservationId:body.p_id===noLodgingId?null:source.reservations[0].id}:source;
+  response.end(failing?'private fixture error':JSON.stringify(data));
 });
 await new Promise(resolve=>database.listen(0,'127.0.0.1',resolve));
 const testSecret='test-secret-with-at-least-32-characters';
@@ -67,12 +81,28 @@ try {
   assert(editorHtml.includes('Modifier la réservation')&&editorHtml.includes('Enregistrer les modifications sans envoyer'));
   assert(!editorHtml.includes('management_token_hash')&&!editorHtml.includes('access_token')&&!editorHtml.includes('test-private-service-key'));
   assert.equal(calls,3);
+  assert.equal((await fetch(origin+'/api/admin/inscriptions/'+noLodgingId,{method:'PATCH'})).status,401);
+  assert.equal((await fetch(origin+'/api/admin/inscriptions/'+noLodgingId,{method:'PATCH',headers:{...cookie,Origin:'https://evil.example'}})).status,403);
+  const protectedRegistration=await fetch(origin+'/admin/inscriptions/'+noLodgingId,{redirect:'manual'});
+  assert.equal(protectedRegistration.headers.get('location'),'/admin');assert.equal(calls,3);
+  const registrationEditor=await fetch(origin+'/admin/inscriptions/'+noLodgingId,{headers:cookie});
+  assert.equal(registrationEditor.status,200);
+  const registrationHtml=await registrationEditor.text();
+  assert(registrationHtml.includes('Sans hébergement')&&registrationHtml.includes('Enregistrer les modifications sans envoyer'));
+  assert(!registrationHtml.includes('management_token_hash')&&!registrationHtml.includes('access_token')&&!registrationHtml.includes('test-private-service-key'));
+  const existingRegistration=await fetch(origin+'/admin/inscriptions/'+fixture().registrations[0].id,{headers:cookie,redirect:'manual'});
+  assert.equal(existingRegistration.headers.get('location'),'/admin/reservations/'+id,'linked registrations keep the existing protected editor');
+  const dashboard=await fetch(origin+'/admin',{headers:cookie});
+  assert.equal(dashboard.status,200);
+  const dashboardHtml=await dashboard.text();
+  assert(dashboardHtml.includes('/admin/inscriptions/'+noLodgingId)&&dashboardHtml.includes('/admin/inscriptions/66666666-6666-4666-8666-666666666666'),
+    'both attending and declined registrations without lodging have an edit link');
   failing=true;
   const failed=await fetch(origin+'/api/admin/weekly-digest',{headers:auth});
   assert.equal(failed.status,503);
   const failure=JSON.stringify(await failed.json());
   assert(!failure.includes('newPeopleCount')&&!failure.includes('private fixture error'));
-  console.log('PASS built Next.js HTTP routes: auth, preview HTML/JSON, private admin editor, CSRF, no exposed tokens, disabled test/cron and fail-closed Supabase response; no SMTP credentials or real database used');
+  console.log('PASS built Next.js HTTP: dashboard edit links with no lodging, private registration/reservation editors, linked-booking redirect, auth/CSRF, no exposed tokens, preview, disabled sends and fail-closed database errors; no SMTP credentials or real database used');
 } finally {
   if(server.pid && server.exitCode===null && server.signalCode===null){const stopped=once(server,'exit');server.kill('SIGTERM');await stopped;}
   database.closeAllConnections();await new Promise(resolve=>database.close(resolve));

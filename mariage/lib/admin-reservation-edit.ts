@@ -17,7 +17,7 @@ export type AdminReservationSnapshot = {
 export type AdminReservationVersion = { id: string; reservationUpdatedAt: string; registrationUpdatedAt: string | null };
 export function isReservationId(id: string) { return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id); }
 
-async function rpc(name: string, body: Record<string, unknown>) {
+export async function adminEditRpc(name: string, body: Record<string, unknown>) {
   const { url, headers } = getPrivateSupabaseConfig();
   let response: Response;
   try {
@@ -29,12 +29,13 @@ async function rpc(name: string, body: Record<string, unknown>) {
   if (!response.ok) {
     const detail = await response.text();
     const errors: Array<[string, string, number]> = [
-      ["EDIT_CONFLICT", "La réservation ou son placement a changé depuis l’ouverture. Rechargez la page avant de modifier à nouveau.", 409],
+      ["EDIT_CONFLICT", "L’inscription, sa réservation ou son placement a changé depuis l’ouverture. Rechargez la page avant de modifier à nouveau.", 409],
       ["REVIEW_PENDING", "Traitez d’abord la modification financière en attente dans l’administration.", 409],
       ["NIGHT_FULL", "Il ne reste pas assez de couchages pour une des nuits choisies.", 409],
       ["ROOM_FULL", "Une chambre déjà attribuée manque de place pour ces nouvelles nuitées. Revoyez le placement avant de modifier la réservation.", 409],
       ["LEGACY_PLACEMENT", "Ce placement historique doit être repris dans le plan nominatif avant de changer les voyageurs ou les nuitées.", 409],
       ["RESERVATION_NOT_FOUND", "Cette réservation est introuvable.", 404],
+      ["REGISTRATION_NOT_FOUND", "Cette inscription est introuvable.", 404],
     ];
     const known = errors.find(([code]) => detail.includes(code));
     if (known) throw new AdminReservationError(...known);
@@ -45,7 +46,7 @@ async function rpc(name: string, body: Record<string, unknown>) {
 
 export async function readAdminReservation(id: string): Promise<AdminReservationSnapshot | null> {
   if (!isReservationId(id)) throw new AdminReservationError("invalid_id", "Réservation invalide.");
-  return rpc("admin_reservation_snapshot", { p_id: id });
+  return adminEditRpc("admin_reservation_snapshot", { p_id: id });
 }
 
 function text(value: unknown, limit: number) { return typeof value === "string" ? value.trim().slice(0, limit) : ""; }
@@ -116,7 +117,7 @@ export async function saveAdminReservation(id: string, body: Record<string, unkn
     || snapshot.registration && typeof body.expectedRegistrationUpdatedAt !== "string") {
     throw new AdminReservationError("missing_version", "Rechargez le formulaire avant d’enregistrer.", 409);
   }
-  const result = await rpc("admin_update_reservation", { p_id: id,
+  const result = await adminEditRpc("admin_update_reservation", { p_id: id,
     p_expected_reservation_updated_at: body.expectedReservationUpdatedAt,
     p_expected_response_updated_at: snapshot.registration ? body.expectedRegistrationUpdatedAt : null,
     p_expected_assignments: snapshot.assignments.map(a => ({ id: a.id, updated_at: a.updated_at })),
