@@ -53,13 +53,14 @@ try {
   assert.equal((await fetch(origin+'/api/admin/weekly-digest')).status,401);
   assert.equal((await fetch(origin+'/api/cron/weekly-digest',{method:'POST'})).status,401);
   assert.equal(calls,0);
-  const preview=await fetch(origin+'/api/admin/weekly-digest',{headers:auth});
+  // La période de l'aperçu doit correspondre à la fixture, quel que soit le jour du test.
+  const preview=await fetch(origin+'/api/admin/weekly-digest?end=2026-10-25T17:00:00.000Z',{headers:auth});
   assert.equal(preview.status,200);
   assert.match(preview.headers.get('cache-control'),/no-store/);
   const data=await preview.json();
   assert.equal(data.digest.newPeopleCount,3);assert.equal(data.digest.outstandingCents,14000);
   assert(!JSON.stringify(data).includes('test-private-service-key'));
-  const html=await fetch(origin+'/api/admin/weekly-digest?format=html',{headers:auth});
+  const html=await fetch(origin+'/api/admin/weekly-digest?format=html&end=2026-10-25T17:00:00.000Z',{headers:auth});
   assert.match(html.headers.get('content-type'),/text\/html/);
   assert.match(html.headers.get('content-security-policy'),/default-src 'none'/);
   assert((await html.text()).includes('https://les-dadjus-notre-plus-beau-voyage.vercel.app/admin'));

@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { COUPLE_LODGING, LODGING_ROOMS } from "@/lib/lodging-rooms";
 import type { LodgingGuestAssignment, LodgingReservation } from "@/lib/lodging";
+import { placementCoversNights } from "@/lib/lodging-placement";
 import {
   finalizeLodgingPlacement,
   removeGuestLodgingPlacement,
@@ -49,6 +50,8 @@ export default function LodgingGuestPlanner({
   const [pendingGuest, setPendingGuest] = useState("");
   const [pendingReservation, setPendingReservation] = useState("");
   const [error, setError] = useState("");
+  const [refreshRequired, setRefreshRequired] = useState(false);
+  const operationInFlight = useRef(false);
   const router = useRouter();
 
   const placementStatusFor = (reservation: LodgingReservation) =>
@@ -68,72 +71,74 @@ export default function LodgingGuestPlanner({
   function occupancy(roomName: string, night: string) {
     return assignments.filter((assignment) => {
       if (assignment.room_name !== roomName) return false;
-      return eligibleReservations.find((reservation) => reservation.id === assignment.reservation_id)?.nights.includes(night);
+      const reservation = reservations.find(item => item.id === assignment.reservation_id && item.booking_status === "active");
+      return reservation && (assignment.assigned_nights ?? reservation.nights).includes(night);
     }).length;
   }
 
   function finalizePlacement(reservation: LodgingReservation) {
+    if (operationInFlight.current) return;
+    operationInFlight.current = true;
     setError("");
+    setRefreshRequired(false);
     setPendingReservation(reservation.id);
     startTransition(async () => {
       try {
         const formData = new FormData();
         formData.set("reservationId", reservation.id);
-        await finalizeLodgingPlacement(formData);
+        const outcome = await finalizeLodgingPlacement(formData);
+        if (!outcome.ok) {
+          setError(outcome.error); setRefreshRequired(Boolean(outcome.refreshRequired)); return;
+        }
         router.refresh();
-      } catch (caught) {
-        setError(
-          caught instanceof Error
-            ? caught.message
-            : "Le placement ne peut pas être finalisé.",
-        );
+      } catch {
+        setError("La confirmation a été interrompue. Actualisez le plan pour vérifier son état.");
+        setRefreshRequired(true);
       } finally {
         setPendingReservation("");
+        operationInFlight.current = false;
       }
     });
   }
 
   function moveGuest(guest: Guest, roomName: string) {
+    if (operationInFlight.current) return;
+    operationInFlight.current = true;
     setError("");
+    setRefreshRequired(false);
     setPendingGuest(guest.key);
     startTransition(async () => {
-      const previous = assignments;
       try {
+        const form = new FormData();
+        form.set("reservationId", guest.reservationId);
+        form.set("guestIndex", String(guest.guestIndex));
+        if (roomName) form.set("roomName", roomName);
+        const outcome = roomName ? await saveGuestLodgingPlacement(form) : await removeGuestLodgingPlacement(form);
+        if (!outcome.ok) {
+          setError(outcome.error); setRefreshRequired(Boolean(outcome.refreshRequired)); return;
+        }
         if (!roomName) {
           setAssignments((current) => current.filter(
             (item) => !(item.reservation_id === guest.reservationId && item.guest_index === guest.guestIndex),
           ));
-          const form = new FormData();
-          form.set("reservationId", guest.reservationId);
-          form.set("guestIndex", String(guest.guestIndex));
-          await removeGuestLodgingPlacement(form);
         } else {
+          const saved = outcome.assignment;
+          if (!saved) {
+            setError("L’attribution n’a pas pu être confirmée. Actualisez le plan pour vérifier son état.");
+            setRefreshRequired(true); return;
+          }
           setAssignments((current) => [
             ...current.filter((item) => !(item.reservation_id === guest.reservationId && item.guest_index === guest.guestIndex)),
-            {
-              id: assignmentFor(guest)?.id ?? `pending-${guest.key}`,
-              reservation_id: guest.reservationId,
-              guest_index: guest.guestIndex,
-              guest_name: guest.name,
-              room_name: roomName,
-              updated_at: new Date().toISOString(),
-            },
+            saved,
           ]);
-          const form = new FormData();
-          form.set("reservationId", guest.reservationId);
-          form.set("guestIndex", String(guest.guestIndex));
-          form.set("roomName", roomName);
-          const saved = await saveGuestLodgingPlacement(form);
-          setAssignments((current) => current.map((item) =>
-            item.reservation_id === guest.reservationId && item.guest_index === guest.guestIndex ? saved : item,
-          ));
         }
         router.refresh();
-      } catch (caught) {
-        setAssignments(previous);
-        setError(caught instanceof Error ? caught.message : "Le placement n’a pas pu être enregistré.");
+      } catch {
+        setError("La connexion a été interrompue. Actualisez le plan pour vérifier le placement avant de réessayer.");
+        setRefreshRequired(true);
       } finally {
         setPendingGuest("");
+        operationInFlight.current = false;
       }
     });
   }
@@ -148,12 +153,14 @@ export default function LodgingGuestPlanner({
         <p>Placez chaque réservation active, indépendamment du paiement, puis confirmez-la lorsque tous ses voyageurs ont une chambre.</p>
       </div>
 
-      {error && <p className={styles.plannerError} role="alert">{error}</p>}
+      {error && <div className={styles.plannerError} role="alert"><p>{error}</p>
+        {refreshRequired && <button type="button" disabled={pending} onClick={() => router.refresh()}>Actualiser le plan</button>}
+      </div>}
 
       <div className={styles.guestGroups}>
         {workQueue.map((reservation) => {
           const group = guestsFor(reservation);
-          const placed = group.filter((guest) => assignmentFor(guest)).length;
+          const placed = group.filter((guest) => placementCoversNights(assignmentFor(guest), guest.nights)).length;
           const complete = placed === group.length;
           const statusLabel = placed === 0 ? "À placer" : "Placement en cours";
           return (
@@ -172,16 +179,19 @@ export default function LodgingGuestPlanner({
                       key={guest.key}
                       onDragStart={(event) => event.dataTransfer.setData("text/plain", guest.key)}
                     >
-                      <span><strong>{guest.name}</strong><small>{assignment ? assignment.room_name : "Non placé"}</small></span>
+                      <span><strong>{guest.name}</strong><small>{assignment ? `${assignment.room_name}${placementCoversNights(assignment, guest.nights) ? "" : " · nuits à compléter"}` : "Non placé"}</small></span>
                       <select
                         aria-label={`Chambre de ${guest.name}`}
-                        disabled={pendingGuest === guest.key}
+                        disabled={pending}
+                        aria-busy={pendingGuest === guest.key}
                         value={assignment?.room_name ?? ""}
                         onChange={(event) => moveGuest(guest, event.target.value)}
                       >
                         <option value="">Non placé</option>
                         {LODGING_ROOMS.map((room) => <option key={room.name} value={room.name}>{room.name}</option>)}
                       </select>
+                      {assignment && !placementCoversNights(assignment, guest.nights) && <button type="button" disabled={pending}
+                        className={styles.placementStatusLink} onClick={() => moveGuest(guest, assignment.room_name)}>Compléter les nuits</button>}
                     </div>
                   );
                 })}
@@ -194,7 +204,7 @@ export default function LodgingGuestPlanner({
                 </small>
                 <button
                   className={styles.finalizePlacementButton}
-                  disabled={!complete || pendingReservation === reservation.id}
+                  disabled={!complete || pending}
                   onClick={() => finalizePlacement(reservation)}
                   type="button"
                 >
@@ -233,7 +243,7 @@ export default function LodgingGuestPlanner({
           {LODGING_ROOMS.map((room) => {
             const roomGuests = assignments.filter((assignment) =>
               assignment.room_name === room.name &&
-              eligibleReservations.some((reservation) => reservation.id === assignment.reservation_id),
+              reservations.some((reservation) => reservation.id === assignment.reservation_id && reservation.booking_status === "active"),
             );
             const friday = occupancy(room.name, "2027-05-28");
             const saturday = occupancy(room.name, "2027-05-29");

@@ -3,7 +3,8 @@
   "git": {
     "deploymentEnabled": {
       "feat/weekly-wedding-digest": false,
-      "fix/admin-registration-edit": false
+      "fix/admin-registration-edit": false,
+      "fix/placement-invites": false
     }
   },
   "crons": [

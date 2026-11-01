@@ -571,6 +571,7 @@ export default async function AdminPage({
           </div>
 
           <LodgingGuestPlanner
+            key={JSON.stringify([lodgingReservations.map(r => [r.id, r.updated_at]), lodgingGuestAssignments.map(a => [a.id, a.updated_at, a.assigned_nights])])}
             reservations={lodgingReservations}
             initialAssignments={lodgingGuestAssignments}
           />
