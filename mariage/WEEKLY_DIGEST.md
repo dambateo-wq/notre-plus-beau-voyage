@@ -1,4 +1,6 @@
-# Bilan hebdomadaire autonome — proposition à valider
+# Bilan hebdomadaire autonome
+
+**État au 1er novembre 2026 : Gmail testé en production, planification QStash encore à activer.** Voir [le compte rendu de mise en service](WEEKLY_DIGEST_ACTIVATION.md), qui fait foi pour l'état actuel. Les sections datées ci-dessous conservent l'historique de préparation ; leurs mentions d'absence d'envoi ou d'encaissements inconnus décrivent ces contrôles antérieurs.
 
 Branche : `feat/weekly-wedding-digest`. Accord de migration et de déploiement reçu le 29 octobre 2026, avec les envois désactivés. Le compte rendu de mise en service doit distinguer les migrations réellement appliquées, le déploiement et l'activation de la planification. Aucun envoi réel ni planification distante n'est activé par cet accord.
 
