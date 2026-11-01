@@ -17,8 +17,9 @@ import {
   mapWithConcurrency,
   recordWeddingEmailDelivery,
 } from "@/lib/admin-email";
-import { deleteLodgingReservation, getLodgingAssignments, getLodgingGuestAssignments, getLodgingReservations, placeLodgingGuest as persistLodgingGuest, saveLodgingAssignment, unplaceLodgingGuest as removeLodgingGuest, updateLodgingReservation } from "@/lib/lodging";
+import { deleteLodgingReservation, getLodgingAssignments, getLodgingReservations, saveLodgingAssignment, updateLodgingReservation } from "@/lib/lodging";
 import { getRoomCapacity, LODGING_ROOM_NAMES } from "@/lib/lodging-rooms";
+import { performAdminLodgingPlacement, type PlacementActionResult, type PlacementOperation } from "@/lib/admin-lodging-placement";
 import { reviewLodgingChange } from "@/lib/registration";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
@@ -406,101 +407,29 @@ export async function saveLodgingPlacement(formData: FormData) {
   revalidatePath("/admin");
 }
 
-export async function saveGuestLodgingPlacement(formData: FormData) {
-  if (!(await isAdminAuthenticated())) redirect("/admin");
-  const reservationId = String(formData.get("reservationId") ?? "");
-  const guestIndex = Number(formData.get("guestIndex"));
-  const roomName = String(formData.get("roomName") ?? "");
-  if (
-    !/^[0-9a-f-]{36}$/i.test(reservationId) ||
-    !Number.isInteger(guestIndex) || guestIndex < 1 || guestIndex > 20 ||
-    !LODGING_ROOM_NAMES.includes(roomName as never)
-  ) throw new Error("Le placement individuel est invalide.");
-
-  const reservations = await getLodgingReservations();
-  const reservation = reservations.find((item) => item.id === reservationId);
-  if (
-    !reservation ||
-    reservation.booking_status !== "active" ||
-    reservation.financial_review_status === "pending"
-  ) {
-    throw new Error("Cette réservation ne peut pas être placée.");
+async function placementAction(operation: PlacementOperation, formData: FormData): Promise<PlacementActionResult> {
+  try {
+    if (!(await isAdminAuthenticated())) return { ok: false, error: "Votre session administrateur a expiré. Reconnectez-vous depuis /admin." };
+    return await performAdminLodgingPlacement(operation, formData);
+  } catch {
+    return { ok: false, refreshRequired: true, error: "La connexion a été interrompue. Actualisez le plan pour vérifier le placement avant de réessayer." };
   }
+}
 
-  await updateLodgingReservation(reservationId, { placement_status: "in_progress" });
-  const assignment = await persistLodgingGuest(reservationId, guestIndex, roomName);
-  revalidatePath("/admin");
-  return assignment;
+export async function saveGuestLodgingPlacement(formData: FormData) {
+  return placementAction("place", formData);
 }
 
 export async function removeGuestLodgingPlacement(formData: FormData) {
-  if (!(await isAdminAuthenticated())) redirect("/admin");
-  const reservationId = String(formData.get("reservationId") ?? "");
-  const guestIndex = Number(formData.get("guestIndex"));
-  if (!/^[0-9a-f-]{36}$/i.test(reservationId) || !Number.isInteger(guestIndex)) {
-    throw new Error("Le placement individuel est invalide.");
-  }
-  await updateLodgingReservation(reservationId, { placement_status: "in_progress" });
-  await removeLodgingGuest(reservationId, guestIndex);
-  revalidatePath("/admin");
+  return placementAction("remove", formData);
 }
 
 export async function finalizeLodgingPlacement(formData: FormData) {
-  if (!(await isAdminAuthenticated())) redirect("/admin");
-  const reservationId = String(formData.get("reservationId") ?? "");
-  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(reservationId)) {
-    throw new Error("Cette réservation est invalide.");
-  }
-
-  const [reservations, assignments] = await Promise.all([
-    getLodgingReservations(),
-    getLodgingGuestAssignments(),
-  ]);
-  const reservation = reservations.find((item) => item.id === reservationId);
-  if (
-    !reservation ||
-    reservation.booking_status !== "active" ||
-    reservation.financial_review_status === "pending"
-  ) {
-    throw new Error("Cette réservation ne peut pas être finalisée.");
-  }
-
-  const assignedIndexes = new Set(
-    assignments
-      .filter((assignment) => assignment.reservation_id === reservationId)
-      .map((assignment) => assignment.guest_index),
-  );
-  const everyGuestIsPlaced = Array.from(
-    { length: reservation.guests_count },
-    (_, index) => index + 1,
-  ).every((guestIndex) => assignedIndexes.has(guestIndex));
-  if (!everyGuestIsPlaced || assignedIndexes.size !== reservation.guests_count) {
-    throw new Error("Tous les voyageurs doivent être affectés avant de confirmer.");
-  }
-
-  await updateLodgingReservation(reservationId, { placement_status: "finalized" });
-  revalidatePath("/admin");
+  return placementAction("finalize", formData);
 }
 
 export async function reopenLodgingPlacement(formData: FormData) {
-  if (!(await isAdminAuthenticated())) redirect("/admin");
-  const reservationId = String(formData.get("reservationId") ?? "");
-  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(reservationId)) {
-    throw new Error("Cette réservation est invalide.");
-  }
-
-  const reservations = await getLodgingReservations();
-  const reservation = reservations.find((item) => item.id === reservationId);
-  if (
-    !reservation ||
-    reservation.booking_status !== "active" ||
-    reservation.financial_review_status === "pending"
-  ) {
-    throw new Error("Cette réservation ne peut pas être modifiée.");
-  }
-
-  await updateLodgingReservation(reservationId, { placement_status: "in_progress" });
-  revalidatePath("/admin");
+  return placementAction("reopen", formData);
 }
 
 export async function reviewLodgingModification(formData: FormData) {

@@ -12,6 +12,10 @@ export type PlacementUpsert = {
   assignedNights?: string[] | null;
 };
 
+export function placementCoversNights(assignment: PlacementAssignment | undefined, nights: string[]) {
+  return Boolean(assignment && nights.length > 0 && nights.every(night => (assignment.assigned_nights ?? nights).includes(night)));
+}
+
 function comparableName(value: string) {
   return value.trim().toLocaleLowerCase("fr");
 }
