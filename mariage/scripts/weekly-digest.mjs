@@ -10,29 +10,16 @@ if (parsed.username || parsed.password || parsed.search || parsed.hash || parsed
   throw new Error('Use the verified wedding origin or a local development server.');
 }
 const [command, value] = process.argv.slice(2);
-const cron = 'CRON_TZ=Europe/Paris 0 18 * * 0';
+const cron = '0-12 16-17 * * 0';
 const destination = `${parsed.origin}/api/cron/weekly-digest`;
 
 if (command === 'schedule-plan' || !command) {
-  console.log(JSON.stringify({ cron, destination, provider: 'QStash (scheduler only)', email: 'existing Gmail / sendWeddingEmail', retries: 3, retryDelayMs: 60000, applied: false }, null, 2));
+  console.log(JSON.stringify({ cron, schedulerTimeZone: 'UTC', localTime: 'Sunday 18:00 Europe/Paris',
+    calendarGuard: 'wedding_digest_scheduler.due_period', destination, provider: 'Supabase Cron (existing wedding project)',
+    email: 'existing Gmail / sendWeddingEmail', maxHttpAttempts: 4, retryWindowMinutes: 10,
+    setup: 'Apply weekly_digest_supabase_cron inactive, provision Vault, verify, then activate the named job.', applied: false }, null, 2));
 } else if (command === 'schedule-apply') {
-  if (value !== '--approved') throw new Error('Explicit deployment/scheduler approval is required: schedule-apply --approved');
-  if (loopback) throw new Error('Schedules cannot target a local server.');
-  if (process.env.WEEKLY_DIGEST_ENABLED !== 'true') throw new Error('Approve and enable the production deployment before scheduling.');
-  const token = process.env.QSTASH_TOKEN;
-  const secret = process.env.WEEKLY_DIGEST_CRON_SECRET;
-  if (!token || !secret || secret.length < 32) throw new Error('Missing scheduler credentials.');
-  const response = await fetch(`https://qstash.upstash.io/v2/schedules/${destination}`, {
-    method: 'POST', redirect: 'error',
-    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json',
-      'Upstash-Cron': cron, 'Upstash-Schedule-Id': 'notre-plus-beau-voyage-weekly-digest',
-      'Upstash-Forward-Authorization': `Bearer ${secret}`,
-      'Upstash-Retries': '3', 'Upstash-Retry-Delay': '60000', 'Upstash-Timeout': '55s' },
-    body: '{}',
-  });
-  if (!response.ok) throw new Error(`Scheduler configuration failed (${response.status}); no secrets logged.`);
-  const result = await response.json();
-  console.log(JSON.stringify({ applied: true, scheduleId: result.scheduleId, cron, destination }));
+  throw new Error('The scheduler is managed in the existing Supabase project. Follow WEEKLY_DIGEST_ACTIVATION.md; this command makes no remote changes.');
 } else if (command === 'preview' || command === 'test') {
   const secret = process.env.WEEKLY_DIGEST_TEST_SECRET;
   if (!secret || secret.length < 32) throw new Error('WEEKLY_DIGEST_TEST_SECRET is required.');
@@ -52,4 +39,4 @@ if (command === 'schedule-plan' || !command) {
     await writeFile(output, result.html, { mode: 0o600 });
     console.log(JSON.stringify({ preview: output, subject: result.subject, sent: false, warnings: result.digest.warnings }));
   } else console.log(JSON.stringify(result));
-} else throw new Error('Commands: schedule-plan, schedule-apply --approved, preview [path], test <stable-test-key>');
+} else throw new Error('Commands: schedule-plan, preview [path], test <stable-test-key>');

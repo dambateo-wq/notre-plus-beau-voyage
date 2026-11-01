@@ -4,7 +4,8 @@
     "deploymentEnabled": {
       "feat/weekly-wedding-digest": false,
       "fix/admin-registration-edit": false,
-      "fix/placement-invites": false
+      "fix/placement-invites": false,
+      "chore/activate-weekly-digest": false
     }
   },
   "crons": [

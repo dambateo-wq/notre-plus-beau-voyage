@@ -1,4 +1,6 @@
-# Bilan hebdomadaire autonome — proposition à valider
+# Bilan hebdomadaire autonome
+
+**Planificateur retenu : Supabase Cron, dans le projet mariage existant.** Voir [le compte rendu de mise en service](WEEKLY_DIGEST_ACTIVATION.md), qui fait foi pour l'état actuel. Les sections d'audit datées ci-dessous conservent l'historique de préparation ; leurs mentions d'absence d'envoi ou d'encaissements inconnus décrivent ces contrôles antérieurs. Aucun compte Upstash ni abonnement d'e-mail n'est nécessaire.
 
 Branche : `feat/weekly-wedding-digest`. Accord de migration et de déploiement reçu le 29 octobre 2026, avec les envois désactivés. Le compte rendu de mise en service doit distinguer les migrations réellement appliquées, le déploiement et l'activation de la planification. Aucun envoi réel ni planification distante n'est activé par cet accord.
 
@@ -27,20 +29,21 @@ Une page privée `/admin/bilan-hebdomadaire` permet la vérification des encaiss
 
 Les contrôles du plan de chambres existant continuent à réserver une chambre de façon conservatrice sur toutes les nuits demandées. La page du bilan permet de préciser la couverture réelle pour le bilan ; elle ne remplace pas un futur plan de chambres permettant des changements de chambre nuit par nuit.
 
-## Architecture proposée
+## Architecture retenue
 
-QStash déclenche la route Vercel `POST /api/cron/weekly-digest` avec `CRON_TZ=Europe/Paris 0 18 * * 0`. Il ne transporte aucune donnée d'invité : seulement `{}` et un secret d'exécution. Supabase fournit un snapshot cohérent côté serveur ; l'application calcule et met en forme le bilan ; le Gmail existant envoie séparément le même contenu aux deux adresses fixes.
+Supabase Cron déclenche la route Vercel `POST /api/cron/weekly-digest`. Les extensions `pg_cron` et `pg_net` sont activées dans la base actuelle, sans changement d'adresse ni de clés Supabase. Le secret de déclenchement est chiffré dans Vault et synchronisé avec la variable privée Vercel dédiée. Le POST contient seulement `{}` et son en-tête d'authentification. L'application conserve le snapshot, les calculs, le journal des envois et le Gmail existants.
 
-- QStash Free : 1 000 messages par jour et 10 planifications au moment de l'audit, largement au-dessus de cet usage. Les reprises comptent comme livraisons. Pas de nouvel abonnement d'e-mail, pas d'IA. Un compte QStash reste à créer/configurer avec accord de l'utilisateur.
+- Aucun compte ni service supplémentaire : le planificateur utilise les ressources du projet Supabase actuel. Aucun abonnement payant ni SDK d'envoi n'est ajouté.
 - Le déclenchement est réglé à 18 h locale avec gestion été/hiver, pas à une heure UTC fixe. Aucun hébergeur gratuit ni SMTP/Gmail ne garantit une arrivée en boîte à la seconde exacte. Une panne peut retarder ou empêcher l'envoi ; cette limite ne doit pas être présentée comme une garantie de temps réel.
-- Trois reprises QStash espacées d'une minute. En cas d'échec persistant, consulter sa DLQ (rétention gratuite limitée) et le journal Supabase. Le cron de maintien existant empêche normalement la pause pour inactivité ; contrôler ce maintien et les quotas avant activation.
+- La tâche SQL `0-12 16-17 * * 0`, dans le fuseau Cron GMT existant, couvre les deux heures UTC possibles. `due_period()` vérifie le dimanche à 18 h en `Europe/Paris` avant tout appel HTTP ; la mauvaise heure est ignorée. Au maximum quatre appels HTTP sont autorisés pendant les dix premières minutes, avec au moins une minute entre les tentatives et respect du verrou applicatif. Les minutes 11/12 enregistrent seulement les résultats réseau. Une campagne envoyée ou incertaine arrête les appels. Le maintien Supabase existant reste inchangé.
+- Un schéma privé `wedding_digest_scheduler` contient le calendrier, le déclencheur et un journal technique sans noms ni secrets. Aucun accès des rôles API ; aucun changement des tables d'inscriptions, réservations, paiements ou attributions.
 
 Références :
 
 - https://vercel.com/docs/cron-jobs/usage-and-pricing
-- https://upstash.com/docs/qstash/features/schedules
-- https://upstash.com/docs/qstash/features/retry
-- https://upstash.com/pricing/qstash
+- https://supabase.com/docs/guides/cron
+- https://supabase.com/docs/guides/database/extensions/pg_net
+- https://supabase.com/docs/guides/database/vault
 
 ## Calculs et sécurité
 
@@ -75,7 +78,6 @@ Nouvelles :
 | `WEEKLY_DIGEST_TEST_SECRET` | secret distinct d'au moins 32 caractères pour le CLI manuel |
 | `WEEKLY_DIGEST_DAMIEN_EMAIL` | l'adresse Gmail de Damien donnée dans la demande, exclusivement côté serveur |
 | `WEEKLY_DIGEST_JULIE_EMAIL` | l'adresse Gmail de Julie donnée dans la demande, exclusivement côté serveur |
-| `QSTASH_TOKEN` | uniquement dans l'environnement exécutant le script de configuration ; inutile dans Vercel à l'exécution |
 | `WEDDING_SITE_URL` | CLI : origine officielle ci-dessus ; adresse locale autorisée hors production |
 | `WEEKLY_DIGEST_PERIOD_END` | CLI facultatif : dimanche 18 h Paris au format ISO pour un aperçu/test ciblé |
 
@@ -83,7 +85,9 @@ Ne pas placer les secrets dans les arguments de commandes ou les fichiers suivis
 
 Les deux adresses privées ne sont pas publiées en clair dans le dépôt GitHub public. Seul le serveur les lit depuis les variables ci-dessus ; le journal utilise les identifiants fixes `damien` et `julie`. Ni le corps du test ni l'appel planifié ne peuvent fournir d'autres destinataires.
 
-## Validation avant mise en service (accord requis)
+## Validation initiale du 28–29 octobre (historique)
+
+Cette préparation initiale est conservée pour traçabilité. Les migrations déjà appliquées et l'initialisation historique ne doivent pas être rejouées. La mise en service actuelle suit `WEEKLY_DIGEST_ACTIVATION.md`.
 
 1. Relire la branche, la migration et les formulaires ajoutés ; obtenir l'accord avant migration, fusion et production.
 2. Appliquer **seulement** la nouvelle migration sur la base existante après sauvegarde approuvée. Ne pas lancer tout le dossier historique : il ne contient pas un historique CLI complet.
@@ -98,14 +102,14 @@ Commandes (depuis `mariage/`, secrets déjà présents dans l'environnement) :
 ```bash
 node tests/weekly-digest.mjs
 node tests/weekly-digest-sql.mjs
+node tests/weekly-digest-supabase-cron.mjs
 node tests/admin-reservation-edit.mjs
 npm run build
 node tests/weekly-digest-http.mjs
 node scripts/weekly-digest.mjs schedule-plan
 node scripts/weekly-digest.mjs preview /tmp/bilan-prive.html
 node scripts/weekly-digest.mjs test controle-gmail-2026-11-01
-# À exécuter uniquement après accord et configuration des variables :
-node scripts/weekly-digest.mjs schedule-apply --approved
+# La création/activation du planificateur est désormais gérée dans Supabase.
 ```
 
 L'aperçu local peut contenir des noms : garder ce fichier privé, ne pas le committer ni le publier. Le script ne lit pas les clés SMTP ou Supabase.
@@ -116,7 +120,7 @@ Calculs des personnes/formulaires, bornes de création, absences, homonymes, nui
 
 Validés localement le 28 octobre 2026 : tests unitaires, migration/journal dans PostgreSQL isolé, compilation Next.js de production, contrôle TypeScript, lint des nouveaux modules et tests HTTP des routes compilées. Aucune connexion SMTP réelle n'est utilisée par ces tests. Les confirmations existantes dans `lib/email.ts` sont contrôlées comme inchangées.
 
-Les tests de réception/rendu dans les deux boîtes Gmail, l'aperçu nominatif en production et l'activation du dimanche restent à effectuer après accord. La présentation HTML utilise le cadre existant, des styles en ligne et un bouton d'administration placé dès le résumé et en fin de message. Le navigateur de travail n'a pas autorisé l'ouverture du fichier HTML local ; aucune validation visuelle Gmail ou téléphone n'est donc revendiquée.
+Le test réel et l'aperçu de production du 1er novembre sont décrits dans le compte rendu de mise en service ; la présentation du mail a été validée par l'organisateur. Les nouveaux tests isolés du planificateur exécutent sa logique SQL réelle avec des interfaces Cron/HTTP simulées : changements d'heure, refus hors créneau, reprises bornées, verrou expiré, arrêt sur `sent`/`uncertain`/`disabled`, droits privés et conservation des données. Le contrôle en production vérifie séparément les vraies extensions et le trajet HTTP.
 
 ## Consulter les résultats et reprendre après une panne
 
@@ -131,9 +135,16 @@ from public.wedding_digest_deliveries order by started_at desc nulls last limit 
 
 select run_key, event, created_at
 from public.wedding_digest_events order by created_at desc limit 100;
+
+select period_end, attempt, queued_at, checked_at, http_status, endpoint_status, error_code
+from wedding_digest_scheduler.dispatches order by queued_at desc limit 20;
+
+select jobid, jobname, schedule, active from cron.job;
+select jobid, status, start_time, end_time, return_message
+from cron.job_run_details order by start_time desc limit 20;
 ```
 
-Une campagne `sent` et ses deux destinataires `sent` confirment l'acceptation SMTP et l'enregistrement du résultat, pas la lecture ni l'absence de filtrage dans Gmail. Un échec certain avant envoi peut être repris avec la même référence de test ou par QStash pendant la fenêtre autorisée ; le contenu et les destinataires déjà envoyés sont conservés. Après expiration des reprises, examiner la DLQ et le code d'erreur avant une reprise volontaire. Le déclenchement planifié refuse un bilan de plus de 24 h ; utiliser le test privé avec une période explicite pour un rattrapage décidé manuellement.
+Une campagne `sent` et ses deux destinataires `sent` confirment l'acceptation SMTP et l'enregistrement du résultat, pas la lecture ni l'absence de filtrage dans Gmail. Un échec certain avant envoi peut être repris avec la même référence de test ou par Supabase Cron pendant sa fenêtre de reprise ; le contenu et les destinataires déjà envoyés sont conservés. Après expiration des reprises, examiner les journaux de campagne, de transport et de Cron avant une reprise volontaire. La route planifiée refuse un bilan de plus de 24 h ; utiliser le test privé avec une période explicite pour un rattrapage décidé manuellement.
 
 Pour un statut `uncertain`, vérifier d'abord les messages envoyés dans Gmail. Ne pas effacer les marqueurs ni changer de référence afin de forcer une reprise. Une remise en état ou un envoi de rattrapage nécessite une décision explicite sur les destinataires encore à contacter. Le programme ne masque pas cette ambiguïté par un double envoi.
 
@@ -148,8 +159,10 @@ Chemins ci-dessous relatifs à `mariage/`.
 | `app/api/admin/weekly-digest/route.ts` | Aperçu privé et test manuel |
 | `app/admin/bilan-hebdomadaire/page.tsx`, `actions.ts` | Aperçu, test et vérification explicite des informations manquantes |
 | `supabase/migrations/20261028215411_weekly_wedding_digest.sql` | Champs et journal privé ; appliquée après accord |
+| `supabase/migrations/20261101184623_weekly_digest_supabase_cron.sql` | Ajouts du planificateur privé dans la base existante ; tâche créée inactive |
 | `scripts/weekly-digest.mjs` | Plan de configuration, aperçu et test depuis le terminal |
 | `tests/weekly-digest-loader.mjs`, `weekly-digest.mjs`, `weekly-digest-sql.mjs`, `weekly-digest-http.mjs` | Vérifications isolées et routes compilées |
+| `tests/weekly-digest-supabase-cron.mjs` | Calendrier, transport, reprises, droits et conservation des données |
 | `WEEKLY_DIGEST.md` | Audit, variables, limites et procédure de mise en service |
 
 | Fichiers modifiés | Rôle |
@@ -165,4 +178,4 @@ L'édition des réservations demandée ensuite réutilise cette même branche. L
 
 Contrôles en base du 29 octobre : les fonctions privées de lecture et d'édition sont présentes, leur exécution publique est interdite, l'historique et le journal sont privés. Aucun bilan ni changement administrateur n'a été enregistré pendant la mise en place. L'initialisation des encaissements historiques à 0 a été refusée par le contrôle automatique faute d'accord portant explicitement sur cette mutation financière ; les valeurs restent donc inconnues. Les envois et la planification demeurent désactivés.
 
-Après validation des données, déploiement approuvé, configuration des secrets et activation de la planification, l'exécution normale dépend uniquement de QStash, Vercel, Supabase et du Gmail déjà configuré. Aucune session utilisateur, visite du site, IA ou ouverture de ChatGPT n'est nécessaire. Les comptes, quotas et secrets doivent rester valides ; les pannes SMTP ambiguës conservent la limite décrite ci-dessus.
+Après activation de la planification, l'exécution normale dépend uniquement de Supabase, Vercel et du Gmail déjà configuré. Aucune session utilisateur, visite du site, IA ou ouverture de ChatGPT n'est nécessaire. Les comptes, quotas et secrets doivent rester valides ; les pannes SMTP ambiguës conservent la limite décrite ci-dessus.
